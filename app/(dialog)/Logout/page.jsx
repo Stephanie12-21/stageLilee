@@ -1,4 +1,4 @@
-"use client"; // Ajoute ceci au tout début du fichier
+"use client";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -33,10 +33,7 @@ export function Logout() {
           </DialogDescription>
         </DialogHeader>
         <DialogFooter className="flex flex-col">
-          {/* Bouton pour confirmer la déconnexion */}
           <Button onClick={handleSignOut}>Oui, je veux me déconnecter</Button>
-
-          {/* Bouton pour rester connecté */}
           <Button
             className="w-full bg-transparent text-black border border-black hover:bg-black hover:text-white"
             onClick={() => router.back()}

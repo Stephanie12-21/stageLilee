@@ -12,6 +12,7 @@ import { ImagePlus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getSession, useSession } from "next-auth/react";
 
+
 const UserProfilePreview = () => {
   const router = useRouter();
   const { id: userId } = useParams();
@@ -463,11 +464,3 @@ const CodeVerificationDialog = ({ onVerify, onCancel }) => {
     </div>
   );
 };
-
-
-
-// const PageDeProfil = () => {
-//   return <div>PageDeProfil</div>;
-// };
-
-// export default PageDeProfil;

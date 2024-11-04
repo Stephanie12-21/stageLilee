@@ -1,21 +1,27 @@
-import { Home, ShoppingCart, Package, Users, LineChart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
+import {
+  FaBullhorn,
+  FaChartLine,
+  FaEnvelope,
+  FaHeart,
+  FaHome,
+} from "react-icons/fa";
 
 const DataLinkNav = [
-  { icon: Home, name: "Dashboard", href: "/personnel" },
-  { icon: ShoppingCart, name: "Orders", href: "/personnel/orders" },
-  { icon: Package, name: "Products", href: "/personnel/products" },
-  { icon: Users, name: "Customers", href: "/personnel/customers" },
-  { icon: LineChart, name: "Analytics", href: "/personnel/analytics" },
+  { icon: FaHome, name: "Dashboard", href: "/personnel" },
+  { icon: FaBullhorn, name: "Annonces", href: "/personnel/annonces" },
+  { icon: FaHeart, name: "Favoris", href: "/personnel/favoris" },
+  { icon: FaEnvelope, name: "Messages", href: "/personnel/messages" },
+  { icon: FaChartLine, name: "Transactions", href: "/personnel/transactions" },
 ];
 
 const Navigation = () => {
   const pathname = usePathname();
 
   return (
-    <nav className="grid items-start px-2 text-sm font-medium lg:px-4">
+    <nav className="grid items-start px-2 text-[16px] font-medium lg:px-4">
       <Linknav pathname={pathname} />
     </nav>
   );
