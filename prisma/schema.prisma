@@ -1,0 +1,171 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Pour le blog
+
+model article {
+  id              Int       @id @default(autoincrement())
+  titre           String
+  contenu         String
+  categorieArticle String
+  images          image[]  
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model image {
+  id        Int      @id @default(autoincrement())
+  path      String   
+  articleId Int      
+  article   article  @relation(fields: [articleId], references: [id])
+}
+
+// Pour les comptes
+
+model user {
+  id                 Int         @id @default(autoincrement())
+  nom                String
+  prenom             String
+  email              String      @unique
+  phone              String      @unique
+  hashPassword       String
+  role               role        
+  profileImages      profileImage[]
+  createdAt          DateTime    @default(now())
+  updatedAt          DateTime    @updatedAt
+  companyId          Int?       
+  company            company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  annonces           annonces[]  
+  commentaire        commentaire[]
+  //note               note[]
+}
+
+model company {
+  id              Int          @id @default(autoincrement())
+  siret           String       @unique
+  nomSociete      String       @unique
+  codePostal      String
+  adresse         String
+  ville           String
+  secteurActivite secteurActivite
+  typeSociete     typeSociete
+  users           user[]       
+}
+
+enum secteurActivite {
+  IMMOBILIER
+  VETEMENT
+  EMPLOI
+  SERVICE
+  VOITURE
+  LOISIR
+  MATERIEL
+  MOBILIER
+}
+
+enum role {
+  PERSO       // Pour les comptes perso
+  PRO         // Pour les comptes pro
+}
+
+enum typeSociete {
+  ENTREPRISE_INDIVIDUELLE
+  SOCIETE_PRIVEE
+  SOCIETE_PUBLIQUE
+  COOPERATIVE
+  ASSOCIATION
+}
+
+model profileImage {
+  id        Int      @id @default(autoincrement())
+  path      String   // URL ou chemin de l'image
+  userId    Int      // ID de l'utilisateur auquel l'image est associée
+  user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Pour le super admin
+
+model superadmin {
+  id                Int @id @default(autoincrement())
+  nom               String
+  prenom            String
+  phone             String @unique
+  email             String @unique
+  hashPassword      String
+  photoAdmin        photoAdmin[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+}
+
+model photoAdmin {
+  id              Int      @id @default(autoincrement())
+  path            String   // URL ou chemin de l'image
+  superadminId    Int      // ID de l'utilisateur auquel l'image est associée
+  superadmin      superadmin @relation(fields: [superadminId], references: [id])
+}
+
+// Pour les annonces
+model annonces {
+  id                Int          @id @default(autoincrement())
+  titre             String       @unique
+  description       String
+  localisation      String?
+  adresse           String
+  statut            statut?      @default(PUBLIEE)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  imageAnnonces     imageAnnonce[]
+  categorieAnnonce   categorieAnnonce
+  userId            Int          // Rendre userId non nullable
+  user              user          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  commentaire       commentaire[]
+  //note              note[]
+}
+
+enum statut {
+  PUBLIEE       
+  DESACTIVEE        
+}
+
+model imageAnnonce {
+  id            Int      @id @default(autoincrement())
+  path          String   
+  annoncesId    Int      
+  annonces      annonces  @relation(fields: [annoncesId], references: [id], onDelete: Cascade)
+}
+
+enum categorieAnnonce {
+  IMMOBILIER
+  VETEMENT
+  EMPLOI
+  SERVICE
+  VOITURE
+  LOISIR
+  MATERIEL
+  MOBILIER 
+  DONS    
+}
+
+model commentaire { 
+  id                Int       @id @default(autoincrement())
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  commentaire       String
+  note              Int?
+  annoncesId        Int
+  annonces          annonces   @relation(fields: [annoncesId], references: [id])
+  userId            Int
+  user              user      @relation(fields: [userId], references: [id])
+}
+
+
+
+
+// Fin du schéma
