@@ -8,6 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { MarcusAurelius, Logo } from "@/public/assets";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
@@ -16,6 +17,7 @@ import { useState } from "react";
 import { getSession, signIn, useSession } from "next-auth/react";
 import * as z from "zod";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const emailLoginSchema = z.object({
   email: z.string().email("Email invalide"),
@@ -34,7 +36,7 @@ export default function Login() {
     setIsPasswordVisible((prev) => !prev);
   };
 
-  const onSubmit = async () => {
+  const handleSubmit = async () => {
     try {
       console.log("Email:", email);
       console.log("Password:", password);
@@ -64,8 +66,10 @@ export default function Login() {
         router.push("/personnel");
       } else if (role === "PRO") {
         router.push("/professionel");
-      } else {
+      } else if (role === "ADMIN") {
         router.push("/admin");
+      } else {
+        router.push("/login");
       }
 
       router.refresh();
@@ -79,79 +83,89 @@ export default function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-fit p-10">
-        <CardHeader>
-          <CardTitle>Connexion avec un email</CardTitle>
-          <CardDescription>
-            Veuillez saisir votre email et votre mot de passe pour accéder à
-            votre compte
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-2">
-          <div className="space-y-2">
-            <Label
-              htmlFor="email"
-              className="text-right font-medium text-[16px]"
-            >
-              Votre adresse email
-            </Label>
+    <div className="w-full h-screen lg:grid lg:grid-cols-2">
+      <Image
+        src={Logo}
+        width="200"
+        height="100"
+        alt="Logo Lilee"
+        className="absolute top-4 left-40 max-md:left-8 h-[70px]"
+      />
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="mx-auto grid w-[350px] gap-9 max-md:px-8">
+          <div className="grid gap-2 text-center">
+            <h1 className="text-2xl font-bold max-md:text-start">
+              Bon retour parmi nous
+            </h1>
+            <p className="text-balance text-muted-foreground max-md:text-start">
+              Accédez à votre compte pour découvrir les dernières nouveautés.
+            </p>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="email">Votre adresse email</Label>
             <Input
               id="email"
               placeholder="email@gmail.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-[#edf2f7] text-[15px] font-medium"
+              className="bg-white p-2 border border-gray-300 rounded"
             />
           </div>
-          <div className="space-y-2 relative pt-4">
-            <div>
-              <Label
-                htmlFor="password"
-                className="text-right font-medium text-[16px]"
-              >
-                Votre mot de passe
-              </Label>
 
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={isPasswordVisible ? "text" : "password"}
-                  placeholder="*******"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  className="w-full bg-[#edf2f7] pr-10 text-[17px] font-medium"
-                />
-                <div
-                  className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
-                  onClick={togglePasswordVisibility}
-                >
-                  {isPasswordVisible ? (
-                    <Eye className="w-5 h-5 text-gray-600" />
-                  ) : (
-                    <EyeOff className="w-5 h-5 text-gray-600" />
-                  )}
-                </div>
-              </div>
-            </div>
-            <div>
-              <Link href="/forgotpassword" className="hover:underline">
+          <div className="grid gap-2">
+            <div className="flex items-center">
+              <Label htmlFor="password">Votre mot de passe</Label>
+              <Link
+                href="/forgot-password"
+                className="ml-auto inline-block text-[16px] underline"
+              >
                 Mot de passe oublié?
               </Link>
             </div>
+            <div className="relative">
+              <Input
+                id="password"
+                type={isPasswordVisible ? "text" : "password"}
+                placeholder="*******"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="bg-white p-2 border border-gray-300 rounded"
+              />
+              <div
+                className="absolute inset-y-0 right-3 flex items-center cursor-pointer"
+                onClick={togglePasswordVisibility}
+              >
+                {isPasswordVisible ? (
+                  <Eye className="w-5 h-5 text-gray-600" />
+                ) : (
+                  <EyeOff className="w-5 h-5 text-gray-600" />
+                )}
+              </div>
+            </div>
           </div>
-        </CardContent>
-        <CardFooter className="flex flex-col items-center justify-center gap-3">
-          <Button onClick={onSubmit} className="w-full">
+          <Button onClick={handleSubmit} className="w-full">
             Se connecter
           </Button>
-          <Link href="/signup/" className="w-full">
-            <Button className="w-full bg-transparent text-black border border-black hover:bg-black hover:text-white">
+
+          <div className="mt-8 text-center text-[16px]">
+            Vous êtes nouveau? Venez nous rejoindre
+            <br />
+            <Link href="/signup" className="underline">
               Créer un compte
-            </Button>
-          </Link>
-        </CardFooter>
-      </Card>
+            </Link>
+          </div>
+        </div>
+      </div>
+      <div className="block max-lg:hidden bg-muted overflow-hidden">
+        <Image
+          src={MarcusAurelius}
+          alt="Image"
+          width="1920"
+          height="1080"
+          className="h-full w-full object-cover dark:brightness-[0.2] dark:grayscale"
+        />
+      </div>
     </div>
   );
 }

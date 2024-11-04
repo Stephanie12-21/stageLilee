@@ -71,8 +71,9 @@ enum secteurActivite {
 }
 
 enum role {
-  PERSO       // Pour les comptes perso
-  PRO         // Pour les comptes pro
+  PERSO     
+  PRO 
+  ADMIN       
 }
 
 enum typeSociete {
@@ -90,26 +91,7 @@ model profileImage {
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
-// Pour le super admin
 
-model superadmin {
-  id                Int @id @default(autoincrement())
-  nom               String
-  prenom            String
-  phone             String @unique
-  email             String @unique
-  hashPassword      String
-  photoAdmin        photoAdmin[]
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
-}
-
-model photoAdmin {
-  id              Int      @id @default(autoincrement())
-  path            String   // URL ou chemin de l'image
-  superadminId    Int      // ID de l'utilisateur auquel l'image est associée
-  superadmin      superadmin @relation(fields: [superadminId], references: [id])
-}
 
 // Pour les annonces
 model annonces {

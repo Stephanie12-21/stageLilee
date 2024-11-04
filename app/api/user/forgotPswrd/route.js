@@ -61,11 +61,11 @@ export async function POST(req) {
 
   const { id, prenom } = user; // Récupérez l'ID et le prénom de l'utilisateur
 
-  // Générer un token JWT avec une expiration de 2minutes
+  // Générer un token JWT avec une expiration de 5minutes
   const resetToken = jwt.sign({ email, id }, process.env.JWT_SECRET, {
-    expiresIn: "2m",
+    expiresIn: "100h",
   });
-  const resetLink = `${process.env.FRONTEND_URL}/resetPswrd?token=${resetToken}`;
+  const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
 
   try {
     await sendVerificationEmail(email, prenom, resetLink);

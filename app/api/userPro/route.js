@@ -84,6 +84,18 @@ export async function POST(req) {
       );
     }
 
+    // Vérification si le numéro de téléphone existe déjà
+    const existingCompany = await db.company.findUnique({
+      where: { siret },
+    });
+    if (existingCompany) {
+      console.log("Numéro de siret déjà utilisé");
+      return NextResponse.json(
+        { message: "Un compte pro avec ce numéro de siret existe déjà." },
+        { status: 409 }
+      );
+    }
+
     // Hachage du mot de passe
     const hashedPassword = await hash(password, 10);
 

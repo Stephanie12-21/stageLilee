@@ -13,9 +13,12 @@ export async function POST(req) {
     const email = body.get("email");
     const phone = body.get("phone");
     const password = body.get("password");
-    const role = body.get("role");
-    const imageFile = body.get("imageFile"); // Récupérer l'image
+    const imageFile = body.get("imageFile");
 
+    const validRoles = ["ADMIN", "PERSO", "PRO"];
+    const role = validRoles.includes(body.get("role"))
+      ? body.get("role")
+      : null;
     console.log("Données reçues :", {
       nom,
       prenom,
@@ -83,6 +86,13 @@ export async function POST(req) {
       }
     } else {
       console.log("Aucune image fournie pour l'upload.");
+    }
+
+    if (!role) {
+      return NextResponse.json(
+        { message: "Le rôle fourni est invalide." },
+        { status: 400 }
+      );
     }
 
     // Création de l'utilisateur

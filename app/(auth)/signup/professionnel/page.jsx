@@ -412,6 +412,7 @@ const SignUpPage = () => {
   const handlePrevPage = () => {
     router.push("/signup");
   };
+
   const togglePasswordVisibility = () => {
     setIsPasswordVisible((prev) => !prev);
   };

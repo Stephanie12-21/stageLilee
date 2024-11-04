@@ -6,35 +6,34 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MarcusAurelius, Logo } from "@/public/assets";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordPage() {
-  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const router = useRouter();
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
 
-  const togglePasswordVisibility = () => {
-    setIsPasswordVisible((prev) => !prev);
-  };
+  const handleSubmit = async () => {
+    try {
+      const response = await fetch("/api/user/forgotPswrd/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
 
-  const handleSubmit = (e) => {
-    e.preventDefault(); // Prevent default form submission
-    const credentials = {
-      "bray@gmail.com": { password: "azertyuiop", redirect: "/admin" },
-      "steph@gmail.com": { password: "0123456789", redirect: "/personnel" },
-      "safidy@gmail.com": {
-        password: "qwertyuiop",
-        redirect: "/professionel",
-      },
-    };
-
-    // Check if the email exists and the password is correct
-    if (credentials[email] && credentials[email].password === password) {
-      router.push(credentials[email].redirect); // Redirect to the corresponding page
-    } else {
-      alert("Invalid email or password"); // Optional: Show an error message
+      const data = await response.json();
+      if (response.ok) {
+        setMessage("E-mail de réinitialisation envoyé avec succès !");
+        setError("");
+        console.log("ID utilisateur:", data.userId); // Afficher l'ID utilisateur si nécessaire
+      } else {
+        setError(data.error || "Une erreur s'est produite.");
+        setMessage("");
+      }
+    } catch (error) {
+      setError("Une erreur s'est produite.");
+      setMessage("");
     }
   };
 
@@ -58,29 +57,28 @@ export default function ForgotPasswordPage() {
               votre mot de passe
             </p>
           </div>
-          <form onSubmit={handleSubmit} className="grid gap-4">
-            {" "}
-            {/* Use form element */}
-            <div className="grid gap-2">
-              <Label htmlFor="email">Votre adresse email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="email@example.com"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)} // Update email state
-                className="col-span-3 items-start w-full bg-[#edf2f7] text-[15px] text-[#27272E] font-medium"
-              />
-            </div>
-            <Button type="submit" className="w-full">
-              Envoyer
+          <div className="grid gap-3">
+            <Label htmlFor="email">Votre adresse email</Label>
+
+            <Input
+              id="email"
+              placeholder="email@gmail.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="col-span-3 items-start w-full bg-white text-[16px] text-[#27272E] font-medium"
+            />
+          </div>
+          <div className="flex flex-col items-center justify-center mt-3">
+            {message && <p className="text-green-500 mb-3">{message}</p>}
+            {error && <p className="text-red-500 mb-3">{error}</p>}
+            <Button onClick={handleSubmit} className="w-full">
+              Réinitialiser
             </Button>
-          </form>
-          <div className="mt-4 text-center text-sm">
+          </div>
+          <div className="mt-4 text-center text-[16px]">
             Vous êtes nouveau? Venez nous rejoindre
             <br />
-            <Link href="/sign-up" className="underline">
+            <Link href="/signup" className="underline">
               Créer un compte
             </Link>
           </div>
