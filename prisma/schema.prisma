@@ -108,7 +108,7 @@ model annonces {
   userId            Int          // Rendre userId non nullable
   user              user          @relation(fields: [userId], references: [id], onDelete: Cascade)
   commentaire       commentaire[]
-  //note              note[]
+  
 }
 
 enum statut {

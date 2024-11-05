@@ -42,12 +42,12 @@ const Annonces = () => {
 
   useEffect(() => {
     if (session?.user?.id) {
-      fetchAnnonces(session.user.id);
+      fetchAnnonces(session.user.id); 
     }
   }, [session]);
 
   const handleDeleteClick = (id) => {
-    setSelectedAnnonceId(id);
+    setSelectedAnnonceId(id); 
     setShowDeleteModal(true);
   };
 
@@ -57,7 +57,7 @@ const Annonces = () => {
   };
 
   const handleConfirmDelete = async () => {
-    if (!selectedAnnonceId) return;
+    if (!selectedAnnonceId) return; 
 
     try {
       const response = await fetch(`/api/annonce/${selectedAnnonceId}`, {
@@ -68,6 +68,7 @@ const Annonces = () => {
         throw new Error("Erreur lors de la suppression de l'annonce");
       }
 
+     
       setAnnonces((prevAnnonces) =>
         prevAnnonces.filter((annonce) => annonce.id !== selectedAnnonceId)
       );
@@ -76,8 +77,8 @@ const Annonces = () => {
     } catch (error) {
       console.error("Erreur lors de la suppression des données :", error);
     } finally {
-      setShowDeleteModal(false);
-      setSelectedAnnonceId(null);
+      setShowDeleteModal(false); 
+      setSelectedAnnonceId(null); 
     }
   };
 
@@ -89,7 +90,7 @@ const Annonces = () => {
           placeholder="Rechercher une annonce"
           className="border border-gray-300 text-[18px] rounded-md p-6 w-[700px]"
         />
-        <Link href="/personnel/annonces/addAnnonce">
+        <Link href="/professionel/annonces/addAnnonce">
           <Button variant="outline">Créer une annonce</Button>
         </Link>
       </div>
@@ -100,16 +101,18 @@ const Annonces = () => {
         </p>
       </div> */}
 
+      
       <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
         {annonces.length === 0 ? (
           <p>Aucune annonce trouvée.</p>
         ) : (
           annonces.map((annonce) => (
             <Card
-              key={annonce.id}
+              key={annonce.id} 
               className="w-[400px] h-[500px] rounded-[24px] shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl "
             >
               <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+                
                 {annonce.imageAnnonces.length > 0 && (
                   <Image
                     src={annonce.imageAnnonces[0].path}
@@ -122,6 +125,7 @@ const Annonces = () => {
               </CardContent>
 
               <CardFooter className="flex justify-between p-4">
+      
                 <div className="flex flex-col space-y-3">
                   <Label
                     htmlFor="categorie"
@@ -166,16 +170,15 @@ const Annonces = () => {
                     )}
                 </div>
 
+              
                 <div className="flex flex-col items-end space-y-8">
-                  <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                  <Link href={`/professionel/annonces/id=${annonce.id}`}>
                     <AiOutlineEye
                       className="text-[#15213D] cursor-pointer text-[30px]"
                       title="Voir"
                     />
                   </Link>
-                  <Link
-                    href={`/personnel/annonces/editAnnonce/id=${annonce.id}`}
-                  >
+                  <Link href={`/professionel/annonces/editAnnonce/id=${annonce.id}`}>
                     <AiOutlineEdit
                       className="text-[#15213D] cursor-pointer text-[30px]"
                       title="Éditer"
@@ -193,6 +196,7 @@ const Annonces = () => {
         )}
       </div>
 
+     
       <ConfirmDeleteModal
         isOpen={showDeleteModal}
         onClose={handleCloseModal}

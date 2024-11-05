@@ -1,20 +1,14 @@
+import { Heart, Home, Mail, Megaphone, TrendingUp } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import React from "react";
-import {
-  FaBullhorn,
-  FaChartLine,
-  FaEnvelope,
-  FaHeart,
-  FaHome,
-} from "react-icons/fa";
 
 const DataLinkNav = [
-  { icon: FaHome, name: "Dashboard", href: "/personnel" },
-  { icon: FaBullhorn, name: "Annonces", href: "/personnel/annonces" },
-  { icon: FaHeart, name: "Favoris", href: "/personnel/favoris" },
-  { icon: FaEnvelope, name: "Messages", href: "/personnel/messages" },
-  { icon: FaChartLine, name: "Transactions", href: "/personnel/transactions" },
+  { icon: Home, name: "Dashboard", href: "/personnel" },
+  { icon: Megaphone, name: "Annonces", href: "/personnel/annonces" },
+  { icon: Heart, name: "Favoris", href: "/personnel/favoris" },
+  { icon: Mail, name: "Messages", href: "/personnel/messages" },
+  { icon: TrendingUp, name: "Transactions", href: "/personnel/transactions" },
 ];
 
 const Navigation = () => {
