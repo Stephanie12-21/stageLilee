@@ -102,7 +102,7 @@ export default function LayoutAdmin({ children }) {
                 </Link>
 
                 <Link
-                  href={session ? `/admin/${session.user.id}` : "#"}
+                  href={session ? `/admin/` : "#"}
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
                   <FaHome className="h-5 w-5" />
@@ -146,7 +146,7 @@ export default function LayoutAdmin({ children }) {
                 </div>
 
                 <Link
-                  href={session ? `/admin/${session.user.id}/favoris` : "#"}
+                  href={session ? `/admin/favoris` : "#"}
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
                   <FaHeart className="h-5 w-5" />
@@ -154,7 +154,7 @@ export default function LayoutAdmin({ children }) {
                 </Link>
 
                 <Link
-                  href={session ? `/admin/${session.user.id}/messages` : "#"}
+                  href={session ? `/admin/messages` : "#"}
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
                   <FaEnvelope className="h-5 w-5" />
@@ -162,9 +162,7 @@ export default function LayoutAdmin({ children }) {
                 </Link>
 
                 <Link
-                  href={
-                    session ? `/admin/${session.user.id}/transactions` : "#"
-                  }
+                  href={session ? `/admin/transactions` : "#"}
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
                   <FaChartLine className="h-5 w-5" />

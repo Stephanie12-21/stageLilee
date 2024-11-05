@@ -17,7 +17,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
 
 // Define the ListLink component
 export const ListLink = () => {
@@ -120,7 +119,7 @@ export const ListButton = () => {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem>
-              <Link href={`/admin/${session.user.id}`}>Espace client</Link>
+              <Link href={`/admin/`}>Espace client</Link>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />

@@ -67,7 +67,7 @@ export default function Login() {
       } else if (role === "PRO") {
         router.push("/professionel");
       } else if (role === "ADMIN") {
-        router.push("/admin");
+        router.push(`/admin/`);
       } else {
         router.push("/login");
       }
