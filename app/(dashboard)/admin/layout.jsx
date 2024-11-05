@@ -1,27 +1,9 @@
 "use client";
-import Link from "next/link";
-import {
-  Bell,
-  CircleUser,
-  Home,
-  LineChart,
-  Menu,
-  Package,
-  Package2,
-  Search,
-  ShoppingCart,
-  Users,
-} from "lucide-react";
 
-import { Badge } from "@/components/ui/badge";
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
+import { ChevronDown, ChevronUp, Megaphone, Menu, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,9 +16,42 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
 import { Logo, LogoSite } from "@/public/assets";
-import NavigationDesk from "./_components/NavigationDesk";
+import NavigationDesk from "../admin/_components/NavigationDesk";
 
-export default function layoutAdmin({ children }) {
+import {
+  FaChartLine,
+  FaEllipsisV,
+  FaEnvelope,
+  FaHeart,
+  FaHome,
+} from "react-icons/fa";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+
+export default function LayoutAdmin({ children }) {
+  const { data: session } = useSession();
+  const router = useRouter();
+
+  const handleSignOut = async () => {
+    await signOut({ redirect: false });
+    router.push("/login");
+  };
+
+  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+
+  if (!session?.user) {
+    return (
+      <div>
+        <h2>
+          Veuillez vous connecter à votre compte
+          <span>
+            <Link href="/login"> Se connecter</Link>
+          </span>
+        </h2>
+      </div>
+    );
+  }
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">
@@ -51,34 +66,14 @@ export default function layoutAdmin({ children }) {
                 className="size-40"
               />
             </Link>
-            <Button variant="outline" size="icon" className="ml-auto h-8 w-8">
-              <Bell className="h-4 w-4" />
-              <span className="sr-only">Toggle notifications</span>
-            </Button>
           </div>
           <div className="flex-1">
             <NavigationDesk />
           </div>
-          <div className="mt-auto p-4">
-            <Card x-chunk="dashboard-02-chunk-0">
-              <CardHeader className="p-2 pt-0 md:p-4">
-                <CardTitle>Upgrade to Pro</CardTitle>
-                <CardDescription>
-                  Unlock all features and get unlimited access to our support
-                  team.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="p-2 pt-0 md:p-4 md:pt-0">
-                <Button size="sm" className="w-full">
-                  Upgrade
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
         </div>
       </div>
       <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-4 lg:h-[60px] lg:px-6">
+        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-8 lg:h-[60px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
               <Button
@@ -90,6 +85,7 @@ export default function layoutAdmin({ children }) {
                 <span className="sr-only">Toggle navigation menu</span>
               </Button>
             </SheetTrigger>
+
             <SheetContent side="left" className="flex flex-col">
               <nav className="grid gap-2 text-lg font-medium">
                 <Link
@@ -104,43 +100,75 @@ export default function layoutAdmin({ children }) {
                     className="size-40"
                   />
                 </Link>
+
                 <Link
-                  href="#"
+                  href={session ? `/admin/${session.user.id}` : "#"}
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
-                  <Home className="h-5 w-5" />
-                  Dashboard
+                  <FaHome className="h-5 w-5" />
+                  Tableau de bord
                 </Link>
+
+                <div className="relative">
+                  <button
+                    onClick={() => setIsSubmenuOpen(!isSubmenuOpen)}
+                    className="mx-[-0.65rem] w-full flex items-center justify-between gap-4 rounded-xl px-3 py-2 text-foreground hover:bg-muted transition-colors"
+                  >
+                    <div className="flex items-center gap-4">
+                      <Megaphone className="h-5 w-5" />
+                      Annonces
+                    </div>
+                    {isSubmenuOpen ? (
+                      <ChevronDown className="h-4 w-4" />
+                    ) : (
+                      <ChevronUp className="h-4 w-4" />
+                    )}
+                  </button>
+
+                  {isSubmenuOpen && (
+                    <div className="ml-8 mt-2 flex flex-col space-y-2">
+                      <a
+                        href={
+                          session ? `/admin/${session.user.id}/annonces` : "#"
+                        }
+                        className="flex items-center gap-4 rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        Vos annonces
+                      </a>
+                      <a
+                        href="/admin/annonces/annonces-restreintes"
+                        className="flex items-center gap-4 rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                      >
+                        Les annonces restreintes
+                      </a>
+                    </div>
+                  )}
+                </div>
+
                 <Link
-                  href="#"
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl bg-muted px-3 py-2 text-foreground hover:text-foreground"
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  Orders
-                  <Badge className="ml-auto flex h-6 w-6 shrink-0 items-center justify-center rounded-full">
-                    6
-                  </Badge>
-                </Link>
-                <Link
-                  href="#"
+                  href={session ? `/admin/${session.user.id}/favoris` : "#"}
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
-                  <Package className="h-5 w-5" />
-                  Products
+                  <FaHeart className="h-5 w-5" />
+                  Favoris
                 </Link>
+
                 <Link
-                  href="#"
+                  href={session ? `/admin/${session.user.id}/messages` : "#"}
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
-                  <Users className="h-5 w-5" />
-                  Customers
+                  <FaEnvelope className="h-5 w-5" />
+                  Messages
                 </Link>
+
                 <Link
-                  href="#"
+                  href={
+                    session ? `/admin/${session.user.id}/transactions` : "#"
+                  }
                   className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
                 >
-                  <LineChart className="h-5 w-5" />
-                  Analytics
+                  <FaChartLine className="h-5 w-5" />
+                  Transactions
                 </Link>
               </nav>
             </SheetContent>
@@ -157,26 +185,64 @@ export default function layoutAdmin({ children }) {
               </div>
             </form>
           </div>
+
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="secondary" size="icon" className="rounded-full">
-                <CircleUser className="h-5 w-5" />
-                <span className="sr-only">Toggle user menu</span>
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <div className="flex items-center space-x-3 bg-dark rounded-full p-2">
+              <Image
+                src={session.user.image || "/default-avatar.png"}
+                alt="User profile"
+                width={50}
+                height={50}
+                className="w-[50px] h-[50px] rounded-full object-cover"
+              />
+              <div className="flex flex-col">
+                <span className="text-orange-500 font-bold text-[16px]">
+                  {session.user.nom} {session.user.prenom}
+                </span>
+              </div>
+
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-2 rounded-full">
+                  <FaEllipsisV className="text-gray-400" />
+                </Button>
+              </DropdownMenuTrigger>
+            </div>
+
+            <DropdownMenuContent align="end" className="w-64 mt-2">
+              <DropdownMenuLabel>
+                <p className="text-orange-500 font-bold text-xl">
+                  {session.user.nom} {session.user.prenom}
+                </p>
+                <p className="text-gray-600 text-sm">{session.user.email}</p>
+              </DropdownMenuLabel>
+
               <DropdownMenuSeparator />
-              <DropdownMenuItem>Settings</DropdownMenuItem>
-              <DropdownMenuItem>Support</DropdownMenuItem>
-              <DropdownMenuSeparator />
+
               <DropdownMenuItem>
-                <Link href={"/sign-in"}>Logout </Link>
+                <Link href={`/admin/profile/${session.user.id}`}>
+                  Votre profil
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem>
+                <Link href={`/admin/security/${session.user.id}`}>
+                  Sécurité
+                </Link>
+              </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
+              <DropdownMenuItem>
+                <Button variant="outline" onClick={handleSignOut}>
+                  Se déconnecter
+                </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </header>
-        {children}
+        <div className="container mx-auto">{children}</div>
       </div>
     </div>
   );

@@ -196,9 +196,7 @@ export default function LayoutAdmin({ children }) {
 
                 {/* Ajoutez ici la date de création du compte */}
                 {session?.user?.id ? ( // Remplacez 'dateCreation' par le nom réel de votre champ pour la date
-                  <p className="text-gray-600 text-sm">
-                    {session.user.email}
-                  </p>
+                  <p className="text-gray-600 text-sm">{session.user.email}</p>
                 ) : null}
               </DropdownMenuLabel>
               <DropdownMenuSeparator />

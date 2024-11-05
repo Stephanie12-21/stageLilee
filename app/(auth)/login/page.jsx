@@ -82,6 +82,10 @@ export default function Login() {
     }
   };
 
+  const handlePrev = () => {
+    router.push("/");
+  };
+
   return (
     <div className="w-full h-screen lg:grid lg:grid-cols-2">
       <Image
@@ -144,9 +148,15 @@ export default function Login() {
               </div>
             </div>
           </div>
-          <Button onClick={handleSubmit} className="w-full">
-            Se connecter
-          </Button>
+
+          <div className="space-y-4">
+            <Button onClick={handleSubmit} className="w-full">
+              Se connecter
+            </Button>
+            <Button onClick={handlePrev} className="w-full">
+              Revenir à l&apos; accueil
+            </Button>
+          </div>
 
           <div className="mt-8 text-center text-[16px]">
             Vous êtes nouveau? Venez nous rejoindre

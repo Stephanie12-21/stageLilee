@@ -5,9 +5,19 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast, Toaster } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Connexion } from "@/components/MainComponent/Comptes/Connexion";
+import { FaEllipsisV } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
+import { signOut, useSession } from "next-auth/react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Label } from "@/components/ui/label";
 
 // Define the ListLink component
 export const ListLink = () => {
@@ -54,42 +64,109 @@ export const ListLink = () => {
 // Define the ListButton component
 
 export const ListButton = () => {
+  const { data: session } = useSession();
+
+  const handleSignOut = () => {
+    signOut();
+  };
+
   return (
-    <div className="flex gap-2">
-      <Toaster position="top-right" className="text-[20px] font-semibold" />
-      <Button
-        className="px-5 rounded-[10px] text-[16px] text-white font-semibold bg-transparent border-[1px] hover:bg-transparent hover:text-white"
-        variant="outline"
-        onClick={() =>
-          toast("", {
-            description: (
-              <div>
-                <span style={{ fontSize: "17px", fontStyle: "semibold" }}>
-                  Pour pouvoir déposer une annonce et se satisfaire pleinement
-                  des fonctionnalités du site, il faut d'abord accéder à votre
-                  espace utilisateur.
-                </span>
-                <div className="mt-2">
-                  <span
-                    className="text-[#15213d] text-[17px] hover:underline font-semibold cursor-pointer"
-                    onClick={() => toast.dismiss()}
-                  >
-                    Très bien, d'accord
+    <div className="flex gap-2 items-center">
+      {session ? (
+        <DropdownMenu>
+          <div className="flex items-center space-x-3 bg-dark rounded-full p-2">
+            <Image
+              src={session.user.image || "/default-avatar.png"}
+              alt="User profile"
+              width={50}
+              height={50}
+              className="w-[50px] h-[50px] rounded-full object-cover"
+            />
+            <div className="flex flex-col">
+              <span className="text-orange-500 font-bold text-[16px]">
+                {session.user.nom} {session.user.prenom}
+              </span>
+            </div>
+
+            <DropdownMenuTrigger asChild>
+              <button className="p-2 rounded-full hover:bg-gray-700">
+                <FaEllipsisV className="text-gray-400" />
+              </button>
+            </DropdownMenuTrigger>
+          </div>
+
+          <DropdownMenuContent align="end" className="w-64 mt-2">
+            <DropdownMenuLabel>
+              <p className="text-orange-500 font-bold text-xl">
+                {session.user.nom} {session.user.prenom}
+              </p>
+              <p className="text-gray-600 text-sm">{session.user.email}</p>
+            </DropdownMenuLabel>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem>
+              <Link href={`/admin/profile/${session.user.id}`}>
+                Votre profil
+              </Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem>
+              <Link href={`/admin/security/${session.user.id}`}>Sécurité</Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem>
+              <Link href={`/admin/${session.user.id}`}>Espace client</Link>
+            </DropdownMenuItem>
+
+            <DropdownMenuSeparator />
+
+            <DropdownMenuItem>
+              <Button variant="outline" onClick={handleSignOut}>
+                Se déconnecter
+              </Button>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      ) : (
+        <>
+          <Toaster position="top-right" />
+          <Button
+            className="px-5 rounded-[10px] text-[16px] text-white font-semibold bg-transparent border-[1px] hover:bg-transparent hover:text-white"
+            onClick={() =>
+              toast(
+                <div>
+                  <span style={{ fontSize: "17px", fontWeight: "semibold" }}>
+                    Pour pouvoir déposer une annonce et se satisfaire pleinement
+                    des fonctionnalités du site, il faut d&apos;abord accéder à
+                    votre espace utilisateur.
                   </span>
+                  <div className="mt-2">
+                    <span
+                      className="text-[#15213d] text-[17px] hover:underline font-semibold cursor-pointer"
+                      onClick={() => toast.dismiss()}
+                    >
+                      Très bien, d&apos;accord
+                    </span>
+                  </div>
                 </div>
-              </div>
-            ),
-          })
-        }
-      >
-        Déposer une annonce
-      </Button>
-      <Button
-        asChild
-        className="px-5 rounded-[10px] text-[16px] font-semibold bg-transparent border-[1px] hover:border"
-      >
-        <Link href={"/login"}>Se connecter</Link>
-      </Button>
+              )
+            }
+          >
+            Déposer une annonce
+          </Button>
+          <Button
+            asChild
+            className="px-5 rounded-[10px] text-[16px] font-semibold bg-transparent border-[1px] hover:border"
+          >
+            <Link href={"/login"}>Se connecter</Link>
+          </Button>
+        </>
+      )}
     </div>
   );
 };
@@ -99,7 +176,7 @@ export const ListButton = () => {
 const NavBar = () => {
   return (
     <div className="container pt-5">
-      <div className="flex justify-between items-center">
+      <div className="flex justify-between items-center ">
         <Link href="/">
           <Image
             src="/assets/Logo_site.svg"
