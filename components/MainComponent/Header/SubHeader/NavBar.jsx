@@ -149,7 +149,42 @@ export const ListButton = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <p>User not logged in</p>
+        <div className="flex gap-2">
+          <Toaster position="top-right" className="text-[20px] font-semibold" />
+          <Button
+            className="px-5 rounded-[10px] text-[16px] text-white font-semibold bg-transparent border-[1px] hover:bg-transparent hover:text-white"
+            variant="outline"
+            onClick={() =>
+              toast("", {
+                description: (
+                  <div>
+                    <span style={{ fontSize: "17px", fontStyle: "semibold" }}>
+                      Pour pouvoir déposer une annonce et se satisfaire
+                      pleinement des fonctionnalités du site, il faut
+                      d&apos;abord accéder à votre espace utilisateur.
+                    </span>
+                    <div className="mt-2">
+                      <span
+                        className="text-[#15213d] text-[17px] hover:underline font-semibold cursor-pointer"
+                        onClick={() => toast.dismiss()}
+                      >
+                        Très bien, d&apos;accord
+                      </span>
+                    </div>
+                  </div>
+                ),
+              })
+            }
+          >
+            Déposer une annonce
+          </Button>
+          <Button
+            asChild
+            className="px-5 rounded-[10px] text-[16px] font-semibold bg-transparent border-[1px] hover:border"
+          >
+            <Link href={"/login"}>Se connecter</Link>
+          </Button>
+        </div>
       )}
     </div>
   );
