@@ -545,7 +545,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
@@ -659,7 +659,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
@@ -773,7 +773,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
@@ -887,7 +887,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
@@ -1005,7 +1005,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
@@ -1119,7 +1119,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
@@ -1233,7 +1233,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
@@ -1347,7 +1347,7 @@ export default function Annonces() {
                         </div>
 
                         <div className="flex flex-col items-end ">
-                          <Link href={`/personnel/annonces/id=${annonce.id}`}>
+                          <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
                               title="Voir"
