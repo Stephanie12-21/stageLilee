@@ -88,9 +88,8 @@ export default function Annonces() {
     };
 
     fetchFavorites();
-  }, [annonces.id, session?.user?.id]); // On retire 'annonce.id' et on garde 'session?.user?.id' comme dépendance
+  }, [annonces.id, session?.user?.id]);
 
-  // Fonction pour ajouter ou retirer un favori
   const toggleHeart = async (id) => {
     let userId = session?.user?.id;
 
@@ -100,10 +99,8 @@ export default function Annonces() {
     }
 
     if (likedAnnonces.includes(id)) {
-      // Annonce déjà dans les favoris
       toast.info("Vous avez déjà ajouté cette annonce dans les favoris.");
     } else {
-      // Ajouter à la liste des favoris
       const updatedFavorites = [...likedAnnonces, id];
       setLikedAnnonces(updatedFavorites);
 
