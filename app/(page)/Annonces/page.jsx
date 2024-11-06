@@ -7,13 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  AiFillHeart,
-  AiOutlineDelete,
-  AiOutlineEdit,
-  AiOutlineEye,
-  AiOutlineHeart,
-} from "react-icons/ai";
+import { AiFillHeart, AiOutlineEye, AiOutlineHeart } from "react-icons/ai";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -41,6 +35,7 @@ export default function Annonces() {
   const [annonces, setAnnonces] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
   const [searchText, setSearchText] = useState("");
+  const [likedAnnonces, setLikedAnnonces] = useState([]);
 
   const fetchAnnonces = async () => {
     try {
@@ -61,19 +56,15 @@ export default function Annonces() {
   }, []);
 
   const toggleHeart = (id) => {
-    setIsLiked((prev) => {
-      const newValue = !prev; // Inverser l'état du cœur
-
-      if (newValue) {
-        toast.success(`Succès ! Vous avez aimé l'annonce ID: ${id} !`);
-      } else {
-        toast.error(
-          `Erreur ! Vous avez retiré votre amour pour l'annonce ID: ${id}.`
-        );
-      }
-
-      return newValue; // Retourner le nouvel état
-    });
+    if (likedAnnonces.includes(id)) {
+      setLikedAnnonces(likedAnnonces.filter((likedId) => likedId !== id));
+      toast.error(
+        `Erreur ! Vous avez retiré votre amour pour l'annonce ID: ${id}.`
+      );
+    } else {
+      setLikedAnnonces([...likedAnnonces, id]);
+      toast.success(`Succès ! Vous avez aimé l'annonce ID: ${id} !`);
+    }
   };
 
   const filteredAnnonces = annonces.filter((annonce) => {
@@ -158,7 +149,7 @@ export default function Annonces() {
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
                           onClick={() => toggleHeart(annonce.id)}
                         >
-                          {isLiked ? (
+                          {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
                           ) : (
                             <AiOutlineHeart size={28} color="#FC1111" />
@@ -411,7 +402,7 @@ export default function Annonces() {
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
                           onClick={() => toggleHeart(annonce.id)}
                         >
-                          {isLiked ? (
+                          {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
                           ) : (
                             <AiOutlineHeart size={28} color="#FC1111" />
@@ -682,7 +673,7 @@ export default function Annonces() {
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
                           onClick={() => toggleHeart(annonce.id)}
                         >
-                          {isLiked ? (
+                          {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
                           ) : (
                             <AiOutlineHeart size={28} color="#FC1111" />
@@ -1966,10 +1957,10 @@ export default function Annonces() {
                           />
                         )}
                         <div
-                          className="relative mx-auto p-2 left-40 top-[-110px] rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer"
+                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
                           onClick={() => toggleHeart(annonce.id)}
                         >
-                          {isLiked ? (
+                          {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
                           ) : (
                             <AiOutlineHeart size={28} color="#FC1111" />
