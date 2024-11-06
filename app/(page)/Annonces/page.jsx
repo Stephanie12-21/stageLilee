@@ -57,92 +57,125 @@ export default function Annonces() {
     fetchAnnonces();
   }, []);
 
-  // const toggleHeart = (id) => {
+  // const toggleHeart = async (id) => {
   //   let userId = null;
 
+  //   // Vérifier si l'utilisateur est connecté et récupérer son ID
   //   if (session && session.user && session.user.id) {
   //     userId = session.user.id;
   //     console.log("ID de l'utilisateur de la session actuelle :", userId);
+
+  //     // Vérifier si l'annonce est déjà dans les favoris
   //     if (likedAnnonces.includes(id)) {
+  //       // Retirer l'annonce des favoris
   //       setLikedAnnonces(likedAnnonces.filter((likedId) => likedId !== id));
-  //       toast.error(
-  //         `Erreur ! ${
-  //           userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-  //         } a retiré  l'annonce ID: ${id}, de ses favoris.`
-  //       );
+
+  //       // Appeler l'API pour retirer l'annonce des favoris
+  //       try {
+  //         await removeFromFavorites(userId, id);
+  //         // Afficher un toast de succès uniquement si l'opération réussit
+  //         toast.success(
+  //           `Succès ! ${
+  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+  //           } a retiré l'annonce ID: ${id}, de ses favoris.`
+  //         );
+  //       } catch (error) {
+  //         console.error("Erreur lors du retrait des favoris:", error);
+  //         // Afficher un toast d'erreur seulement en cas d'échec
+  //         toast.error(
+  //           `Erreur ! ${
+  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+  //           } n'a pas pu retirer l'annonce ID: ${id} de ses favoris.`
+  //         );
+  //       }
   //     } else {
+  //       // Ajouter l'annonce aux favoris
   //       setLikedAnnonces([...likedAnnonces, id]);
-  //       toast.success(
-  //         `Succès ! ${
-  //           userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-  //         } a aimé l'annonce ID: ${id} !`
-  //       );
+
+  //       // Appeler l'API pour ajouter aux favoris
+  //       try {
+  //         await addToFavorites(userId, id);
+  //         // Afficher un toast de succès uniquement si l'opération réussit
+  //         toast.success(
+  //           `Succès ! ${
+  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+  //           } a aimé l'annonce ID: ${id} !`
+  //         );
+  //       } catch (error) {
+  //         console.error("Erreur lors de l'ajout aux favoris:", error);
+  //         // Afficher un toast d'erreur seulement en cas d'échec
+  //         toast.error(
+  //           `Erreur ! ${
+  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+  //           } n'a pas pu ajouter l'annonce ID: ${id} aux favoris.`
+  //         );
+  //       }
   //     }
   //   } else {
   //     console.log(
   //       "Erreur : Impossible de récupérer l'ID de l'utilisateur de la session."
   //     );
+  //     toast.error("Erreur : L'utilisateur n'est pas connecté.");
   //   }
   // };
-  const toggleHeart = async (id) => {
-    let userId = null;
 
-    // Vérifier si l'utilisateur est connecté et récupérer son ID
-    if (session && session.user && session.user.id) {
-      userId = session.user.id;
-      console.log("ID de l'utilisateur de la session actuelle :", userId);
+  const [isFavorited, setIsFavorited] = useState(false); // État pour savoir si l'annonce est favorite
 
-      // Vérifier si l'annonce est déjà dans les favoris
-      if (likedAnnonces.includes(id)) {
-        // Retirer l'annonce des favoris
-        setLikedAnnonces(likedAnnonces.filter((likedId) => likedId !== id));
+  useEffect(() => {
+    const fetchFavorites = async () => {
+      try {
+        const userId = session?.user?.id; // Récupérer l'ID de l'utilisateur actuel via session
 
-        // Appeler l'API pour retirer l'annonce des favoris
-        try {
-          await removeFromFavorites(userId, id);
-          // Afficher un toast de succès uniquement si l'opération réussit
-          toast.success(
-            `Succès ! ${
-              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-            } a retiré l'annonce ID: ${id}, de ses favoris.`
-          );
-        } catch (error) {
-          console.error("Erreur lors du retrait des favoris:", error);
-          // Afficher un toast d'erreur seulement en cas d'échec
-          toast.error(
-            `Erreur ! ${
-              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-            } n'a pas pu retirer l'annonce ID: ${id} de ses favoris.`
-          );
+        if (userId) {
+          const response = await fetch("/api/favorites", {
+            method: "GET",
+            headers: {
+              userId: userId, // Passer l'ID utilisateur dans l'en-tête
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Erreur lors de la récupération des favoris");
+          }
+
+          const favorisIds = await response.json();
+          setLikedAnnonces(favorisIds); // Mettre à jour l'état des favoris
+
+          // Vérifier si l'annonce est déjà dans les favoris
+          setIsFavorited(favorisIds.includes(annonce.id));
         }
-      } else {
-        // Ajouter l'annonce aux favoris
-        setLikedAnnonces([...likedAnnonces, id]);
-
-        // Appeler l'API pour ajouter aux favoris
-        try {
-          await addToFavorites(userId, id);
-          // Afficher un toast de succès uniquement si l'opération réussit
-          toast.success(
-            `Succès ! ${
-              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-            } a aimé l'annonce ID: ${id} !`
-          );
-        } catch (error) {
-          console.error("Erreur lors de l'ajout aux favoris:", error);
-          // Afficher un toast d'erreur seulement en cas d'échec
-          toast.error(
-            `Erreur ! ${
-              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-            } n'a pas pu ajouter l'annonce ID: ${id} aux favoris.`
-          );
-        }
+      } catch (error) {
+        console.error("Erreur lors de la récupération des favoris :", error);
+        toast.error("Erreur lors de la récupération des favoris.");
       }
+    };
+
+    fetchFavorites();
+  }, [session?.user?.id]); // On retire 'annonce.id' et on garde 'session?.user?.id' comme dépendance
+
+  // Fonction pour ajouter ou retirer un favori
+  const toggleHeart = async (id) => {
+    let userId = session?.user?.id;
+
+    if (!userId) {
+      toast.error("Vous devez être connecté pour ajouter aux favoris.");
+      return;
+    }
+
+    if (likedAnnonces.includes(id)) {
+      // Annonce déjà dans les favoris
+      toast.info("Vous avez déjà ajouté cette annonce dans les favoris.");
     } else {
-      console.log(
-        "Erreur : Impossible de récupérer l'ID de l'utilisateur de la session."
-      );
-      toast.error("Erreur : L'utilisateur n'est pas connecté.");
+      // Ajouter à la liste des favoris
+      const updatedFavorites = [...likedAnnonces, id];
+      setLikedAnnonces(updatedFavorites);
+
+      try {
+        await addToFavorites(userId, id);
+        toast.success("Annonce ajoutée aux favoris.");
+      } catch (error) {
+        toast.error("Erreur lors de l'ajout aux favoris.");
+      }
     }
   };
 
@@ -151,24 +184,14 @@ export default function Annonces() {
     try {
       const response = await fetch("/api/favorites", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: userId,
-          annonceId: annonceId,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, annonceId }),
       });
 
-      if (!response.ok) {
-        throw new Error("Erreur lors de l'ajout aux favoris");
-      }
-      console.log(
-        `Annonce ID: ${annonceId} ajoutée aux favoris de l'utilisateur ${userId}.`
-      );
+      if (!response.ok) throw new Error("Erreur lors de l'ajout aux favoris");
     } catch (error) {
       console.error("Erreur lors de l'ajout aux favoris:", error);
-      throw error; // Propager l'erreur pour qu'elle soit capturée dans `toggleHeart`
+      throw error;
     }
   };
 
@@ -177,24 +200,14 @@ export default function Annonces() {
     try {
       const response = await fetch("/api/favorites", {
         method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: userId,
-          annonceId: annonceId,
-        }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId, annonceId }),
       });
 
-      if (!response.ok) {
-        throw new Error("Erreur lors du retrait des favoris");
-      }
-      console.log(
-        `Annonce ID: ${annonceId} retirée des favoris de l'utilisateur ${userId}.`
-      );
+      if (!response.ok) throw new Error("Erreur lors du retrait des favoris");
     } catch (error) {
       console.error("Erreur lors du retrait des favoris:", error);
-      throw error; // Propager l'erreur pour qu'elle soit capturée dans `toggleHeart`
+      throw error;
     }
   };
 
@@ -278,7 +291,7 @@ export default function Annonces() {
 
                         <div
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
+                          onClick={() => toggleHeart(annonce.id)} // Appeler la fonction toggleHeart
                         >
                           {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />

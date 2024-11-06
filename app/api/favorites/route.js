@@ -67,3 +67,37 @@ export async function DELETE(req) {
     );
   }
 }
+
+// GET pour récupérer les favoris d'un utilisateur
+export async function GET(req) {
+  const userId = req.headers.get("userId"); // Vous pouvez passer l'ID utilisateur dans l'en-tête de la requête
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "L'ID utilisateur est requis." },
+      { status: 400 }
+    );
+  }
+
+  try {
+    // Récupérer les annonces ajoutées aux favoris pour cet utilisateur
+    const favoris = await db.favoris.findMany({
+      where: {
+        userId: parseInt(userId, 10),
+      },
+      select: {
+        annonceId: true, // Nous récupérons seulement l'ID de l'annonce pour vérifier si l'annonce est dans les favoris
+      },
+    });
+
+    const favorisIds = favoris.map((favori) => favori.annonceId); // Extraire les IDs des annonces favoris
+
+    return NextResponse.json(favorisIds, { status: 200 });
+  } catch (error) {
+    console.error("Erreur lors de la récupération des favoris :", error);
+    return NextResponse.json(
+      { error: "Erreur lors de la récupération des favoris" },
+      { status: 500 }
+    );
+  }
+}
