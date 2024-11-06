@@ -41,16 +41,26 @@ export async function DELETE(req) {
   const { userId, annonceId } = await req.json();
 
   try {
+    // Convertir userId en entier (si ce n'est pas déjà un entier)
+    const userIdInt = parseInt(userId, 10);
+    if (isNaN(userIdInt)) {
+      return NextResponse.json(
+        { error: "userId doit être un entier valide." },
+        { status: 400 }
+      );
+    }
+
     // Suppression du favori dans la base de données
     const favoris = await db.favoris.deleteMany({
       where: {
-        userId,
-        annonceId,
+        userId: userIdInt, // Utiliser l'ID converti
+        annonceId: annonceId,
       },
     });
+
     return NextResponse.json(favoris, { status: 200 });
   } catch (error) {
-    console.error("Erreur lors du retrait du favori :", error);
+    console.error("Erreur lors du retrait au favori :", error);
     return NextResponse.json(
       { error: "Erreur lors du retrait des favoris" },
       { status: 500 }
