@@ -35,6 +35,7 @@ const cardVariants = {
 export default function Annonces() {
   const [annonces, setAnnonces] = useState([]);
   const [isLiked, setIsLiked] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [likedAnnonces, setLikedAnnonces] = useState([]);
   const { data: session } = useSession();
@@ -57,7 +58,91 @@ export default function Annonces() {
     fetchAnnonces();
   }, []);
 
-  const [isFavorited, setIsFavorited] = useState(false);
+  // useEffect(() => {
+  //   const fetchFavorites = async () => {
+  //     try {
+  //       const userId = session?.user?.id;
+  //       if (userId) {
+  //         const response = await fetch("/api/favorites", {
+  //           method: "GET",
+  //           headers: {
+  //             userId: userId,
+  //           },
+  //         });
+
+  //         if (!response.ok) {
+  //           throw new Error("Erreur lors de la récupération des favoris");
+  //         }
+
+  //         const favorisIds = await response.json();
+  //         setLikedAnnonces(favorisIds);
+
+  //         // Vérifier si l'annonce est déjà dans les favoris
+  //         setIsFavorited(favorisIds.includes(annonces.id));
+  //       }
+  //     } catch (error) {
+  //       console.error("Erreur lors de la récupération des favoris :", error);
+  //       toast.error("Erreur lors de la récupération des favoris.");
+  //     }
+  //   };
+
+  //   fetchFavorites();
+  // }, [annonces.id, session?.user?.id]);
+
+  // const toggleHeart = async (id) => {
+  //   let userId = session?.user?.id;
+
+  //   if (!userId) {
+  //     toast.error("Vous devez être connecté pour ajouter aux favoris.");
+  //     return;
+  //   }
+
+  //   if (likedAnnonces.includes(id)) {
+  //     toast.info("Vous avez déjà ajouté cette annonce dans les favoris.");
+  //   } else {
+  //     const updatedFavorites = [...likedAnnonces, id];
+  //     setLikedAnnonces(updatedFavorites);
+
+  //     try {
+  //       await addToFavorites(userId, id);
+  //       toast.success("Annonce ajoutée aux favoris.");
+  //     } catch (error) {
+  //       toast.error("Erreur lors de l'ajout aux favoris.");
+  //     }
+  //   }
+  // };
+
+  // // Fonction pour ajouter aux favoris via l'API Next.js
+  // const addToFavorites = async (userId, annonceId) => {
+  //   try {
+  //     const response = await fetch("/api/favorites", {
+  //       method: "POST",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ userId, annonceId }),
+  //     });
+
+  //     if (!response.ok) throw new Error("Erreur lors de l'ajout aux favoris");
+  //   } catch (error) {
+  //     console.error("Erreur lors de l'ajout aux favoris:", error);
+  //     throw error;
+  //   }
+  // };
+
+  // // Fonction pour retirer des favoris via l'API Next.js
+  // const removeFromFavorites = async (userId, annonceId) => {
+  //   try {
+  //     const response = await fetch("/api/favorites", {
+  //       method: "DELETE",
+  //       headers: { "Content-Type": "application/json" },
+  //       body: JSON.stringify({ userId, annonceId }),
+  //     });
+
+  //     if (!response.ok) throw new Error("Erreur lors du retrait des favoris");
+  //   } catch (error) {
+  //     console.error("Erreur lors du retrait des favoris:", error);
+  //     throw error;
+  //   }
+  // };
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -91,25 +176,33 @@ export default function Annonces() {
   }, [annonces.id, session?.user?.id]);
 
   const toggleHeart = async (id) => {
-    let userId = session?.user?.id;
+    const userId = session?.user?.id;
 
     if (!userId) {
       toast.error("Vous devez être connecté pour ajouter aux favoris.");
       return;
     }
 
-    if (likedAnnonces.includes(id)) {
-      toast.info("Vous avez déjà ajouté cette annonce dans les favoris.");
-    } else {
-      const updatedFavorites = [...likedAnnonces, id];
-      setLikedAnnonces(updatedFavorites);
+    try {
+      if (likedAnnonces.includes(id)) {
+        // Si l'annonce est déjà dans les favoris, on la retire
+        const updatedFavorites = likedAnnonces.filter((favId) => favId !== id);
+        setLikedAnnonces(updatedFavorites);
+        setIsFavorited(false);
 
-      try {
+        await removeFromFavorites(userId, id);
+        toast.info("Annonce retirée des favoris.");
+      } else {
+        // Si l'annonce n'est pas dans les favoris, on l'ajoute
+        const updatedFavorites = [...likedAnnonces, id];
+        setLikedAnnonces(updatedFavorites);
+        setIsFavorited(true);
+
         await addToFavorites(userId, id);
         toast.success("Annonce ajoutée aux favoris.");
-      } catch (error) {
-        toast.error("Erreur lors de l'ajout aux favoris.");
       }
+    } catch (error) {
+      toast.error("Erreur lors de la mise à jour des favoris.");
     }
   };
 
