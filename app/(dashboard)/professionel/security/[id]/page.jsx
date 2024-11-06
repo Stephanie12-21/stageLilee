@@ -22,7 +22,7 @@ const PasswordChangeForm = () => {
     setSuccess(false);
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (
@@ -44,7 +44,17 @@ const PasswordChangeForm = () => {
       return;
     }
 
-    // Simuler un succès (à remplacer par un vrai appel API)
+    try {
+      const response = await fetch(`/api/user/modifyPswrd/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+    } catch (e) {
+      console.log("l'erreur est :", error);
+    }
     setSuccess(true);
     setFormData({
       currentPassword: "",
