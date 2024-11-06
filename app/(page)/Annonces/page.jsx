@@ -57,80 +57,17 @@ export default function Annonces() {
     fetchAnnonces();
   }, []);
 
-  // const toggleHeart = async (id) => {
-  //   let userId = null;
-
-  //   // Vérifier si l'utilisateur est connecté et récupérer son ID
-  //   if (session && session.user && session.user.id) {
-  //     userId = session.user.id;
-  //     console.log("ID de l'utilisateur de la session actuelle :", userId);
-
-  //     // Vérifier si l'annonce est déjà dans les favoris
-  //     if (likedAnnonces.includes(id)) {
-  //       // Retirer l'annonce des favoris
-  //       setLikedAnnonces(likedAnnonces.filter((likedId) => likedId !== id));
-
-  //       // Appeler l'API pour retirer l'annonce des favoris
-  //       try {
-  //         await removeFromFavorites(userId, id);
-  //         // Afficher un toast de succès uniquement si l'opération réussit
-  //         toast.success(
-  //           `Succès ! ${
-  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-  //           } a retiré l'annonce ID: ${id}, de ses favoris.`
-  //         );
-  //       } catch (error) {
-  //         console.error("Erreur lors du retrait des favoris:", error);
-  //         // Afficher un toast d'erreur seulement en cas d'échec
-  //         toast.error(
-  //           `Erreur ! ${
-  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-  //           } n'a pas pu retirer l'annonce ID: ${id} de ses favoris.`
-  //         );
-  //       }
-  //     } else {
-  //       // Ajouter l'annonce aux favoris
-  //       setLikedAnnonces([...likedAnnonces, id]);
-
-  //       // Appeler l'API pour ajouter aux favoris
-  //       try {
-  //         await addToFavorites(userId, id);
-  //         // Afficher un toast de succès uniquement si l'opération réussit
-  //         toast.success(
-  //           `Succès ! ${
-  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-  //           } a aimé l'annonce ID: ${id} !`
-  //         );
-  //       } catch (error) {
-  //         console.error("Erreur lors de l'ajout aux favoris:", error);
-  //         // Afficher un toast d'erreur seulement en cas d'échec
-  //         toast.error(
-  //           `Erreur ! ${
-  //             userId ? `L'utilisateur ${userId}` : "Un utilisateur"
-  //           } n'a pas pu ajouter l'annonce ID: ${id} aux favoris.`
-  //         );
-  //       }
-  //     }
-  //   } else {
-  //     console.log(
-  //       "Erreur : Impossible de récupérer l'ID de l'utilisateur de la session."
-  //     );
-  //     toast.error("Erreur : L'utilisateur n'est pas connecté.");
-  //   }
-  // };
-
-  const [isFavorited, setIsFavorited] = useState(false); // État pour savoir si l'annonce est favorite
+  const [isFavorited, setIsFavorited] = useState(false);
 
   useEffect(() => {
     const fetchFavorites = async () => {
       try {
-        const userId = session?.user?.id; // Récupérer l'ID de l'utilisateur actuel via session
-
+        const userId = session?.user?.id;
         if (userId) {
           const response = await fetch("/api/favorites", {
             method: "GET",
             headers: {
-              userId: userId, // Passer l'ID utilisateur dans l'en-tête
+              userId: userId,
             },
           });
 
@@ -139,10 +76,10 @@ export default function Annonces() {
           }
 
           const favorisIds = await response.json();
-          setLikedAnnonces(favorisIds); // Mettre à jour l'état des favoris
+          setLikedAnnonces(favorisIds);
 
           // Vérifier si l'annonce est déjà dans les favoris
-          setIsFavorited(favorisIds.includes(annonce.id));
+          setIsFavorited(favorisIds.includes(annonces.id));
         }
       } catch (error) {
         console.error("Erreur lors de la récupération des favoris :", error);
@@ -151,7 +88,7 @@ export default function Annonces() {
     };
 
     fetchFavorites();
-  }, [session?.user?.id]); // On retire 'annonce.id' et on garde 'session?.user?.id' comme dépendance
+  }, [annonces.id, session?.user?.id]); // On retire 'annonce.id' et on garde 'session?.user?.id' comme dépendance
 
   // Fonction pour ajouter ou retirer un favori
   const toggleHeart = async (id) => {
