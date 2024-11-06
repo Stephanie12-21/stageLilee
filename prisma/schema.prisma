@@ -28,7 +28,6 @@ model image {
 }
 
 // Pour les comptes
-
 model user {
   id                 Int         @id @default(autoincrement())
   nom                String
@@ -44,7 +43,7 @@ model user {
   company            company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
   annonces           annonces[]  
   commentaire        commentaire[]
-  //note               note[]
+  favoris           favoris[]  
 }
 
 model company {
@@ -90,8 +89,20 @@ model profileImage {
   userId    Int      // ID de l'utilisateur auquel l'image est associée
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+// Pour les comptes
 
 
+//pour les favoris 
+model favoris {
+  id                Int         @id @default(autoincrement())
+  saveDate          DateTime    @default(now())
+  userId            Int
+  annonceId         Int
+  user              user        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  annonce           annonces    @relation(fields: [annonceId], references: [id], onDelete: Cascade)
+  
+}
+//pour les favoris 
 
 // Pour les annonces
 model annonces {
@@ -108,7 +119,7 @@ model annonces {
   userId            Int          // Rendre userId non nullable
   user              user          @relation(fields: [userId], references: [id], onDelete: Cascade)
   commentaire       commentaire[]
-  
+  favoris           favoris[]  
 }
 
 enum statut {
@@ -146,7 +157,7 @@ model commentaire {
   userId            Int
   user              user      @relation(fields: [userId], references: [id])
 }
-
+// Pour les annonces
 
 
 

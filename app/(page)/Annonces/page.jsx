@@ -11,6 +11,7 @@ import { AiFillHeart, AiOutlineEye, AiOutlineHeart } from "react-icons/ai";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useSession } from "next-auth/react";
 
 const cardVariants = {
   visible: (i) => ({
@@ -36,6 +37,7 @@ export default function Annonces() {
   const [isLiked, setIsLiked] = useState(false);
   const [searchText, setSearchText] = useState("");
   const [likedAnnonces, setLikedAnnonces] = useState([]);
+  const { data: session } = useSession();
 
   const fetchAnnonces = async () => {
     try {
@@ -55,15 +57,144 @@ export default function Annonces() {
     fetchAnnonces();
   }, []);
 
-  const toggleHeart = (id) => {
-    if (likedAnnonces.includes(id)) {
-      setLikedAnnonces(likedAnnonces.filter((likedId) => likedId !== id));
-      toast.error(
-        `Erreur ! Vous avez retiré votre amour pour l'annonce ID: ${id}.`
-      );
+  // const toggleHeart = (id) => {
+  //   let userId = null;
+
+  //   if (session && session.user && session.user.id) {
+  //     userId = session.user.id;
+  //     console.log("ID de l'utilisateur de la session actuelle :", userId);
+  //     if (likedAnnonces.includes(id)) {
+  //       setLikedAnnonces(likedAnnonces.filter((likedId) => likedId !== id));
+  //       toast.error(
+  //         `Erreur ! ${
+  //           userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+  //         } a retiré  l'annonce ID: ${id}, de ses favoris.`
+  //       );
+  //     } else {
+  //       setLikedAnnonces([...likedAnnonces, id]);
+  //       toast.success(
+  //         `Succès ! ${
+  //           userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+  //         } a aimé l'annonce ID: ${id} !`
+  //       );
+  //     }
+  //   } else {
+  //     console.log(
+  //       "Erreur : Impossible de récupérer l'ID de l'utilisateur de la session."
+  //     );
+  //   }
+  // };
+  const toggleHeart = async (id) => {
+    let userId = null;
+
+    // Vérifier si l'utilisateur est connecté et récupérer son ID
+    if (session && session.user && session.user.id) {
+      userId = session.user.id;
+      console.log("ID de l'utilisateur de la session actuelle :", userId);
+
+      // Vérifier si l'annonce est déjà dans les favoris
+      if (likedAnnonces.includes(id)) {
+        // Retirer l'annonce des favoris
+        setLikedAnnonces(likedAnnonces.filter((likedId) => likedId !== id));
+
+        // Appeler l'API pour retirer l'annonce des favoris
+        try {
+          await removeFromFavorites(userId, id);
+          // Afficher un toast de succès uniquement si l'opération réussit
+          toast.success(
+            `Succès ! ${
+              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+            } a retiré l'annonce ID: ${id}, de ses favoris.`
+          );
+        } catch (error) {
+          console.error("Erreur lors du retrait des favoris:", error);
+          // Afficher un toast d'erreur seulement en cas d'échec
+          toast.error(
+            `Erreur ! ${
+              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+            } n'a pas pu retirer l'annonce ID: ${id} de ses favoris.`
+          );
+        }
+      } else {
+        // Ajouter l'annonce aux favoris
+        setLikedAnnonces([...likedAnnonces, id]);
+
+        // Appeler l'API pour ajouter aux favoris
+        try {
+          await addToFavorites(userId, id);
+          // Afficher un toast de succès uniquement si l'opération réussit
+          toast.success(
+            `Succès ! ${
+              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+            } a aimé l'annonce ID: ${id} !`
+          );
+        } catch (error) {
+          console.error("Erreur lors de l'ajout aux favoris:", error);
+          // Afficher un toast d'erreur seulement en cas d'échec
+          toast.error(
+            `Erreur ! ${
+              userId ? `L'utilisateur ${userId}` : "Un utilisateur"
+            } n'a pas pu ajouter l'annonce ID: ${id} aux favoris.`
+          );
+        }
+      }
     } else {
-      setLikedAnnonces([...likedAnnonces, id]);
-      toast.success(`Succès ! Vous avez aimé l'annonce ID: ${id} !`);
+      console.log(
+        "Erreur : Impossible de récupérer l'ID de l'utilisateur de la session."
+      );
+      toast.error("Erreur : L'utilisateur n'est pas connecté.");
+    }
+  };
+
+  // Fonction pour ajouter aux favoris via l'API Next.js
+  const addToFavorites = async (userId, annonceId) => {
+    try {
+      const response = await fetch("/api/favorites", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userId,
+          annonceId: annonceId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de l'ajout aux favoris");
+      }
+      console.log(
+        `Annonce ID: ${annonceId} ajoutée aux favoris de l'utilisateur ${userId}.`
+      );
+    } catch (error) {
+      console.error("Erreur lors de l'ajout aux favoris:", error);
+      throw error; // Propager l'erreur pour qu'elle soit capturée dans `toggleHeart`
+    }
+  };
+
+  // Fonction pour retirer des favoris via l'API Next.js
+  const removeFromFavorites = async (userId, annonceId) => {
+    try {
+      const response = await fetch("/api/favorites", {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          userId: userId,
+          annonceId: annonceId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors du retrait des favoris");
+      }
+      console.log(
+        `Annonce ID: ${annonceId} retirée des favoris de l'utilisateur ${userId}.`
+      );
+    } catch (error) {
+      console.error("Erreur lors du retrait des favoris:", error);
+      throw error; // Propager l'erreur pour qu'elle soit capturée dans `toggleHeart`
     }
   };
 
