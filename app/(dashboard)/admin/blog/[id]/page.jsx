@@ -10,7 +10,7 @@ const ArticleDetailPage = ({ params }) => {
   const [article, setArticle] = useState(null);
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
-  
+
   const fetchArticle = async (id) => {
     try {
       const response = await fetch(`/api/blog/${id}`);

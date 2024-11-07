@@ -110,7 +110,7 @@ const InfoBlog = ({ params }) => {
           </div>
         )}
 
-        <div className="max-w-3xl w-full mx-auto pt-20 px-4 sm:px-8 space-y-4">
+        <div className="max-w-3xl w-full mx-auto pt-20 px-2 sm:px-8 space-y-4">
           {article.contenu}
         </div>
 
