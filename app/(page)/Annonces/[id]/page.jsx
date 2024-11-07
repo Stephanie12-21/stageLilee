@@ -33,6 +33,7 @@ import { DeleteIcon, EditIcon, MoreHorizontal, StarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import StarRatingDialog from "@/app/(dialog)/note/page";
 import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
+import ChatBubble from "@/app/(dialog)/chat/page";
 
 const InfoAnnonces = ({ params }) => {
   const [isLiked, setIsLiked] = useState(false);
@@ -41,6 +42,7 @@ const InfoAnnonces = ({ params }) => {
   const [annonceId, setAnnonceId] = useState("");
   const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
+  const [chatModal, setChatModal] = useState(false);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -57,6 +59,7 @@ const InfoAnnonces = ({ params }) => {
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [showModalRating, setShowModalRating] = useState(false);
   const [note, setNote] = useState("");
+
   const toggleHeart = () => {
     setIsLiked(!isLiked);
   };
@@ -234,6 +237,15 @@ const InfoAnnonces = ({ params }) => {
     return totalRating / ratedComments.length;
   };
 
+  const handleChat = () => {
+    setChatModal(true);
+  };
+
+  const handleCloseChat = (userId) => {
+    console.log("user id du vendeur :", userId);
+    setChatModal(false);
+  };
+
   const averageRating = calculateAverageRating(comments);
 
   const renderStars = (rating) => {
@@ -314,8 +326,9 @@ const InfoAnnonces = ({ params }) => {
           const userName = data.user
             ? `${data.user.prenom} ${data.user.nom}`
             : "Utilisateur non trouvé";
-
+          const userId = data.user ? `${data.user.id}` : "ID user non trouvé";
           console.log("l'user qui a publié est :", userName);
+          console.log("l'ID user qui a publié est :", userId);
 
           // Mise à jour des états avec les données reçues
           setAnnonceId(data.id);
@@ -325,7 +338,8 @@ const InfoAnnonces = ({ params }) => {
           setAdresse(data.adresse);
           setLocalisation(data.localisation);
           setImages(data.imageAnnonces);
-          setUserName(userName); // On met à jour le nom de l'utilisateur
+          setUserName(userName);
+          setUserId(userId);
           if (data.localisation) setIframeSrc(data.localisation); // Mise à jour de l'iframe
         } else {
           console.error("Annonce non trouvée, avec l'id annonce :", id);
@@ -335,7 +349,6 @@ const InfoAnnonces = ({ params }) => {
       }
     }
 
-    // Appel de la fonction pour récupérer l'annonce
     fetchAnnonce();
   }, [id]);
 
@@ -345,19 +358,6 @@ const InfoAnnonces = ({ params }) => {
     if (role === "PRO") return "/professionel";
     if (role === "ADMIN") return "/admin";
     return "";
-  };
-
-  const rolePath = getRolePath(); // Appelle la fonction sans vérifier 'session'
-  const messageUrl = `${rolePath}/messages/`;
-  console.log("Le messageUrl correspondant est :", messageUrl);
-
-  const handleMessageRoot = () => {
-    if (rolePath) {
-      // Vérifie si le rolePath n'est pas vide
-      router.push(messageUrl); // Utilise messageUrl directement
-    } else {
-      console.warn("Aucun chemin valide pour le rôle, redirection annulée.");
-    }
   };
 
   return (
@@ -414,9 +414,7 @@ const InfoAnnonces = ({ params }) => {
             </CardHeader>
 
             <CardFooter className="flex justify-center">
-              <Button onClick={handleMessageRoot} className="w-full">
-                Contacter le propriétaire de l&apos;annonce
-              </Button>
+              <Button onClick={handleChat}>Discuter avec le vendeur</Button>
             </CardFooter>
           </Card>
         </div>
@@ -704,6 +702,12 @@ const InfoAnnonces = ({ params }) => {
         onClose={handleCloseRatingModal}
         commentId={selectedCommentId}
         currentRating={note}
+      />
+
+      <ChatBubble
+        isOpen={chatModal}
+        onClose={handleCloseChat}
+        userId={userId}
       />
     </div>
   );
