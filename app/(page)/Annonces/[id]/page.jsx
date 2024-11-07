@@ -18,14 +18,7 @@ import {
 import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+
 import { useSession } from "next-auth/react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -46,6 +39,7 @@ const InfoAnnonces = ({ params }) => {
   const { id } = params;
   const { data: session, status } = useSession();
   const [annonceId, setAnnonceId] = useState("");
+  const [userName, setUserName] = useState("");
   const [userId, setUserId] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
@@ -315,6 +309,15 @@ const InfoAnnonces = ({ params }) => {
         if (response.ok) {
           const data = await response.json();
           console.log("les données reçues sont : ", data);
+
+          // On vérifie si 'user' est disponible avant d'afficher le nom
+          const userName = data.user
+            ? `${data.user.prenom} ${data.user.nom}`
+            : "Utilisateur non trouvé";
+
+          console.log("l'user qui a publié est :", userName);
+
+          // Mise à jour des états avec les données reçues
           setAnnonceId(data.id);
           setTitle(data.titre);
           setCategory(data.categorieAnnonce);
@@ -322,7 +325,8 @@ const InfoAnnonces = ({ params }) => {
           setAdresse(data.adresse);
           setLocalisation(data.localisation);
           setImages(data.imageAnnonces);
-          if (data.localisation) setIframeSrc(data.localisation);
+          setUserName(userName); // On met à jour le nom de l'utilisateur
+          if (data.localisation) setIframeSrc(data.localisation); // Mise à jour de l'iframe
         } else {
           console.error("Annonce non trouvée, avec l'id annonce :", id);
         }
@@ -331,27 +335,9 @@ const InfoAnnonces = ({ params }) => {
       }
     }
 
+    // Appel de la fonction pour récupérer l'annonce
     fetchAnnonce();
   }, [id]);
-
-  const cardVariants = {
-    visible: (i) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.05,
-        duration: 0.3,
-      },
-    }),
-    hidden: (i) => ({
-      opacity: 0,
-      y: 50,
-      transition: {
-        delay: i * 0.01,
-        duration: 0.3,
-      },
-    }),
-  };
 
   const getRolePath = () => {
     const role = session?.user?.role;
@@ -418,8 +404,12 @@ const InfoAnnonces = ({ params }) => {
                   )}
                 </div>
               </div>
-              <CardDescription>
-                {description.substring(0, 300)}...
+              <CardDescription className="flex flex-col space-y-6">
+                <div>{description.substring(0, 300)}...</div>
+                <div>
+                  <strong>Publié par : </strong>
+                  {userName}
+                </div>
               </CardDescription>
             </CardHeader>
 
