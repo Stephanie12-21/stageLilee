@@ -53,6 +53,7 @@ const UserPage = () => {
   const [loading, setLoading] = useState(true);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
+  const [isActivationAlertOpen, setIsActivationAlertOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [userId, setUserId] = useState([]);
   const [searchFilter, setSearchFilter] = useState("");
@@ -114,6 +115,12 @@ const UserPage = () => {
     setEmail(user.email);
     setUserId(user.id);
     setIsSuspendAlertOpen(true);
+  };
+  const openActivationAlert = (user) => {
+    setSelectedUser(user);
+    setEmail(user.email);
+    setUserId(user.id);
+    setIsActivationAlertOpen(true);
   };
 
   const handleConfirmAlertUser = async () => {
@@ -184,6 +191,48 @@ const UserPage = () => {
     }
   };
 
+  const handleConfirmActivationUser = async () => {
+    const statutUser = "ACTIF";
+    try {
+      const response = await fetch(`/api/user/activationUser/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          statutUser,
+          email,
+        }),
+      });
+
+      // Vérifiez que la réponse est OK avant de tenter de la convertir en JSON
+      if (!response.ok) {
+        const textResponse = await response.text(); // Obtenez la réponse en texte brut
+        console.error("Erreur du serveur:", textResponse); // Affichez la réponse pour déboguer
+        throw new Error(textResponse || "Une erreur s'est produite");
+      }
+
+      // Si la réponse est OK, essayez de parser le JSON
+      const data = await response.json();
+
+      // Vérifiez si des erreurs sont présentes dans la réponse
+      if (data.error) {
+        alert(data.error || "Une erreur s'est produite lors de l'activation.");
+        return;
+      }
+
+      alert(
+        "Le compte de l'utilisateur a été activé et l'utilisateur a été informé par email."
+      );
+      await fetchUsers(); // Récupérez la liste des utilisateurs après l'activation
+    } catch (error) {
+      console.error("Erreur lors de l'activation :", error);
+      alert("Une erreur s'est produite, veuillez réessayer.");
+    } finally {
+      setIsActivationAlertOpen(false); // Fermez l'alerte ou le modal
+    }
+  };
+
   const columns = [
     {
       accessorKey: "image",
@@ -211,45 +260,61 @@ const UserPage = () => {
     { accessorKey: "statutUser", header: "Statut" },
     {
       header: "Actions",
-      cell: ({ row }) => (
-        <div className="flex justify-left">
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="w-fit h-fit p-0">
-                <FaEllipsisH className="cursor-pointer" size={24} />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-fit p-2 mt-2">
-              <DropdownMenuItem>
-                <Button
-                  variant="outline"
-                  onClick={() => handleSeeUserInfo(row.original.id)}
-                >
-                  Voir le profil de l&apos;utilisateur
+      cell: ({ row }) => {
+        const statut = row.original.statutUser; // Récupérer le statut de l'utilisateur
+        const actionLabel =
+          statut === "ACTIF"
+            ? "Suspendre l'utilisateur"
+            : "Activer l'utilisateur"; // Modifier le libellé
+
+        return (
+          <div className="flex justify-left">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-fit h-fit p-0">
+                  <FaEllipsisH className="cursor-pointer" size={24} />
                 </Button>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Button
-                  variant="outline"
-                  onClick={() => openAlert(row.original)}
-                >
-                  Avertir l&apos;utilisateur
-                </Button>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <Button
-                  variant="outline"
-                  onClick={() => openSuspendAlert(row.original)}
-                >
-                  Suspendre l&apos;utilisateur
-                </Button>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      ),
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-fit p-2 mt-2">
+                <DropdownMenuItem>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleSeeUserInfo(row.original.id)}
+                  >
+                    Voir le profil de l&apos;utilisateur
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Button
+                    variant="outline"
+                    onClick={() => openAlert(row.original)}
+                  >
+                    Avertir l&apos;utilisateur
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      if (row.original.statutUser === "ACTIF") {
+                        openSuspendAlert(row.original);
+                      } else if (row.original.statutUser === "SUSPENDU") {
+                        openActivationAlert(row.original);
+                      }
+                    }}
+                  >
+                    {row.original.statutUser === "ACTIF"
+                      ? "Suspendre le compte"
+                      : "Activer le compte"}{" "}
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
     },
   ];
 
@@ -383,6 +448,23 @@ const UserPage = () => {
             <AlertDialogCancel>Annuler</AlertDialogCancel>
             <AlertDialogAction onClick={handleConfirmSuspendUser}>
               Suspendre
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={isActivationAlertOpen}
+        onOpenChange={setIsActivationAlertOpen}
+      >
+        <AlertDialogContent>
+          <AlertDialogTitle>
+            Êtes-vous sûr d&apos;activer cet utilisateur, avec l&apos; {userId}
+          </AlertDialogTitle>
+          <div className="flex justify-end space-x-2 mt-4">
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmActivationUser}>
+              Activer
             </AlertDialogAction>
           </div>
         </AlertDialogContent>
