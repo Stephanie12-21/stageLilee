@@ -50,6 +50,7 @@ const UserPage = () => {
   const [loading, setLoading] = useState(true);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null); // Nouvelle variable pour l'utilisateur sélectionné
   const [searchFilter, setSearchFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all"); // État pour le filtre de statut
@@ -101,10 +102,18 @@ const UserPage = () => {
     [router]
   );
 
-  const openAlert = () => setIsAlertOpen(true);
-  const closeAlert = () => setIsAlertOpen(false);
-  const openSuspendAlert = () => setIsSuspendAlertOpen(true);
-  const closeSuspendAlert = () => setIsSuspendAlertOpen(false);
+  const openAlert = (user) => {
+    setSelectedUser(user);
+    setEmail(user.email);
+    setIsAlertOpen(true);
+  };
+
+  const openSuspendAlert = (user) => {
+    setSelectedUser(user);
+    setEmail(user.email);
+    setIsSuspendAlertOpen(true);
+  };
+
   const handleConfirmSuspendUser = () => {
     console.log("Utilisateur suspendu");
     setIsSuspendAlertOpen(false);
@@ -156,13 +165,19 @@ const UserPage = () => {
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Button variant="outline" onClick={openAlert}>
+                <Button
+                  variant="outline"
+                  onClick={() => openAlert(row.original)}
+                >
                   Avertir l'utilisateur
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
-                <Button variant="outline" onClick={openSuspendAlert}>
+                <Button
+                  variant="outline"
+                  onClick={() => openSuspendAlert(row.original)}
+                >
                   Suspendre l'utilisateur
                 </Button>
               </DropdownMenuItem>
@@ -194,7 +209,7 @@ const UserPage = () => {
         <div className="flex justify-center space-x-3">
           <Select
             value={roleFilter}
-            onValueChange={(value) => setRoleFilter(value)} // Mettez à jour le filtre de rôle ici
+            onValueChange={(value) => setRoleFilter(value)}
           >
             <SelectTrigger className="w-fit">
               <SelectValue placeholder="Sélectionner le type de compte" />
@@ -255,13 +270,24 @@ const UserPage = () => {
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
-          <Label>Raison</Label>
+          <Label htmlFor="email" className="text-[16px] ">
+            Email de l&apos;utilisateur :{" "}
+            <span className="text-blue-950 font-bold">{email}</span>
+          </Label>
+
+          <Label htmlFor="message" className="text-[16px] font-medium">
+            Message
+          </Label>
           <Textarea
-            value={raison}
-            onChange={(e) => setRaison(e.target.value)}
+            id="message"
+            placeholder="Écrire un message ..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
           />
-          <AlertDialogCancel onClick={closeAlert}>Annuler</AlertDialogCancel>
-          <AlertDialogAction onClick={closeAlert}>Envoyer</AlertDialogAction>
+          <div className="flex justify-end space-x-2 mt-4">
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction>Envoyer</AlertDialogAction>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
 
@@ -270,17 +296,27 @@ const UserPage = () => {
         onOpenChange={setIsSuspendAlertOpen}
       >
         <AlertDialogContent>
-          <Label>Raison</Label>
+          <Label htmlFor="email" className="text-[16px]">
+            Email de l&apos;utilisateur :{" "}
+            <span className="text-blue-950 font-bold">{email}</span>
+          </Label>
+
+          <Label htmlFor="raison" className="text-[16px] font-medium">
+            Raison de la suspension
+          </Label>
           <Textarea
+            id="raison"
+            placeholder="Expliquez pourquoi cet utilisateur est suspendu..."
             value={raison}
             onChange={(e) => setRaison(e.target.value)}
           />
-          <AlertDialogCancel onClick={closeSuspendAlert}>
-            Annuler
-          </AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirmSuspendUser}>
-            Suspendre
-          </AlertDialogAction>
+
+          <div className="flex justify-end space-x-2 mt-4">
+            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={handleConfirmSuspendUser}>
+              Suspendre
+            </AlertDialogAction>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>
