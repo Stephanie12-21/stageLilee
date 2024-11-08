@@ -16,8 +16,8 @@ async function sendSuspensionEmail(email, raison) {
   const mailOptions = {
     from: process.env.SMTP_USER,
     to: email,
-    subject: "Notification de suspension de compte",
-    text: `Bonjour,\n\nVotre compte a été suspendu pour la raison suivante :\n\n"${raison}"\n\nMerci de contacter l'administration si vous avez des questions.`,
+    subject: "Notification d'alert  de compte",
+    text: `Bonjour,\n\nVotre compte a été alerté pour la raison suivante :\n\n"${raison}"\n\nMerci de contacter l'administration si vous avez des questions.`,
   };
 
   try {
@@ -29,28 +29,26 @@ async function sendSuspensionEmail(email, raison) {
   }
 }
 
-// Gestionnaire pour la méthode POST
 export async function POST(req) {
   try {
-    const { email, raison } = await req.json(); // Récupérez les données JSON de la requête
+    const { email, messageAlert } = await req.json();
 
-    // Validation des entrées
-    if (!email || !raison) {
+    if (!email || !messageAlert) {
       return NextResponse.json(
-        { error: "Tous les champs (email, raison) sont requis." },
+        { error: "Tous les champs (email, messageAlert) sont requis." },
         { status: 400 }
       );
     }
 
     // Envoi de l'email de suspension
-    await sendSuspensionEmail(email, raison);
+    await sendSuspensionEmail(email, messageAlert);
 
     return NextResponse.json(
-      { message: "E-mail de suspension envoyé avec succès" },
+      { message: "E-mail d'alert envoyé avec succès" },
       { status: 200 }
     );
   } catch (error) {
-    console.error("Erreur dans l'API de suspension :", error);
+    console.error("Erreur dans l'API d'alert :", error);
     return NextResponse.json({ error: error.message }, { status: 500 }); // Renvoie le message d'erreur
   }
 }

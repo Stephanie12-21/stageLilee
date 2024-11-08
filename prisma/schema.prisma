@@ -49,7 +49,7 @@ model user {
 
 enum statutUser {
   ACTIF
-  NON_ACTIF
+  SUSPENDU
 }
 
 model company {

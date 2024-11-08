@@ -5,9 +5,8 @@ import { NextResponse } from "next/server";
 export async function POST(req) {
   try {
     console.log("Début du traitement des données du formulaire");
-    const body = await req.formData(); // Récupération des données du formulaire
+    const body = await req.formData();
 
-    // Récupérer les valeurs du formulaire
     const nom = body.get("nom");
     const prenom = body.get("prenom");
     const email = body.get("email");
@@ -16,7 +15,7 @@ export async function POST(req) {
     const imageFile = body.get("imageFile");
 
     const validRoles = ["ADMIN", "PERSO", "PRO"];
-    const validStatut = ["ACTIF", "  NON_ACTIF"];
+    const validStatut = ["ACTIF", "SUSPENDU"];
     const role = validRoles.includes(body.get("role"))
       ? body.get("role")
       : null;
@@ -33,7 +32,6 @@ export async function POST(req) {
       imageFile,
     });
 
-    // Vérification si l'email existe déjà
     const existingUserByEmail = await db.user.findUnique({
       where: { email },
     });
@@ -45,7 +43,6 @@ export async function POST(req) {
       );
     }
 
-    // Vérification si le numéro de téléphone existe déjà
     const existingUserByPhone = await db.user.findUnique({
       where: { phone },
     });
@@ -57,20 +54,16 @@ export async function POST(req) {
       );
     }
 
-    // Hachage du mot de passe
     const hashedPassword = await hash(password, 10);
 
-    // URL de l'image
     let imageUrl = null;
 
-    // Vérifiez si imageFile est présent
     if (imageFile) {
       console.log("Début de l'upload de l'image");
       const formData = new FormData();
       formData.append("file", imageFile);
-      formData.append("upload_preset", "ko4bjtic"); // Remplacez par votre preset Cloudinary
+      formData.append("upload_preset", "ko4bjtic");
 
-      // Téléchargement de l'image sur Cloudinary
       const uploadResponse = await fetch(
         "https://api.cloudinary.com/v1_1/dtryutlkz/image/upload",
         {
@@ -100,7 +93,6 @@ export async function POST(req) {
       );
     }
 
-    // Création de l'utilisateur
     console.log("Création de l'utilisateur");
     const newcomptePerso = await db.user.create({
       data: {
@@ -114,7 +106,6 @@ export async function POST(req) {
       },
     });
 
-    // Associer l'image si elle existe
     if (imageUrl) {
       console.log("Association de l'image avec l'utilisateur");
       await db.profileImage.create({
@@ -125,7 +116,6 @@ export async function POST(req) {
       });
     }
 
-    // Exclure le mot de passe de la réponse
     const { hashPassword: _, ...rest } = newcomptePerso;
 
     console.log("Compte créé avec succès");

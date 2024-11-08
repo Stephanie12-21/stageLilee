@@ -48,34 +48,33 @@ const UserPage = () => {
   const [raison, setRaison] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
+  const [messageAlert, setMessageAlert] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null); // Nouvelle variable pour l'utilisateur sélectionné
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [userId, setUserId] = useState([]);
   const [searchFilter, setSearchFilter] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
-  const [statusFilter, setStatusFilter] = useState("all"); // État pour le filtre de statut
+  const [statusFilter, setStatusFilter] = useState("all");
   const router = useRouter();
 
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch("/api/user/getAll");
+      const data = await response.json();
+      const filteredUsers = data.users.filter((user) => user.role !== "ADMIN");
+      setUsers(filteredUsers);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des utilisateurs :", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const response = await fetch("/api/user/getAll");
-        const data = await response.json();
-        const filteredUsers = data.users.filter(
-          (user) => user.role !== "ADMIN"
-        );
-        setUsers(filteredUsers);
-      } catch (error) {
-        console.error(
-          "Erreur lors de la récupération des utilisateurs :",
-          error
-        );
-      } finally {
-        setLoading(false);
-      }
-    };
+    setLoading(true);
     fetchUsers();
   }, []);
 
@@ -113,31 +112,31 @@ const UserPage = () => {
   const openSuspendAlert = (user) => {
     setSelectedUser(user);
     setEmail(user.email);
+    setUserId(user.id);
     setIsSuspendAlertOpen(true);
   };
-  const handleConfirmSuspendUser = async () => {
-    // Vérification que la raison est fournie
-    if (!raison) {
+
+  const handleConfirmAlertUser = async () => {
+    if (!messageAlert) {
       alert("Veuillez entrer une raison pour la suspension.");
       return;
     }
 
     try {
-      // Envoi de la raison de suspension à l'email de l'utilisateur
-      const response = await fetch("/api/user/suspendUser", {
+      const response = await fetch("/api/user/alertUser", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           email,
-          raison, // Assurez-vous que "raison" et "email" sont envoyés correctement
+          messageAlert,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert("L'utilisateur a été suspendu et informé par email.");
+        alert("L'utilisateur a été alerté et informé par email.");
       } else {
         alert(data.error || "Une erreur s'est produite lors de la suspension.");
       }
@@ -146,6 +145,41 @@ const UserPage = () => {
       alert("Une erreur s'est produite, veuillez réessayer.");
     } finally {
       // Fermer le dialogue après l'action
+      setIsSuspendAlertOpen(false);
+    }
+  };
+
+  const handleConfirmSuspendUser = async () => {
+    if (!raison) {
+      alert("Veuillez entrer une raison pour la suspension.");
+      return;
+    }
+
+    const statutUser = "SUSPENDU";
+    try {
+      const response = await fetch(`/api/user/suspendUser/${userId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          raison,
+          statutUser,
+          email,
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert("L'utilisateur a été suspendu et informé par email.");
+        await fetchUsers();
+      } else {
+        alert(data.error || "Une erreur s'est produite lors de la suspension.");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suspension :", error);
+      alert("Une erreur s'est produite, veuillez réessayer.");
+    } finally {
       setIsSuspendAlertOpen(false);
     }
   };
@@ -191,7 +225,7 @@ const UserPage = () => {
                   variant="outline"
                   onClick={() => handleSeeUserInfo(row.original.id)}
                 >
-                  Voir le profil de l'utilisateur
+                  Voir le profil de l&apos;utilisateur
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -200,7 +234,7 @@ const UserPage = () => {
                   variant="outline"
                   onClick={() => openAlert(row.original)}
                 >
-                  Avertir l'utilisateur
+                  Avertir l&apos;utilisateur
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
@@ -209,7 +243,7 @@ const UserPage = () => {
                   variant="outline"
                   onClick={() => openSuspendAlert(row.original)}
                 >
-                  Suspendre l'utilisateur
+                  Suspendre l&apos;utilisateur
                 </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -312,12 +346,14 @@ const UserPage = () => {
           <Textarea
             id="message"
             placeholder="Écrire un message ..."
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={messageAlert}
+            onChange={(e) => setMessageAlert(e.target.value)}
           />
           <div className="flex justify-end space-x-2 mt-4">
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction>Envoyer</AlertDialogAction>
+            <AlertDialogAction onClick={handleConfirmAlertUser}>
+              Envoyer
+            </AlertDialogAction>
           </div>
         </AlertDialogContent>
       </AlertDialog>
@@ -330,6 +366,7 @@ const UserPage = () => {
           <Label htmlFor="email" className="text-[16px]">
             Email de l&apos;utilisateur :{" "}
             <span className="text-blue-950 font-bold">{email}</span>
+            <span>Avec l&apos; identifiant :{userId}</span>
           </Label>
 
           <Label htmlFor="raison" className="text-[16px] font-medium">
