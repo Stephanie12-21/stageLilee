@@ -30,6 +30,7 @@ import {
   AlertDialogContent,
   AlertDialogAction,
   AlertDialogCancel,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,6 +42,7 @@ import {
   SelectValue,
   SelectGroup,
 } from "@/components/ui/select";
+import { AlertTitle } from "@/components/ui/alert";
 
 const UserPage = () => {
   const [raison, setRaison] = useState("");
@@ -113,10 +115,39 @@ const UserPage = () => {
     setEmail(user.email);
     setIsSuspendAlertOpen(true);
   };
+  const handleConfirmSuspendUser = async () => {
+    // Vérification que la raison est fournie
+    if (!raison) {
+      alert("Veuillez entrer une raison pour la suspension.");
+      return;
+    }
 
-  const handleConfirmSuspendUser = () => {
-    console.log("Utilisateur suspendu");
-    setIsSuspendAlertOpen(false);
+    try {
+      // Envoi de la raison de suspension à l'email de l'utilisateur
+      const response = await fetch("/api/user/suspendUser", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          raison, // Assurez-vous que "raison" et "email" sont envoyés correctement
+        }),
+      });
+
+      const data = await response.json();
+      if (response.ok) {
+        alert("L'utilisateur a été suspendu et informé par email.");
+      } else {
+        alert(data.error || "Une erreur s'est produite lors de la suspension.");
+      }
+    } catch (error) {
+      console.error("Erreur lors de la suspension :", error);
+      alert("Une erreur s'est produite, veuillez réessayer.");
+    } finally {
+      // Fermer le dialogue après l'action
+      setIsSuspendAlertOpen(false);
+    }
   };
 
   const columns = [
@@ -308,7 +339,7 @@ const UserPage = () => {
             id="raison"
             placeholder="Expliquez pourquoi cet utilisateur est suspendu..."
             value={raison}
-            onChange={(e) => setRaison(e.target.value)}
+            onChange={(e) => setRaison(e.target.value)} // Met à jour la raison
           />
 
           <div className="flex justify-end space-x-2 mt-4">
