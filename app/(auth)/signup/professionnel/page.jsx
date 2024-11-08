@@ -280,7 +280,7 @@ const SignUpPage = () => {
 
     const role = "PRO"; // Définir le rôle
     const Phone = `+${phone}`; // Formater le numéro de téléphone
-
+    const statutUser = "ACTIF";
     // Création d'un nouvel objet FormData
     const formData = new FormData();
     formData.append("nom", nom);
@@ -289,6 +289,7 @@ const SignUpPage = () => {
     formData.append("phone", Phone);
     formData.append("password", password);
     formData.append("role", role);
+    formData.append("statutUser", statutUser);
 
     // Ajout des informations de la société
     formData.append("secteurActivite", secteurActivite);

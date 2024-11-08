@@ -23,6 +23,7 @@ export async function POST(req) {
     const phone = body.get("phone");
     const password = body.get("password");
     const role = body.get("role");
+    const statutUser = body.get("statutUser");
     const imageFile = body.get("imageFile");
 
     console.log("Données de l'admin du compte reçues :", {
@@ -31,6 +32,7 @@ export async function POST(req) {
       email,
       phone,
       role,
+      statutUser,
       imageFile,
     });
     console.log("Données de la société reçues :", {
@@ -156,6 +158,7 @@ export async function POST(req) {
         phone,
         hashPassword: hashedPassword,
         role,
+        statutUser,
         companyId: newCompany.id,
       },
     });

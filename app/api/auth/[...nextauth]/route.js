@@ -3,6 +3,7 @@ import { compare } from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "@/lib/db";
+import { statutUser } from "@prisma/client";
 
 export const authOptions = {
   adapter: PrismaAdapter(db),
@@ -72,6 +73,7 @@ export const authOptions = {
           email: existingComptePerso.email,
           dateCreation: existingComptePerso.createdAt,
           role: existingComptePerso.role,
+          statutUser: existingComptePerso.statutUser,
           image: imageUrl,
         });
         return {
@@ -80,6 +82,7 @@ export const authOptions = {
           prenom: existingComptePerso.prenom,
           email: existingComptePerso.email,
           role: existingComptePerso.role,
+          statutUser: existingComptePerso.statutUser,
           image: imageUrl,
         };
       },
@@ -96,6 +99,7 @@ export const authOptions = {
         token.email = user.email || null;
         token.picture = user.image || null;
         token.role = user.role || null;
+        token.statutUser = user.statutUser || null;
         token.name = user.nom || null;
       } else {
         // Lorsqu'il n'y a pas d'utilisateur, mais que le token contient des informations
@@ -106,6 +110,7 @@ export const authOptions = {
           picture: token.picture || null,
           role: token.role || null,
           name: token.nom || null,
+          statutUser: token.statutUser || null,
           prenom: token.prenom || null,
         };
       }
@@ -124,6 +129,7 @@ export const authOptions = {
         name: token.nom || null,
         email: token.email || null,
         image: token.picture || null,
+        statutUser: token.statutUser || null,
         role: token.role || null,
       };
 

@@ -9,6 +9,7 @@ import { FaEllipsisV } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
 import { signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,7 +18,6 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Label } from "@/components/ui/label";
 
 // Define the ListLink component
 export const ListLink = () => {
@@ -64,11 +64,29 @@ export const ListLink = () => {
 // Define the ListButton component
 
 export const ListButton = () => {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
+  const router = useRouter();
 
   const handleSignOut = () => {
     signOut();
   };
+
+  // Ensure the role path only generates if session data is available
+  const getRolePath = () => {
+    const role = session?.user?.role;
+    if (role === "PERSO") return "/personnel";
+    if (role === "PRO") return "/professionel";
+    if (role === "ADMIN") return "/admin";
+    return ""; // Default to home if no role
+  };
+
+  // Only generate URLs if session data is available
+  const rolePath = session ? getRolePath() : "";
+  const profileUrl = `${rolePath}/profile/${session?.user?.id}`;
+  const securityUrl = `${rolePath}/security/${session?.user?.id}`;
+  const clientSpaceUrl = rolePath;
+
+  if (status === "loading") return <p>Loading...</p>;
 
   return (
     <div className="flex gap-2 items-center">
@@ -106,21 +124,19 @@ export const ListButton = () => {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem>
-              <Link href={`/admin/profile/${session.user.id}`}>
-                Votre profil
-              </Link>
+              <Link href={profileUrl}>Votre profil</Link>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
             <DropdownMenuItem>
-              <Link href={`/admin/security/${session.user.id}`}>Sécurité</Link>
+              <Link href={securityUrl}>Sécurité</Link>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
 
             <DropdownMenuItem>
-              <Link href={`/admin/${session.user.id}`}>Espace client</Link>
+              <Link href={clientSpaceUrl}>Espace client</Link>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -133,28 +149,31 @@ export const ListButton = () => {
           </DropdownMenuContent>
         </DropdownMenu>
       ) : (
-        <>
-          <Toaster position="top-right" />
+        <div className="flex gap-2">
+          <Toaster position="top-right" className="text-[20px] font-semibold" />
           <Button
             className="px-5 rounded-[10px] text-[16px] text-white font-semibold bg-transparent border-[1px] hover:bg-transparent hover:text-white"
+            variant="outline"
             onClick={() =>
-              toast(
-                <div>
-                  <span style={{ fontSize: "17px", fontWeight: "semibold" }}>
-                    Pour pouvoir déposer une annonce et se satisfaire pleinement
-                    des fonctionnalités du site, il faut d&apos;abord accéder à
-                    votre espace utilisateur.
-                  </span>
-                  <div className="mt-2">
-                    <span
-                      className="text-[#15213d] text-[17px] hover:underline font-semibold cursor-pointer"
-                      onClick={() => toast.dismiss()}
-                    >
-                      Très bien, d&apos;accord
+              toast("", {
+                description: (
+                  <div>
+                    <span style={{ fontSize: "17px", fontStyle: "semibold" }}>
+                      Pour pouvoir déposer une annonce et se satisfaire
+                      pleinement des fonctionnalités du site, il faut
+                      d&apos;abord accéder à votre espace utilisateur.
                     </span>
+                    <div className="mt-2">
+                      <span
+                        className="text-[#15213d] text-[17px] hover:underline font-semibold cursor-pointer"
+                        onClick={() => toast.dismiss()}
+                      >
+                        Très bien, d&apos;accord
+                      </span>
+                    </div>
                   </div>
-                </div>
-              )
+                ),
+              })
             }
           >
             Déposer une annonce
@@ -165,12 +184,11 @@ export const ListButton = () => {
           >
             <Link href={"/login"}>Se connecter</Link>
           </Button>
-        </>
+        </div>
       )}
     </div>
   );
 };
-
 // Define the NavBar component
 
 const NavBar = () => {

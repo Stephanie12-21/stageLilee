@@ -17,6 +17,7 @@ export async function GET(request, { params }) {
       where: { id: numericId },
       include: {
         imageAnnonces: true,
+        user: true,
       },
     });
 

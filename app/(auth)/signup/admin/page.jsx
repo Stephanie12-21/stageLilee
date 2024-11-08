@@ -186,6 +186,7 @@ const Administrator = () => {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Empêche le rechargement de la page
     const role = "ADMIN";
+    const statutUser = "ACTIF";
     const Phone = `+${phone}`;
     const formData = new FormData();
     formData.append("nom", nom);
@@ -194,6 +195,7 @@ const Administrator = () => {
     formData.append("phone", Phone);
     formData.append("password", password);
     formData.append("role", role);
+    formData.append("statutUser", statutUser);
 
     // Ajoutez le fichier d'image
     if (imageFile) {
