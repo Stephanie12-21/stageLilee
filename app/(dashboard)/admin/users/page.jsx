@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import Image from "next/image";
 import {
   Table,
@@ -33,7 +33,6 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import Link from "next/link";
 
 const UserPage = () => {
   const [raison, setRaison] = useState("");
@@ -43,6 +42,7 @@ const UserPage = () => {
   const [loading, setLoading] = useState(true);
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
+  const [searchFilter, setSearchFilter] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -52,20 +52,8 @@ const UserPage = () => {
         const data = await response.json();
         const filteredUsers = data.users.filter(
           (user) => user.role !== "ADMIN"
-        ); // Filtrer les utilisateurs
+        );
         setUsers(filteredUsers);
-
-        data.users.forEach((user) => {
-          console.log("Statut de l'utilisateur :", user.statutUser);
-          if (user.profileImages.length > 0) {
-            console.log(
-              "Lien de l'image de l'utilisateur :",
-              user.profileImages[0].path
-            );
-          } else {
-            console.log("Pas d'image pour cet utilisateur");
-          }
-        });
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des utilisateurs :",
@@ -75,31 +63,32 @@ const UserPage = () => {
         setLoading(false);
       }
     };
-
     fetchUsers();
   }, []);
 
-  const handleSeeUserInfo = (userId) => {
-    console.log("ID de l'utilisateur sélectionné :", userId);
-    router.push(`/admin/users/${userId}`);
-  };
+  const filteredUsersData = useMemo(() => {
+    const searchLower = searchFilter.toLowerCase();
+    return users.filter(
+      (user) =>
+        user.nom.toLowerCase().includes(searchLower) ||
+        user.prenom.toLowerCase().includes(searchLower) ||
+        user.email.toLowerCase().includes(searchLower) ||
+        user.phone.toLowerCase().includes(searchLower)
+    );
+  }, [users, searchFilter]);
 
-  const handleAlertUser = () => {
-    setIsAlertOpen(true);
-  };
+  const handleSeeUserInfo = useCallback(
+    (userId) => {
+      console.log("ID de l'utilisateur sélectionné :", userId);
+      router.push(`/admin/users/${userId}`);
+    },
+    [router]
+  );
 
-  const handleCloseAlert = () => {
-    setIsAlertOpen(false);
-  };
-
-  const handleSuspendUser = () => {
-    setIsSuspendAlertOpen(true);
-  };
-
-  const handleCloseSuspendAlert = () => {
-    setIsSuspendAlertOpen(false);
-  };
-
+  const openAlert = () => setIsAlertOpen(true);
+  const closeAlert = () => setIsAlertOpen(false);
+  const openSuspendAlert = () => setIsSuspendAlertOpen(true);
+  const closeSuspendAlert = () => setIsSuspendAlertOpen(false);
   const handleConfirmSuspendUser = () => {
     console.log("Utilisateur suspendu");
     setIsSuspendAlertOpen(false);
@@ -124,7 +113,6 @@ const UserPage = () => {
         );
       },
     },
-    // { accessorKey: "id", header: "Identifiant" },
     { accessorKey: "nom", header: "Nom" },
     { accessorKey: "prenom", header: "Prénom" },
     { accessorKey: "email", header: "Adresse email" },
@@ -133,50 +121,44 @@ const UserPage = () => {
     { accessorKey: "statutUser", header: "Statut" },
     {
       header: "Actions",
-      cell: ({ row }) => {
-        console.log(row);
-        return (
-          <div className="flex justify-left">
-            <DropdownMenu>
-              <div className="flex rounded-full p-2">
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="w-fit h-fit p-0">
-                    <FaEllipsisH className="cursor-pointer" size={24} />
-                  </Button>
-                </DropdownMenuTrigger>
-              </div>
-
-              <DropdownMenuContent align="end" className="w-fit p-2 mt-2">
-                <DropdownMenuItem>
-                  <Button
-                    variant="outline"
-                    onClick={() => handleSeeUserInfo(row.original.id)}
-                  >
-                    Voir le profil de l&apos;utilisateur
-                  </Button>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Button variant="outline" onClick={handleAlertUser}>
-                    Avertir l&apos;utilisateur
-                  </Button>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Button variant="outline" onClick={handleSuspendUser}>
-                    Suspendre l&apos;utilisateur
-                  </Button>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </div>
-        );
-      },
+      cell: ({ row }) => (
+        <div className="flex justify-left">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="ghost" className="w-fit h-fit p-0">
+                <FaEllipsisH className="cursor-pointer" size={24} />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-fit p-2 mt-2">
+              <DropdownMenuItem>
+                <Button
+                  variant="outline"
+                  onClick={() => handleSeeUserInfo(row.original.id)}
+                >
+                  Voir le profil de lutilisateur
+                </Button>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Button variant="outline" onClick={openAlert}>
+                  Avertir lutilisateur
+                </Button>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem>
+                <Button variant="outline" onClick={openSuspendAlert}>
+                  Suspendre lutilisateur
+                </Button>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      ),
     },
   ];
 
   const table = useReactTable({
-    data: users,
+    data: filteredUsersData,
     columns,
     getCoreRowModel: getCoreRowModel(),
   });
@@ -186,7 +168,12 @@ const UserPage = () => {
   return (
     <div className="space-y-3">
       <h1>Liste des utilisateurs</h1>
-      <Input placeholder="Rechercher ici ..." className="max-w-sm" />
+      <Input
+        placeholder="Rechercher ici ..."
+        value={searchFilter}
+        onChange={(e) => setSearchFilter(e.target.value)}
+        className="max-w-sm"
+      />
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -217,54 +204,13 @@ const UserPage = () => {
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
-          <h2 className="text-lg font-semibold">Avertir l&apos;utilisateur</h2>
-          <div className="grid gap-2">
-            <Label htmlFor="email">Email de l&apos;utilisateur</Label>
-            <Input
-              id="email"
-              placeholder="email de l'utilisateur à avertir"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="bg-white p-2 border border-gray-300 rounded"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="raison">Raison de l&apos;avertissement</Label>
-            <Input
-              id="raison"
-              placeholder="Ecrire ici la raison "
-              value={raison}
-              onChange={(e) => setRaison(e.target.value)}
-              className="bg-white p-2 border border-gray-300 rounded"
-            />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="message">Message</Label>
-            <Textarea
-              id="message"
-              value={message}
-              required
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Écrivez votre message ici"
-              className="col-span-3 w-full h-10 bg-white text-[16px]  font-medium p-2 rounded-md"
-            />
-          </div>
-          <div className="mt-4 flex justify-end space-x-2">
-            <AlertDialogCancel asChild>
-              <Button
-                className="underline"
-                variant="secondary"
-                onClick={handleCloseAlert}
-              >
-                Annuler
-              </Button>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button variant="destructive" onClick={handleCloseAlert}>
-                Envoyer l&apos;avertissement
-              </Button>
-            </AlertDialogAction>
-          </div>
+          <Label>Raison</Label>
+          <Textarea
+            value={raison}
+            onChange={(e) => setRaison(e.target.value)}
+          />
+          <AlertDialogCancel onClick={closeAlert}>Annuler</AlertDialogCancel>
+          <AlertDialogAction onClick={closeAlert}>Envoyer</AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
 
@@ -272,31 +218,18 @@ const UserPage = () => {
         open={isSuspendAlertOpen}
         onOpenChange={setIsSuspendAlertOpen}
       >
-        <AlertDialogContent className="flex flex-col space-y-2 justify-center items-center ">
-          <h2 className="text-lg font-semibold">
-            Suspendre l&apos;utilisateur
-          </h2>
-          <p>
-            Vous êtes sûr de vouloir cet utilisateur?
-            <br />
-            NB: Cet utilisateur ne pourra plus accéder à son compte utilisateur.
-          </p>
-          <div className="mt-4 flex justify-center space-x-2">
-            <AlertDialogCancel asChild>
-              <Button
-                className="underline"
-                variant="secondary"
-                onClick={handleCloseSuspendAlert}
-              >
-                Annuler
-              </Button>
-            </AlertDialogCancel>
-            <AlertDialogAction asChild>
-              <Button variant="destructive" onClick={handleConfirmSuspendUser}>
-                Suspendre l&apos;utilisateur
-              </Button>
-            </AlertDialogAction>
-          </div>
+        <AlertDialogContent>
+          <Label>Message</Label>
+          <Textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+          />
+          <AlertDialogCancel onClick={closeSuspendAlert}>
+            Annuler
+          </AlertDialogCancel>
+          <AlertDialogAction onClick={handleConfirmSuspendUser}>
+            Suspendre
+          </AlertDialogAction>
         </AlertDialogContent>
       </AlertDialog>
     </div>
