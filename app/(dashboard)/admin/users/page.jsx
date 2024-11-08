@@ -33,6 +33,14 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  SelectGroup,
+} from "@/components/ui/select";
 
 const UserPage = () => {
   const [raison, setRaison] = useState("");
@@ -43,6 +51,8 @@ const UserPage = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
   const [searchFilter, setSearchFilter] = useState("");
+  const [roleFilter, setRoleFilter] = useState("all");
+  const [statusFilter, setStatusFilter] = useState("all"); // État pour le filtre de statut
   const router = useRouter();
 
   useEffect(() => {
@@ -68,14 +78,20 @@ const UserPage = () => {
 
   const filteredUsersData = useMemo(() => {
     const searchLower = searchFilter.toLowerCase();
-    return users.filter(
-      (user) =>
+    return users.filter((user) => {
+      const matchesSearch =
         user.nom.toLowerCase().includes(searchLower) ||
         user.prenom.toLowerCase().includes(searchLower) ||
         user.email.toLowerCase().includes(searchLower) ||
-        user.phone.toLowerCase().includes(searchLower)
-    );
-  }, [users, searchFilter]);
+        user.phone.toLowerCase().includes(searchLower);
+      const matchesRole =
+        roleFilter === "all" || user.role.toLowerCase() === roleFilter;
+      const matchesStatus =
+        statusFilter === "all" ||
+        user.statutUser.toLowerCase() === statusFilter;
+      return matchesSearch && matchesRole && matchesStatus;
+    });
+  }, [users, searchFilter, roleFilter, statusFilter]);
 
   const handleSeeUserInfo = useCallback(
     (userId) => {
@@ -135,19 +151,19 @@ const UserPage = () => {
                   variant="outline"
                   onClick={() => handleSeeUserInfo(row.original.id)}
                 >
-                  Voir le profil de lutilisateur
+                  Voir le profil de l'utilisateur
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Button variant="outline" onClick={openAlert}>
-                  Avertir lutilisateur
+                  Avertir l'utilisateur
                 </Button>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
                 <Button variant="outline" onClick={openSuspendAlert}>
-                  Suspendre lutilisateur
+                  Suspendre l'utilisateur
                 </Button>
               </DropdownMenuItem>
             </DropdownMenuContent>
@@ -168,12 +184,47 @@ const UserPage = () => {
   return (
     <div className="space-y-3">
       <h1>Liste des utilisateurs</h1>
-      <Input
-        placeholder="Rechercher ici ..."
-        value={searchFilter}
-        onChange={(e) => setSearchFilter(e.target.value)}
-        className="max-w-sm"
-      />
+      <div className="flex justify-between space-x-10 mx-6">
+        <Input
+          placeholder="Rechercher ici ..."
+          value={searchFilter}
+          onChange={(e) => setSearchFilter(e.target.value)}
+          className="max-w-sm"
+        />
+        <div className="flex justify-center space-x-3">
+          <Select
+            value={roleFilter}
+            onValueChange={(value) => setRoleFilter(value)} // Mettez à jour le filtre de rôle ici
+          >
+            <SelectTrigger className="w-fit">
+              <SelectValue placeholder="Sélectionner le type de compte" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="pro">Professionnel</SelectItem>
+                <SelectItem value="perso">Personnel</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => setStatusFilter(value)} // Mettez à jour le filtre de statut ici
+          >
+            <SelectTrigger className="w-fit px-5">
+              <SelectValue placeholder="Sélectionner le statut" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectItem value="all">Tous</SelectItem>
+                <SelectItem value="actif">Actif</SelectItem>
+                <SelectItem value="nonActif">Non actif</SelectItem>
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -219,10 +270,10 @@ const UserPage = () => {
         onOpenChange={setIsSuspendAlertOpen}
       >
         <AlertDialogContent>
-          <Label>Message</Label>
+          <Label>Raison</Label>
           <Textarea
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
+            value={raison}
+            onChange={(e) => setRaison(e.target.value)}
           />
           <AlertDialogCancel onClick={closeSuspendAlert}>
             Annuler
