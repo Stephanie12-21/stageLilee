@@ -16,8 +16,12 @@ export async function POST(req) {
     const imageFile = body.get("imageFile");
 
     const validRoles = ["ADMIN", "PERSO", "PRO"];
+    const validStatut = ["ACTIF", "  NON_ACTIF"];
     const role = validRoles.includes(body.get("role"))
       ? body.get("role")
+      : null;
+    const statutUser = validStatut.includes(body.get("statutUser"))
+      ? body.get("statutUser")
       : null;
     console.log("Données reçues :", {
       nom,
@@ -25,6 +29,7 @@ export async function POST(req) {
       email,
       phone,
       role,
+      statutUser,
       imageFile,
     });
 
@@ -105,6 +110,7 @@ export async function POST(req) {
         phone,
         hashPassword: hashedPassword,
         role,
+        statutUser,
       },
     });
 

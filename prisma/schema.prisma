@@ -35,6 +35,7 @@ model user {
   email              String      @unique
   phone              String      @unique
   hashPassword       String
+  statutUser         statutUser 
   role               role        
   profileImages      profileImage[]
   createdAt          DateTime    @default(now())
@@ -44,6 +45,11 @@ model user {
   annonces           annonces[]  
   commentaire        commentaire[]
   favoris           favoris[]  
+}
+
+enum statutUser {
+  ACTIF
+  NON_ACTIF
 }
 
 model company {
