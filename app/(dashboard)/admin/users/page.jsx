@@ -13,7 +13,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -26,22 +25,36 @@ import { FaEllipsisH } from "react-icons/fa";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
-import UserInfoModal from "./userInfo/page";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogAction,
+  AlertDialogCancel,
+} from "@/components/ui/alert-dialog";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import Link from "next/link";
 
 const UserPage = () => {
+  const [raison, setRaison] = useState("");
+  const [email, setEmail] = useState("");
+  const [message, setMessage] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
+  const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
-    // Fonction pour récupérer les utilisateurs depuis l'API
     const fetchUsers = async () => {
       try {
-        const response = await fetch("/api/user/getAll"); // Remplacez par votre endpoint réel
+        const response = await fetch("/api/user/getAll");
         const data = await response.json();
-        setUsers(data.users);
+        const filteredUsers = data.users.filter(
+          (user) => user.role !== "ADMIN"
+        ); // Filtrer les utilisateurs
+        setUsers(filteredUsers);
 
-        console.log("données reçues :", data);
         data.users.forEach((user) => {
           console.log("Statut de l'utilisateur :", user.statutUser);
           if (user.profileImages.length > 0) {
@@ -66,11 +79,30 @@ const UserPage = () => {
     fetchUsers();
   }, []);
 
-  const handleSeeUserInfo = () => {
-    router.push("/admin/users/userInfo");
+  const handleSeeUserInfo = (userId) => {
+    console.log("ID de l'utilisateur sélectionné :", userId);
+    router.push(`/admin/users/${userId}`);
   };
-  const handleCancelSeeUserInfo = () => {
-    setOpenUserInfoModal(false);
+
+  const handleAlertUser = () => {
+    setIsAlertOpen(true);
+  };
+
+  const handleCloseAlert = () => {
+    setIsAlertOpen(false);
+  };
+
+  const handleSuspendUser = () => {
+    setIsSuspendAlertOpen(true);
+  };
+
+  const handleCloseSuspendAlert = () => {
+    setIsSuspendAlertOpen(false);
+  };
+
+  const handleConfirmSuspendUser = () => {
+    console.log("Utilisateur suspendu");
+    setIsSuspendAlertOpen(false);
   };
 
   const columns = [
@@ -92,41 +124,54 @@ const UserPage = () => {
         );
       },
     },
+    // { accessorKey: "id", header: "Identifiant" },
     { accessorKey: "nom", header: "Nom" },
     { accessorKey: "prenom", header: "Prénom" },
     { accessorKey: "email", header: "Adresse email" },
     { accessorKey: "phone", header: "Téléphone" },
+    { accessorKey: "role", header: "Type de compte" },
     { accessorKey: "statutUser", header: "Statut" },
     {
       header: "Actions",
-      cell: () => (
-        <div className="flex justify-left ">
-          <DropdownMenu>
-            <div className="flex rounded-full p-2">
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="w-fit h-fit p-0 ">
-                  <FaEllipsisH className="cursor-pointer " size={24} />
-                </Button>
-              </DropdownMenuTrigger>
-            </div>
+      cell: ({ row }) => {
+        console.log(row);
+        return (
+          <div className="flex justify-left">
+            <DropdownMenu>
+              <div className="flex rounded-full p-2">
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="w-fit h-fit p-0">
+                    <FaEllipsisH className="cursor-pointer" size={24} />
+                  </Button>
+                </DropdownMenuTrigger>
+              </div>
 
-            <DropdownMenuContent
-              align="end"
-              className="w-fit p-2 mt-2 space-y-3"
-            >
-              <DropdownMenuItem>
-                <Button onClick={handleSeeUserInfo}>
-                  Voir le profil de l&apos;utilisateur
-                </Button>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Avertir l&apos;utilisateur</DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>Suspendre le compte</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      ),
+              <DropdownMenuContent align="end" className="w-fit p-2 mt-2">
+                <DropdownMenuItem>
+                  <Button
+                    variant="outline"
+                    onClick={() => handleSeeUserInfo(row.original.id)}
+                  >
+                    Voir le profil de l&apos;utilisateur
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Button variant="outline" onClick={handleAlertUser}>
+                    Avertir l&apos;utilisateur
+                  </Button>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem>
+                  <Button variant="outline" onClick={handleSuspendUser}>
+                    Suspendre l&apos;utilisateur
+                  </Button>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        );
+      },
     },
   ];
 
@@ -141,14 +186,7 @@ const UserPage = () => {
   return (
     <div className="space-y-3">
       <h1>Liste des utilisateurs</h1>
-      <Input
-        placeholder="Filter emails..."
-        value={table.getColumn("email")?.getFilterValue() ?? ""}
-        onChange={(event) =>
-          table.getColumn("email")?.setFilterValue(event.target.value)
-        }
-        className="max-w-sm"
-      />
+      <Input placeholder="Rechercher ici ..." className="max-w-sm" />
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -176,6 +214,91 @@ const UserPage = () => {
           ))}
         </TableBody>
       </Table>
+
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <h2 className="text-lg font-semibold">Avertir l&apos;utilisateur</h2>
+          <div className="grid gap-2">
+            <Label htmlFor="email">Email de l&apos;utilisateur</Label>
+            <Input
+              id="email"
+              placeholder="email de l'utilisateur à avertir"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="bg-white p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="raison">Raison de l&apos;avertissement</Label>
+            <Input
+              id="raison"
+              placeholder="Ecrire ici la raison "
+              value={raison}
+              onChange={(e) => setRaison(e.target.value)}
+              className="bg-white p-2 border border-gray-300 rounded"
+            />
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="message">Message</Label>
+            <Textarea
+              id="message"
+              value={message}
+              required
+              onChange={(e) => setMessage(e.target.value)}
+              placeholder="Écrivez votre message ici"
+              className="col-span-3 w-full h-10 bg-white text-[16px]  font-medium p-2 rounded-md"
+            />
+          </div>
+          <div className="mt-4 flex justify-end space-x-2">
+            <AlertDialogCancel asChild>
+              <Button
+                className="underline"
+                variant="secondary"
+                onClick={handleCloseAlert}
+              >
+                Annuler
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button variant="destructive" onClick={handleCloseAlert}>
+                Envoyer l&apos;avertissement
+              </Button>
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog
+        open={isSuspendAlertOpen}
+        onOpenChange={setIsSuspendAlertOpen}
+      >
+        <AlertDialogContent className="flex flex-col space-y-2 justify-center items-center ">
+          <h2 className="text-lg font-semibold">
+            Suspendre l&apos;utilisateur
+          </h2>
+          <p>
+            Vous êtes sûr de vouloir cet utilisateur?
+            <br />
+            NB: Cet utilisateur ne pourra plus accéder à son compte utilisateur.
+          </p>
+          <div className="mt-4 flex justify-center space-x-2">
+            <AlertDialogCancel asChild>
+              <Button
+                className="underline"
+                variant="secondary"
+                onClick={handleCloseSuspendAlert}
+              >
+                Annuler
+              </Button>
+            </AlertDialogCancel>
+            <AlertDialogAction asChild>
+              <Button variant="destructive" onClick={handleConfirmSuspendUser}>
+                Suspendre l&apos;utilisateur
+              </Button>
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

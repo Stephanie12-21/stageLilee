@@ -36,7 +36,6 @@ const UserProfilePreview = () => {
   });
   console.log("usesession hook session object", session);
 
-  // Utilisation de useCallback pour mémoriser fetchUserData
   const fetchUserData = useCallback(async () => {
     try {
       const response = await fetch(`/api/user/${userId}`);
