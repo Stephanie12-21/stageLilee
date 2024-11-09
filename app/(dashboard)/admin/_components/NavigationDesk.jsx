@@ -35,8 +35,8 @@ const Navigation = () => {
           href: session ? `/admin/annonces` : "#",
         },
         {
-          name: "Annonces restreintes",
-          href: session ? `/admin/annonces/restrictedAnnonces` : "#",
+          name: "Annonces des utilisateurs",
+          href: session ? `/admin/annonces/usersAnnonces` : "#",
         },
       ],
     },

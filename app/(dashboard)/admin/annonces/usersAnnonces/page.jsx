@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useMemo, useCallback } from "react";
-import Image from "next/image";
+import { fr } from "date-fns/locale";
 import {
   Table,
   TableBody,
@@ -42,12 +42,20 @@ import {
   SelectValue,
   SelectGroup,
 } from "@/components/ui/select";
-import { AlertTitle } from "@/components/ui/alert";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { CalendarIcon } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { format } from "date-fns";
 
 const UserPage = () => {
   const [raison, setRaison] = useState("");
+  const [date, setDate] = useState("");
   const [email, setEmail] = useState("");
-  const [message, setMessage] = useState("");
   const [messageAlert, setMessageAlert] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -57,16 +65,47 @@ const UserPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [userId, setUserId] = useState([]);
   const [searchFilter, setSearchFilter] = useState("");
-  const [roleFilter, setRoleFilter] = useState("all");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const router = useRouter();
 
-  const fetchUsers = async () => {
+  const fetchAnnoncesUsers = async () => {
     try {
-      const response = await fetch("/api/user/getAll");
+      const response = await fetch("/api/annonce/getAll");
       const data = await response.json();
-      const filteredUsers = data.users.filter((user) => user.role !== "ADMIN");
-      setUsers(filteredUsers);
+      console.log(data);
+
+      const updatedData = data.map((annonce) => {
+        console.log("Annonce:", annonce);
+        console.log(
+          "Utilisateur associé:",
+          `${annonce.user.nom}  ${annonce.user.prenom}`
+        );
+
+        // Récupérer toutes les notes associées à cette annonce
+        const notes = annonce.commentaire
+          .map((c) => c.note)
+          .filter((note) => note !== null); // Exclure les notes nulles
+
+        console.log("Notes associées :", notes);
+
+        if (notes.length > 0) {
+          // Calculer la moyenne des notes
+          const total = notes.reduce((acc, note) => acc + note, 0);
+          const average = total / notes.length;
+          console.log("Moyenne des notes :", average.toFixed(2));
+
+          // Ajouter la moyenne à l'annonce sans la formater à l'avance
+          annonce.averageNote = average;
+        } else {
+          console.log("Aucune note trouvée pour cette annonce.");
+          annonce.averageNote = 0;
+        }
+
+        return annonce; // Retourner l'annonce avec la moyenne mise à jour
+      });
+
+      setUsers(updatedData); // Mettre à jour les utilisateurs avec les annonces et les moyennes
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     } finally {
@@ -76,30 +115,41 @@ const UserPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetchUsers();
+    fetchAnnoncesUsers();
   }, []);
 
   const filteredUsersData = useMemo(() => {
     const searchLower = searchFilter.toLowerCase();
     return users.filter((user) => {
       const matchesSearch =
-        user.nom.toLowerCase().includes(searchLower) ||
-        user.prenom.toLowerCase().includes(searchLower) ||
-        user.email.toLowerCase().includes(searchLower) ||
-        user.phone.toLowerCase().includes(searchLower);
-      const matchesRole =
-        roleFilter === "all" || user.role.toLowerCase() === roleFilter;
+        user.titre.toLowerCase().includes(searchLower) ||
+        user.description.toLowerCase().includes(searchLower) ||
+        user.adresse.toLowerCase().includes(searchLower);
+
+      const matchesCategory =
+        categoryFilter === "all" ||
+        user.categorieAnnonce.toLowerCase() === categoryFilter.toLowerCase();
+
       const matchesStatus =
         statusFilter === "all" ||
-        user.statutUser.toLowerCase() === statusFilter;
-      return matchesSearch && matchesRole && matchesStatus;
-    });
-  }, [users, searchFilter, roleFilter, statusFilter]);
+        user.statut.toLowerCase() === statusFilter.toLowerCase();
 
-  const handleSeeUserInfo = useCallback(
-    (userId) => {
-      console.log("ID de l'utilisateur sélectionné :", userId);
-      router.push(`/admin/users/${userId}`);
+      const matchesDateRange =
+        !date?.from ||
+        !date?.to ||
+        (new Date(user.createdAt) >= date.from &&
+          new Date(user.createdAt) <= date.to);
+
+      return (
+        matchesSearch && matchesCategory && matchesStatus && matchesDateRange
+      );
+    });
+  }, [users, searchFilter, categoryFilter, statusFilter, date]);
+
+  const handleSeeAnnonceInfo = useCallback(
+    (annonceId) => {
+      console.log("ID de l'annonce sélectionné :", annonceId);
+      router.push(`/admin/annonces/usersAnnonces/id=${annonceId}`);
     },
     [router]
   );
@@ -215,7 +265,6 @@ const UserPage = () => {
       // Si la réponse est OK, essayez de parser le JSON
       const data = await response.json();
 
-      // Vérifiez si des erreurs sont présentes dans la réponse
       if (data.error) {
         alert(data.error || "Une erreur s'est produite lors de l'activation.");
         return;
@@ -224,48 +273,59 @@ const UserPage = () => {
       alert(
         "Le compte de l'utilisateur a été activé et l'utilisateur a été informé par email."
       );
-      await fetchUsers(); // Récupérez la liste des utilisateurs après l'activation
+      await fetchUsers();
     } catch (error) {
       console.error("Erreur lors de l'activation :", error);
       alert("Une erreur s'est produite, veuillez réessayer.");
     } finally {
-      setIsActivationAlertOpen(false); // Fermez l'alerte ou le modal
+      setIsActivationAlertOpen(false);
     }
   };
 
   const columns = [
+    { accessorKey: "titre", header: "Titre" },
+    { accessorKey: "categorieAnnonce", header: "Catégorie" },
+    { accessorKey: "adresse", header: "Adresse " },
     {
-      accessorKey: "image",
-      header: "Image",
+      header: "Date de publication",
+      accessorKey: "createdAt",
       cell: ({ row }) => {
-        const imageUrl = row.original.profileImages?.[0]?.path;
-        return imageUrl ? (
-          <Image
-            src={imageUrl}
-            alt="Profil"
-            width={50}
-            height={50}
-            className="w-[50px] h-[50px] rounded-full object-cover"
-          />
-        ) : (
-          "Pas d'image"
-        );
+        const createdAt = new Date(row.original.createdAt);
+
+        return createdAt.toLocaleDateString("fr-FR", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
       },
     },
-    { accessorKey: "nom", header: "Nom" },
-    { accessorKey: "prenom", header: "Prénom" },
-    { accessorKey: "email", header: "Adresse email" },
-    { accessorKey: "phone", header: "Téléphone" },
-    { accessorKey: "role", header: "Type de compte" },
-    { accessorKey: "statutUser", header: "Statut" },
+    {
+      header: "Utilisateur",
+      cell: ({ row }) => {
+        const utilisateur = row.original.user;
+        return utilisateur
+          ? `${utilisateur.nom} ${utilisateur.prenom}`
+          : "Inconnu";
+      },
+    },
+    {
+      header: "Notes",
+      cell: ({ row }) => {
+        const averageNote = row.original.averageNote;
+
+        if (typeof averageNote === "number" && !isNaN(averageNote)) {
+          return averageNote.toFixed(2);
+        } else {
+          return "Aucune note";
+        }
+      },
+    },
+
+    { accessorKey: "statut", header: "Statut" },
     {
       header: "Actions",
       cell: ({ row }) => {
-        const statut = row.original.statutUser; // Récupérer le statut de l'utilisateur
-        const actionLabel =
-          statut === "ACTIF"
-            ? "Suspendre l'utilisateur"
-            : "Activer l'utilisateur"; // Modifier le libellé
+        const statut = row.original.statut;
 
         return (
           <div className="flex justify-left">
@@ -279,16 +339,16 @@ const UserPage = () => {
                 <DropdownMenuItem>
                   <Button
                     variant="outline"
-                    onClick={() => handleSeeUserInfo(row.original.id)}
+                    onClick={() => handleSeeAnnonceInfo(row.original.id)}
                   >
-                    Voir le profil de l&apos;utilisateur
+                    Voir les détails
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem>
                   <Button
                     variant="outline"
-                    onClick={() => openAlert(row.original)}
+                    onClick={() => openAlert(row.original.user.id)}
                   >
                     Avertir l&apos;utilisateur
                   </Button>
@@ -306,8 +366,8 @@ const UserPage = () => {
                     }}
                   >
                     {row.original.statutUser === "ACTIF"
-                      ? "Suspendre le compte"
-                      : "Activer le compte"}{" "}
+                      ? "Suspendre l'annonce"
+                      : "Activer l'annonce"}{" "}
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -328,7 +388,7 @@ const UserPage = () => {
 
   return (
     <div className="space-y-3">
-      <h1>Liste des utilisateurs</h1>
+      <h1>Liste de toutes les annonces de LILEE</h1>
       <div className="flex justify-between space-x-10 mx-6">
         <Input
           placeholder="Rechercher ici ..."
@@ -336,25 +396,67 @@ const UserPage = () => {
           onChange={(e) => setSearchFilter(e.target.value)}
           className="max-w-sm"
         />
+
         <div className="flex justify-center space-x-3">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                id="date"
+                variant={"default"}
+                className={cn(
+                  "w-[300px] justify-start text-left font-normal",
+                  !date && "text-white"
+                )}
+              >
+                <CalendarIcon />
+                {date?.from ? (
+                  date.to ? (
+                    <>
+                      {format(date.from, "dd MMM yyyy", { locale: fr })} -{" "}
+                      {format(date.to, "dd MMM yyyy", { locale: fr })}
+                    </>
+                  ) : (
+                    format(date.from, "dd MMM yyyy", { locale: fr })
+                  )
+                ) : (
+                  <span>Sélectionner la date</span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="start">
+              <Calendar
+                initialFocus
+                mode="range"
+                defaultMonth={date?.from}
+                selected={date}
+                onSelect={setDate}
+                numberOfMonths={2}
+              />
+            </PopoverContent>
+          </Popover>
           <Select
-            value={roleFilter}
-            onValueChange={(value) => setRoleFilter(value)}
+            value={categoryFilter}
+            onValueChange={(value) => setCategoryFilter(value)}
           >
             <SelectTrigger className="w-fit">
-              <SelectValue placeholder="Sélectionner le type de compte" />
+              <SelectValue placeholder="Sélectionner la catégorie" />
             </SelectTrigger>
             <SelectContent>
               <SelectGroup>
                 <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="pro">Professionnel</SelectItem>
-                <SelectItem value="perso">Personnel</SelectItem>
+                <SelectItem value="immobilier">Immobilier</SelectItem>
+                <SelectItem value="vetement">Vêtement</SelectItem>
+                <SelectItem value="mobilier">Mobilier</SelectItem>
+                <SelectItem value="loisir">Loisir</SelectItem>
+                <SelectItem value="don">Dons</SelectItem>
+                <SelectItem value="emploi">Emploi</SelectItem>
+                <SelectItem value="service">Service</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
           <Select
             value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value)} // Mettez à jour le filtre de statut ici
+            onValueChange={(value) => setStatusFilter(value)}
           >
             <SelectTrigger className="w-fit px-5">
               <SelectValue placeholder="Sélectionner le statut" />
@@ -362,8 +464,8 @@ const UserPage = () => {
             <SelectContent>
               <SelectGroup>
                 <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="actif">Actif</SelectItem>
-                <SelectItem value="nonActif">Non actif</SelectItem>
+                <SelectItem value="publiee">Publiée</SelectItem>
+                <SelectItem value="suspendue">Suspendue</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>

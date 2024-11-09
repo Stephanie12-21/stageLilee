@@ -107,9 +107,9 @@ const Annonces = () => {
           annonces.map((annonce) => (
             <Card
               key={annonce.id}
-              className="w-[400px] h-[500px] rounded-[24px] shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl "
+              className="w-[350px] h-[380px]rounded-[24px] shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl "
             >
-              <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+              <CardContent className="w-[340px] h-[200px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
                 {annonce.imageAnnonces.length > 0 && (
                   <Image
                     src={annonce.imageAnnonces[0].path}

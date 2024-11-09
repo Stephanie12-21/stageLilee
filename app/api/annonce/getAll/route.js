@@ -5,7 +5,9 @@ export async function GET() {
   try {
     const annonces = await db.annonces.findMany({
       include: {
-        imageAnnonces: true, // Assurez-vous que ce nom correspond à votre schéma
+        imageAnnonces: true,
+        user: true,
+        commentaire: true,
       },
       orderBy: {
         createdAt: "desc",

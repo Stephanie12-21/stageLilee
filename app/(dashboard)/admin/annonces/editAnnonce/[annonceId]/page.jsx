@@ -166,7 +166,7 @@ const EditAnnonce = ({ params }) => {
       console.log("Réponse du serveur :", result);
       toast.success("Annonce mise à jout avec succès !");
       resetForm();
-      router.push(`/admin/${userId}/annonces/`);
+      router.push(`/admin/annonces/`);
     } catch (error) {
       console.error("Erreur :", error);
       toast.error(
