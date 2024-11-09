@@ -52,39 +52,41 @@ export default function Annonces() {
     try {
       const response = await fetch("/api/annonce/getAll");
       const data = await response.json();
-      console.log(data);
 
-      const updatedData = data.map((annonce) => {
-        console.log("Annonce:", annonce);
-        console.log(
-          "Utilisateur associé:",
-          `${annonce.user.nom}  ${annonce.user.prenom}`
-        );
+      // Filtrer les annonces pour exclure celles qui ont un statut "DESACTIVEE"
+      const filteredData = data
+        .filter((annonce) => annonce.statut !== "DESACTIVEE")
+        .map((annonce) => {
+          console.log("Annonce:", annonce);
+          console.log(
+            "Utilisateur associé:",
+            `${annonce.user.nom} ${annonce.user.prenom}`
+          );
 
-        // Récupérer toutes les notes associées à cette annonce
-        const notes = annonce.commentaire
-          .map((c) => c.note)
-          .filter((note) => note !== null); // Exclure les notes nulles
+          // Récupérer toutes les notes associées à cette annonce
+          const notes = annonce.commentaire
+            .map((c) => c.note)
+            .filter((note) => note !== null); // Exclure les notes nulles
 
-        console.log("Notes associées :", notes);
+          console.log("Notes associées :", notes);
 
-        if (notes.length > 0) {
-          // Calculer la moyenne des notes
-          const total = notes.reduce((acc, note) => acc + note, 0);
-          const average = total / notes.length;
-          console.log("Moyenne des notes :", average.toFixed(2));
+          if (notes.length > 0) {
+            // Calculer la moyenne des notes
+            const total = notes.reduce((acc, note) => acc + note, 0);
+            const average = total / notes.length;
+            console.log("Moyenne des notes :", average.toFixed(2));
 
-          // Ajouter la moyenne à l'annonce sans la formater à l'avance
-          annonce.averageNote = average;
-        } else {
-          console.log("Aucune note trouvée pour cette annonce.");
-          annonce.averageNote = 0;
-        }
+            // Ajouter la moyenne à l'annonce sans la formater à l'avance
+            annonce.averageNote = average;
+          } else {
+            console.log("Aucune note trouvée pour cette annonce.");
+            annonce.averageNote = 0;
+          }
 
-        return annonce; // Retourner l'annonce avec la moyenne mise à jour
-      });
+          return annonce; // Retourner l'annonce avec la moyenne mise à jour
+        });
 
-      setAnnonces(updatedData); // Mettre à jour les utilisateurs avec les annonces et les moyennes
+      setAnnonces(filteredData); // Mettre à jour les annonces filtrées
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     } finally {

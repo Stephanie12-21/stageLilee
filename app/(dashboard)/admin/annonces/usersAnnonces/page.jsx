@@ -62,7 +62,8 @@ const UserPage = () => {
   const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
   const [isActivationAlertOpen, setIsActivationAlertOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
+  const [annonceID, setAnnonceId] = useState(null);
+  const [annonceTitre, setSelectedAnnonceTitre] = useState(null);
   const [userId, setUserId] = useState([]);
   const [searchFilter, setSearchFilter] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
@@ -79,8 +80,12 @@ const UserPage = () => {
         console.log("Annonce:", annonce);
         console.log(
           "Utilisateur associé:",
-          `${annonce.user.nom}  ${annonce.user.prenom}`
+          `${annonce.user.nom}  ${annonce.user.prenom} `
         );
+        console.log("ID Utilisateur associé:", `${annonce.user.id} `);
+        const userAnnonces = annonce.user.id;
+        console.log("ID Utilisateur 2.0 associé:", userAnnonces);
+        setUserId(userAnnonces);
 
         // Récupérer toutes les notes associées à cette annonce
         const notes = annonce.commentaire
@@ -154,82 +159,49 @@ const UserPage = () => {
     [router]
   );
 
-  const openAlert = (user) => {
-    setSelectedUser(user);
-    setEmail(user.email);
-    setIsAlertOpen(true);
-  };
-
-  const openSuspendAlert = (user) => {
-    setSelectedUser(user);
-    setEmail(user.email);
-    setUserId(user.id);
+  const openSuspendAlert = (annonce) => {
+    setAnnonceId(annonce.id);
+    setSelectedAnnonceTitre(annonce.titre);
+    setEmail(annonce.user.email);
+    setUserId(annonce.user.id);
     setIsSuspendAlertOpen(true);
   };
-  const openActivationAlert = (user) => {
-    setSelectedUser(user);
-    setEmail(user.email);
-    setUserId(user.id);
+
+  const openActivationAlert = (annonce) => {
+    setAnnonceId(annonce.id);
+    setSelectedAnnonceTitre(annonce.titre);
+    setEmail(annonce.user.email);
+    setUserId(annonce.user.id);
     setIsActivationAlertOpen(true);
   };
 
-  const handleConfirmAlertUser = async () => {
-    if (!messageAlert) {
-      alert("Veuillez entrer une raison pour la suspension.");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/user/alertUser", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          email,
-          messageAlert,
-        }),
-      });
-
-      const data = await response.json();
-      if (response.ok) {
-        alert("L'utilisateur a été alerté et informé par email.");
-      } else {
-        alert(data.error || "Une erreur s'est produite lors de la suspension.");
-      }
-    } catch (error) {
-      console.error("Erreur lors de la suspension :", error);
-      alert("Une erreur s'est produite, veuillez réessayer.");
-    } finally {
-      // Fermer le dialogue après l'action
-      setIsSuspendAlertOpen(false);
-    }
-  };
-
-  const handleConfirmSuspendUser = async () => {
+  const handleConfirmSuspendAnnonce = async () => {
     if (!raison) {
       alert("Veuillez entrer une raison pour la suspension.");
       return;
     }
 
-    const statutUser = "SUSPENDU";
+    const statut = "DESACTIVEE";
     try {
-      const response = await fetch(`/api/user/suspendUser/${userId}`, {
+      const response = await fetch(`/api/annonce/suspendAnnonce/${annonceID}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           raison,
-          statutUser,
+          statut,
           email,
+          annonceTitre,
         }),
       });
 
       const data = await response.json();
       if (response.ok) {
-        alert("L'utilisateur a été suspendu et informé par email.");
-        await fetchUsers();
+        alert(
+          "L'annonce a été desactivée et l'utilisateur a été informé par email."
+        );
+        await fetchAnnoncesUsers();
       } else {
         alert(data.error || "Une erreur s'est produite lors de la suspension.");
       }
@@ -242,18 +214,21 @@ const UserPage = () => {
   };
 
   const handleConfirmActivationUser = async () => {
-    const statutUser = "ACTIF";
+    const statut = "PUBLIEE";
     try {
-      const response = await fetch(`/api/user/activationUser/${userId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          statutUser,
-          email,
-        }),
-      });
+      const response = await fetch(
+        `/api/annonce/activationAnnonce/${annonceID}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            statut,
+            email,
+          }),
+        }
+      );
 
       // Vérifiez que la réponse est OK avant de tenter de la convertir en JSON
       if (!response.ok) {
@@ -271,9 +246,9 @@ const UserPage = () => {
       }
 
       alert(
-        "Le compte de l'utilisateur a été activé et l'utilisateur a été informé par email."
+        "L'annonce a été activée et l'utilisateur a été informé par email."
       );
-      await fetchUsers();
+      await fetchAnnoncesUsers();
     } catch (error) {
       console.error("Erreur lors de l'activation :", error);
       alert("Une erreur s'est produite, veuillez réessayer.");
@@ -345,27 +320,19 @@ const UserPage = () => {
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
-                  <Button
-                    variant="outline"
-                    onClick={() => openAlert(row.original.user.id)}
-                  >
-                    Avertir l&apos;utilisateur
-                  </Button>
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+
                 <DropdownMenuItem>
                   <Button
                     variant="outline"
                     onClick={() => {
-                      if (row.original.statutUser === "ACTIF") {
+                      if (row.original.statut === "PUBLIEE") {
                         openSuspendAlert(row.original);
-                      } else if (row.original.statutUser === "SUSPENDU") {
+                      } else if (row.original.statut === "DESACTIVEE") {
                         openActivationAlert(row.original);
                       }
                     }}
                   >
-                    {row.original.statutUser === "ACTIF"
+                    {row.original.statut === "PUBLIEE"
                       ? "Suspendre l'annonce"
                       : "Activer l'annonce"}{" "}
                   </Button>
@@ -500,40 +467,22 @@ const UserPage = () => {
         </TableBody>
       </Table>
 
-      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <Label htmlFor="email" className="text-[16px] ">
-            Email de l&apos;utilisateur :{" "}
-            <span className="text-blue-950 font-bold">{email}</span>
-          </Label>
-
-          <Label htmlFor="message" className="text-[16px] font-medium">
-            Message
-          </Label>
-          <Textarea
-            id="message"
-            placeholder="Écrire un message ..."
-            value={messageAlert}
-            onChange={(e) => setMessageAlert(e.target.value)}
-          />
-          <div className="flex justify-end space-x-2 mt-4">
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmAlertUser}>
-              Envoyer
-            </AlertDialogAction>
-          </div>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <AlertDialog
         open={isSuspendAlertOpen}
         onOpenChange={setIsSuspendAlertOpen}
       >
         <AlertDialogContent>
+          <AlertDialogTitle>Confirmation de suspension </AlertDialogTitle>
           <Label htmlFor="email" className="text-[16px]">
-            Email de l&apos;utilisateur :{" "}
-            <span className="text-blue-950 font-bold">{email}</span>
-            <span>Avec l&apos; identifiant :{userId}</span>
+            Êtes-vous sûr de suspendre cette annonce portant le titre{" "}
+            <span className="text-yellow-500 font-bold"> {annonceTitre}</span>,
+            avec l&apos;{" "}
+            <span className="text-yellow-500 font-bold">{annonceID}</span>
+            <br />
+            Une confirmation de la suspension sera envoyée par email :
+            <span className="text-yellow-500 font-bold">{email}</span> à
+            destination de l&apos;user ayant l&apos; identifiant :{" "}
+            <span className="text-yellow-500 font-bold">{userId}</span>
           </Label>
 
           <Label htmlFor="raison" className="text-[16px] font-medium">
@@ -543,12 +492,12 @@ const UserPage = () => {
             id="raison"
             placeholder="Expliquez pourquoi cet utilisateur est suspendu..."
             value={raison}
-            onChange={(e) => setRaison(e.target.value)} // Met à jour la raison
+            onChange={(e) => setRaison(e.target.value)}
           />
 
           <div className="flex justify-end space-x-2 mt-4">
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction onClick={handleConfirmSuspendUser}>
+            <AlertDialogAction onClick={handleConfirmSuspendAnnonce}>
               Suspendre
             </AlertDialogAction>
           </div>
@@ -561,7 +510,13 @@ const UserPage = () => {
       >
         <AlertDialogContent>
           <AlertDialogTitle>
-            Êtes-vous sûr d&apos;activer cet utilisateur, avec l&apos; {userId}
+            Êtes-vous sûr d&apos;activer cette annonce avec le titre{" "}
+            {annonceTitre}, avec l&apos;{" "}
+            <span className="text-yellow-500 font-bold">{annonceID}</span>
+            Une confirmation de l&apos;activation sera envoyée par email :
+            <span className="text-yellow-500 font-bold">{email}</span> à
+            destination de l&apos;user ayant l&apos; identifiant :{" "}
+            <span className="text-yellow-500 font-bold">{userId}</span>
           </AlertDialogTitle>
           <div className="flex justify-end space-x-2 mt-4">
             <AlertDialogCancel>Annuler</AlertDialogCancel>
