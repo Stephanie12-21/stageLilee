@@ -45,110 +45,56 @@ export default function Annonces() {
   const [searchText, setSearchText] = useState("");
   const [likedAnnonces, setLikedAnnonces] = useState([]);
   const { data: session } = useSession();
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const fetchAnnonces = async () => {
     try {
-      const response = await fetch("/api/annonce/getAll/");
-      if (!response.ok) {
-        throw new Error("Erreur lors de la récupération des annonces");
-      }
+      const response = await fetch("/api/annonce/getAll");
       const data = await response.json();
-      setAnnonces(data);
-      console.log("les données sont les suivantes :", data);
+      console.log(data);
+
+      const updatedData = data.map((annonce) => {
+        console.log("Annonce:", annonce);
+        console.log(
+          "Utilisateur associé:",
+          `${annonce.user.nom}  ${annonce.user.prenom}`
+        );
+
+        // Récupérer toutes les notes associées à cette annonce
+        const notes = annonce.commentaire
+          .map((c) => c.note)
+          .filter((note) => note !== null); // Exclure les notes nulles
+
+        console.log("Notes associées :", notes);
+
+        if (notes.length > 0) {
+          // Calculer la moyenne des notes
+          const total = notes.reduce((acc, note) => acc + note, 0);
+          const average = total / notes.length;
+          console.log("Moyenne des notes :", average.toFixed(2));
+
+          // Ajouter la moyenne à l'annonce sans la formater à l'avance
+          annonce.averageNote = average;
+        } else {
+          console.log("Aucune note trouvée pour cette annonce.");
+          annonce.averageNote = 0;
+        }
+
+        return annonce; // Retourner l'annonce avec la moyenne mise à jour
+      });
+
+      setAnnonces(updatedData); // Mettre à jour les utilisateurs avec les annonces et les moyennes
     } catch (error) {
-      console.error("Erreur lors de la récupération des annonces :", error);
+      console.error("Erreur lors de la récupération des utilisateurs :", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     fetchAnnonces();
   }, []);
-
-  // useEffect(() => {
-  //   const fetchFavorites = async () => {
-  //     try {
-  //       const userId = session?.user?.id;
-  //       if (userId) {
-  //         const response = await fetch("/api/favorites", {
-  //           method: "GET",
-  //           headers: {
-  //             userId: userId,
-  //           },
-  //         });
-
-  //         if (!response.ok) {
-  //           throw new Error("Erreur lors de la récupération des favoris");
-  //         }
-
-  //         const favorisIds = await response.json();
-  //         setLikedAnnonces(favorisIds);
-
-  //         // Vérifier si l'annonce est déjà dans les favoris
-  //         setIsFavorited(favorisIds.includes(annonces.id));
-  //       }
-  //     } catch (error) {
-  //       console.error("Erreur lors de la récupération des favoris :", error);
-  //       toast.error("Erreur lors de la récupération des favoris.");
-  //     }
-  //   };
-
-  //   fetchFavorites();
-  // }, [annonces.id, session?.user?.id]);
-
-  // const toggleHeart = async (id) => {
-  //   let userId = session?.user?.id;
-
-  //   if (!userId) {
-  //     toast.error("Vous devez être connecté pour ajouter aux favoris.");
-  //     return;
-  //   }
-
-  //   if (likedAnnonces.includes(id)) {
-  //     toast.info("Vous avez déjà ajouté cette annonce dans les favoris.");
-  //   } else {
-  //     const updatedFavorites = [...likedAnnonces, id];
-  //     setLikedAnnonces(updatedFavorites);
-
-  //     try {
-  //       await addToFavorites(userId, id);
-  //       toast.success("Annonce ajoutée aux favoris.");
-  //     } catch (error) {
-  //       toast.error("Erreur lors de l'ajout aux favoris.");
-  //     }
-  //   }
-  // };
-
-  // // Fonction pour ajouter aux favoris via l'API Next.js
-  // const addToFavorites = async (userId, annonceId) => {
-  //   try {
-  //     const response = await fetch("/api/favorites", {
-  //       method: "POST",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ userId, annonceId }),
-  //     });
-
-  //     if (!response.ok) throw new Error("Erreur lors de l'ajout aux favoris");
-  //   } catch (error) {
-  //     console.error("Erreur lors de l'ajout aux favoris:", error);
-  //     throw error;
-  //   }
-  // };
-
-  // // Fonction pour retirer des favoris via l'API Next.js
-  // const removeFromFavorites = async (userId, annonceId) => {
-  //   try {
-  //     const response = await fetch("/api/favorites", {
-  //       method: "DELETE",
-  //       headers: { "Content-Type": "application/json" },
-  //       body: JSON.stringify({ userId, annonceId }),
-  //     });
-
-  //     if (!response.ok) throw new Error("Erreur lors du retrait des favoris");
-  //   } catch (error) {
-  //     console.error("Erreur lors du retrait des favoris:", error);
-  //     throw error;
-  //   }
-  // };
 
   useEffect(() => {
     const fetchFavorites = async () => {
@@ -409,23 +355,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -521,23 +473,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -668,23 +626,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -799,23 +763,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -938,23 +908,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1050,23 +1026,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1191,23 +1173,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1303,23 +1291,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1448,23 +1442,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1570,23 +1570,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1711,23 +1717,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1833,23 +1845,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -1964,23 +1982,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -2086,23 +2110,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -2226,23 +2256,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
@@ -2338,23 +2374,29 @@ export default function Annonces() {
                             />
                           </Link>
                           <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => (
-                              <svg
-                                key={index}
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="gold"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="none"
-                                className="w-6 h-6"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                />
-                              </svg>
-                            ))}
+                            {[...Array(5)].map((_, index) => {
+                              // Calculer si l'étoile doit être pleine ou vide
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
+                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
                           </div>
                         </div>
                       </CardFooter>
