@@ -136,10 +136,10 @@ export default function LayoutAdmin({ children }) {
                         Vos annonces
                       </a>
                       <a
-                        href="/admin/annonces/annonces-restreintes"
+                        href="/admin/annonces/usersAnnonces"
                         className="flex items-center gap-4 rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
                       >
-                        Les annonces restreintes
+                        Les annonces des utilisateurs
                       </a>
                     </div>
                   )}

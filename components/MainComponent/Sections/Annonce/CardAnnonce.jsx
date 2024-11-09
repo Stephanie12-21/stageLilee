@@ -42,13 +42,13 @@ export function CardAnnonce() {
         </div>
 
         <Label htmlFor="type" className="text-xl">
-          Type
+          Titre
         </Label>
         <Label htmlFor="localisation">Localisation </Label>
 
         <div className="flex gap-x-52">
           <div className="flex">
-            <p className="text-[#FCA311] font-normal text-[18px]">Prix</p>
+            <p className="text-[#FCA311] font-normal text-[18px]">Date</p>
           </div>
 
           <div className="flex items-center">

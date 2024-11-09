@@ -134,7 +134,7 @@ const AddAnnonce = () => {
 
       const result = await response.json();
       toast.success("Annonce ajoutée avec succès !");
-      router.push(`/admin/${session.user.id}/annonces/`);
+      router.push(`/admin/annonces/`);
       resetForm();
     } catch (error) {
       console.error("Erreur :", error);

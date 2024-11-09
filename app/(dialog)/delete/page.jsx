@@ -25,7 +25,7 @@ const ConfirmDeleteModal = ({ isOpen, onClose, onConfirm }) => {
         </DialogHeader>
         <DialogFooter className="flex justify-between space-x-5">
           <Button onClick={onConfirm}>Oui, je confirme</Button>
-          <Button onClick={onClose}>Non, je veux annuler</Button>
+          <Button onClick={onClose}>Non, je veux abandonner</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

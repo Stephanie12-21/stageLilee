@@ -7,11 +7,17 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import { AiFillHeart, AiOutlineEye, AiOutlineHeart } from "react-icons/ai";
+import {
+  AiFillHeart,
+  AiOutlineClose,
+  AiOutlineEye,
+  AiOutlineHeart,
+} from "react-icons/ai";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSession } from "next-auth/react";
+import { ShieldMinus } from "lucide-react";
 
 const cardVariants = {
   visible: (i) => ({
@@ -648,7 +654,13 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end space-y-5">
+                          <Link href={`/Annonces/id=${annonce.id}`}>
+                            <ShieldMinus
+                              className="text-[#15213D] cursor-pointer text-[30px]"
+                              title="Desactivaction"
+                            />
+                          </Link>
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"

@@ -90,7 +90,7 @@ const Annonces = () => {
           placeholder="Rechercher une annonce"
           className="border border-gray-300 text-[18px] rounded-md p-6 w-[700px]"
         />
-        <Link href={`/admin/${session.user.id}/annonces/addAnnonce`}>
+        <Link href={`/admin/annonces/addAnnonce`}>
           <Button variant="outline">Créer une annonce</Button>
         </Link>
       </div>
@@ -108,9 +108,9 @@ const Annonces = () => {
           annonces.map((annonce) => (
             <Card
               key={annonce.id}
-              className="w-[400px] h-[500px] rounded-[24px] shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl "
+              className="w-[350px] h-[380px] rounded-[24px]  shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl"
             >
-              <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+              <CardContent className="w-[340px] h-[200px] flex items-center mt-1 mx-auto  rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
                 {annonce.imageAnnonces.length > 0 && (
                   <Image
                     src={annonce.imageAnnonces[0].path}
@@ -121,12 +121,11 @@ const Annonces = () => {
                   />
                 )}
               </CardContent>
-
               <CardFooter className="flex justify-between p-4">
                 <div className="flex flex-col space-y-3">
                   <Label
                     htmlFor="categorie"
-                    className="bg-slate-300 p-2 rounded-[4px]"
+                    className="bg-slate-300 p-2 w-fit rounded-[4px]"
                   >
                     {annonce.categorieAnnonce}
                   </Label>
