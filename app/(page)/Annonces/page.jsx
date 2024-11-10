@@ -7,12 +7,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  AiFillHeart,
-  AiOutlineClose,
-  AiOutlineEye,
-  AiOutlineHeart,
-} from "react-icons/ai";
+import { AiFillHeart, AiOutlineEye, AiOutlineHeart } from "react-icons/ai";
 import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -45,7 +40,6 @@ export default function Annonces() {
   const [searchText, setSearchText] = useState("");
   const [likedAnnonces, setLikedAnnonces] = useState([]);
   const { data: session } = useSession();
-  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const fetchAnnonces = async () => {
@@ -160,7 +154,6 @@ export default function Annonces() {
     }
   };
 
-  // Fonction pour ajouter aux favoris via l'API Next.js
   const addToFavorites = async (userId, annonceId) => {
     try {
       const response = await fetch("/api/favorites", {
