@@ -45,6 +45,7 @@ model user {
   annonces           annonces[]  
   commentaire        commentaire[]
   favoris           favoris[]  
+  temoignages       temoignages[]
 }
 
 enum statutUser {
@@ -165,6 +166,14 @@ model commentaire {
 }
 // Pour les annonces
 
-
+//pour LILEE
+model temoignages{
+  id                Int @id @default(autoincrement())
+  temoignage        String
+  noteLilee         Int
+  userId            Int
+  user              user      @relation(fields: [userId], references: [id])
+}
+//pour LILEE
 
 // Fin du schéma

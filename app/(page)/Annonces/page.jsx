@@ -305,44 +305,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -423,44 +421,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24 ">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -570,50 +566,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end space-y-5">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <ShieldMinus
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Desactivaction"
-                            />
-                          </Link>
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -750,7 +738,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -895,7 +883,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1013,7 +1001,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1123,44 +1111,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1278,7 +1264,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1392,44 +1378,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1557,7 +1541,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1667,44 +1651,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1832,7 +1814,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -1932,44 +1914,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -2097,7 +2077,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -2206,44 +2186,42 @@ export default function Annonces() {
                           >
                             {annonce.adresse}
                           </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"
@@ -2361,7 +2339,7 @@ export default function Annonces() {
                             )}
                         </div>
 
-                        <div className="flex flex-col items-end ">
+                        <div className="flex flex-col items-end gap-24 ">
                           <Link href={`/Annonces/id=${annonce.id}`}>
                             <AiOutlineEye
                               className="text-[#15213D] cursor-pointer text-[30px]"

@@ -5,7 +5,6 @@ const Divers = () => {
   return (
     <div className="flex flex-col justify-between items-start space-y-2">
       <h1 className="text-bold text-[30px] text-white">Divers</h1>
-      <p className="text-semibold text-[16px] text-white">Foire à questions</p>
       <Link
         href="/Blog"
         className="text-semibold text-[16px] text-white hover:underline"
@@ -24,9 +23,12 @@ const Divers = () => {
       >
         Politique de confidentialité
       </Link>
-      <p className="text-semibold text-[16px] text-white">
+      <Link
+        href="/Conditions_generales"
+        className="text-semibold text-[16px] text-white hover:underline"
+      >
         Conditions générales
-      </p>
+      </Link>
     </div>
   );
 };
