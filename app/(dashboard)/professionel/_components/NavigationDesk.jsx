@@ -4,11 +4,15 @@ import { usePathname } from "next/navigation";
 import React from "react";
 
 const DataLinkNav = [
-  { icon: Home, name: "Dashboard", href: "/professionel" },
+  // { icon: Home, name: "Dashboard", href: "/professionel" },
   { icon: Megaphone, name: "Annonces", href: "/professionel/annonces" },
   { icon: Heart, name: "Favoris", href: "/professionel/favoris" },
   { icon: Mail, name: "Messages", href: "/professionel/messages" },
-  { icon: TrendingUp, name: "Transactions", href: "/professionel/transactions" },
+  {
+    icon: TrendingUp,
+    name: "Transactions",
+    href: "/professionel/transactions",
+  },
 ];
 
 const Navigation = () => {

@@ -159,8 +159,9 @@ const SignUpPage = () => {
     //si on est à la 4eme étape, on envoie le code à l'email saisi
     else if (step === 4) {
       const generatedCodes = generateVerificationCodes();
+      console.log("données reçues :", email, prenom);
       try {
-        const response = await fetch("/api/user/verifEmail/", {
+        const response = await fetch("/api/user/emailVerif/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
