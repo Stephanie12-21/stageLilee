@@ -14,8 +14,8 @@ async function sendVerificationEmail() {
 
   const mailOptions = {
     from: process.env.SMTP_USER,
-    to: email,
-    subject: "Vérification de vos informations personnelles",
+    to: process.env.SMTP_USER,
+    subject: "Vérification des annonces en attente",
     text: `Bonjour Lilee,\n\nDe nouvelles annonces sont en attente de votre validation. Veuillez les vérifier et les publier.`,
   };
 

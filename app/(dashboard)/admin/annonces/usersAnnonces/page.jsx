@@ -226,6 +226,7 @@ const UserPage = () => {
           body: JSON.stringify({
             statut,
             email,
+            annonceTitre,
           }),
         }
       );

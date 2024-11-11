@@ -237,7 +237,9 @@ const EditAnnonce = ({ params }) => {
       toast.info(
         "Annonce mise à jour avec succès ! L'administrateur va valider votre annonce et vous recevrez une notification par email."
       );
-
+      await fetch("/api/notifications", {
+        method: "POST",
+      });
       setTimeout(() => {
         router.push("/professionel/annonces/");
         resetForm();
@@ -399,7 +401,11 @@ const EditAnnonce = ({ params }) => {
 
         <Button onClick={handleSubmit}>Modifier l&apos;annonce</Button>
         <Button onClick={handleCancel}>Annuler les modifications</Button>
-        <ToastContainer />
+        <ToastContainer
+          position="top-center"
+          autoClose={10000}
+          hideProgressBar={false}
+        />
       </div>
     </div>
   );
