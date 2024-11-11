@@ -31,13 +31,7 @@ const chartConfig = {
   companies: { label: "Entreprises", color: "yellow" },
 };
 
-const StatsCard = ({
-  title,
-  value = 0,
-  icon: Icon,
-  gradient,
-  increase = 0,
-}) => (
+const StatsCard = ({ title, value = 0, icon: Icon, gradient }) => (
   <div
     className={`relative overflow-hidden rounded-xl p-6 ${gradient} transition-transform hover:scale-105`}
   >
@@ -52,10 +46,6 @@ const StatsCard = ({
       <p className="mt-4 text-3xl font-bold text-white">
         {value.toLocaleString()}
       </p>
-      <div className="mt-4 flex items-center gap-2 text-white/80">
-        <TrendingUp size={16} />
-        <span className="text-sm">+{increase} depuis hier</span>
-      </div>
     </div>
   </div>
 );
@@ -67,21 +57,18 @@ const StatsDashboard = ({ stats, previousStats }) => (
       value={stats.annonces}
       icon={FileText}
       gradient="bg-gradient-to-br from-blue-500 to-blue-600"
-      increase={stats.annonces - (previousStats?.annonces || 0)}
     />
     <StatsCard
       title="Total Utilisateurs"
       value={stats.utilisateurs}
       icon={Users}
       gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
-      increase={stats.utilisateurs - (previousStats?.utilisateurs || 0)}
     />
     <StatsCard
       title="Total Entreprises"
       value={stats.companies}
       icon={Building2}
       gradient="bg-gradient-to-br from-amber-500 to-amber-600"
-      increase={stats.companies - (previousStats?.companies || 0)}
     />
   </div>
 );
@@ -101,7 +88,9 @@ const AdminPreview = () => {
         const response = await fetch("/api/stats/");
         const data = await response.json();
 
-        if (stats) setPreviousStats(stats);
+        if (stats) {
+          setPreviousStats({ ...stats }); // Sauvegarde les valeurs actuelles comme "précédentes"
+        }
 
         setStats({
           annonces: data.totalAnnonces,
@@ -116,7 +105,7 @@ const AdminPreview = () => {
     };
 
     fetchStats();
-  }, [stats]); // Added stats as a dependency
+  }, [stats]);
 
   if (!stats) return <div>Chargement...</div>;
 
