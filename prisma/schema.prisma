@@ -141,12 +141,12 @@ model annonces {
   description       String
   localisation      String?
   adresse           String
-  statut            statut?      @default(PUBLIEE)
+  statut            statut?      @default(DESACTIVEE)
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   imageAnnonces     imageAnnonce[]
   categorieAnnonce   categorieAnnonce
-  userId            Int          // Rendre userId non nullable
+  userId            Int         
   user              user          @relation(fields: [userId], references: [id], onDelete: Cascade)
   commentaire       commentaire[]
   favoris           favoris[]  

@@ -110,6 +110,76 @@ const EditAnnonce = ({ params }) => {
     setImages(images.filter((_, i) => i !== index));
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   if (
+  //     !title ||
+  //     !description ||
+  //     !category ||
+  //     !localisation ||
+  //     !adresse ||
+  //     images.length === 0
+  //   ) {
+  //     alert(
+  //       "Tous les champs doivent être remplis et au moins une image doit être uploadée."
+  //     );
+  //     return;
+  //   }
+  //   const statut = "PUBLIEE";
+  //   const formData = new FormData();
+  //   formData.append("titre", title);
+  //   formData.append("description", description);
+  //   formData.append("category", category);
+  //   formData.append("adresse", adresse);
+  //   formData.append("localisation", localisation);
+  //   formData.append("statut", statut);
+  //   formData.append("userId", session.user.id);
+
+  //   if (images.length > 0) {
+  //     images.forEach((image) => {
+  //       formData.append("images", image);
+  //     });
+  //   }
+
+  //   console.log("Données valides :", {
+  //     title,
+  //     description,
+  //     category,
+  //     localisation,
+  //     adresse,
+  //     images,
+  //   });
+
+  //   try {
+  //     const response = await fetch(`/api/annonce/${id}`, {
+  //       method: "PUT",
+  //       body: formData,
+  //     });
+
+  //     if (!response.ok) {
+  //       throw new Error("Erreur lors de la modification de l'annonce");
+  //     }
+
+  //     const result = await response.json();
+  //     console.log("Réponse du serveur :", result);
+  //     toast.info(
+  //       "Annonce mise à jour avec succès ! L'administrateur va valider votre annonce et vous recevrez une notification par email."
+  //     );
+
+  //     setTimeout(() => {
+  //       router.push("/professionel/annonces/");
+  //       resetForm();
+  //     }, 10000);
+
+  //     router.push("/professionel/annonces/");
+  //   } catch (error) {
+  //     console.error("Erreur :", error);
+  //     toast.error(
+  //       "Une erreur est survenue lors de la mise à jour de l'annonce."
+  //     );
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -126,7 +196,8 @@ const EditAnnonce = ({ params }) => {
       );
       return;
     }
-    const statut = "PUBLIEE";
+
+    const statut = "DESACTIVEE";
     const formData = new FormData();
     formData.append("titre", title);
     formData.append("description", description);
@@ -163,9 +234,14 @@ const EditAnnonce = ({ params }) => {
 
       const result = await response.json();
       console.log("Réponse du serveur :", result);
-      toast.success("Annonce mise à jout avec succès !");
-      resetForm();
-      router.push("/professionel/annonces/");
+      toast.info(
+        "Annonce mise à jour avec succès ! L'administrateur va valider votre annonce et vous recevrez une notification par email."
+      );
+
+      setTimeout(() => {
+        router.push("/professionel/annonces/");
+        resetForm();
+      }, 10000);
     } catch (error) {
       console.error("Erreur :", error);
       toast.error(

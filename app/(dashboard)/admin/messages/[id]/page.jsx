@@ -1,45 +1,43 @@
 // "use client";
 
 // import { useSession } from "next-auth/react";
+// import Image from "next/image";
 // import React, { useEffect, useState } from "react";
 
 // const Page = () => {
 //   const { data: session } = useSession();
-//   const [sentMessages, setSentMessages] = useState([]);
-//   const [receivedMessages, setReceivedMessages] = useState([]);
+//   const [messages, setMessages] = useState([]);
+//   const [error, setError] = useState(null); // État pour gérer les erreurs
 
 //   useEffect(() => {
 //     const fetchMessages = async () => {
 //       if (session?.user.id) {
+//         const userId = session.user.id;
+//         console.log("userId dans session :", userId); // Vérification de l'ID de l'utilisateur
+
 //         try {
-//           const response = await fetch(`/api/chat?userId=${session.user.id}`);
+//           const response = await fetch(`/api/chat?userId=${userId}`);
 //           const data = await response.json();
-//           console.log("Données reçues :", data); // Vérifiez la structure des données reçues
+//           console.log("Données reçues :", data);
 
 //           if (response.ok) {
-//             // Afficher tous les messages pour vérifier leur structure
-//             console.log("Messages reçus :", data.messages); // Vérifier la structure de chaque message
+//             // Vérifier la présence des messages
+//             if (!data.messages || data.messages.length === 0) {
+//               console.log("Aucun message trouvé.");
+//             }
 
-//             // Séparer les messages envoyés et reçus
-//             const sent = data.messages.filter(
-//               (messages) => messages.senderId === session.user.id
-//             );
-//             const received = data.messages.filter(
-//               (messages) => messages.receiverId === session.user.id
-//             );
-
-//             console.log("Messages envoyés :", sent);
-//             console.log("Messages reçus :", received);
-
-//             setSentMessages(sent);
-//             setReceivedMessages(received);
+//             setMessages(data.messages); // Placer tous les messages dans l'état
 //           } else {
+//             setError(
+//               data.message || "Erreur lors de la récupération des messages."
+//             );
 //             console.error(
 //               "Erreur lors de la récupération des messages :",
-//               data.messages
+//               data.message || data.messages
 //             );
 //           }
 //         } catch (error) {
+//           setError("Erreur réseau : " + error.message);
 //           console.error("Erreur réseau :", error);
 //         }
 //       }
@@ -55,31 +53,43 @@
 //         <>
 //           <p>User ID: {session.user.id}</p>
 //           <div>
-//             <h2>Messages envoyés</h2>
-//             {sentMessages.length > 0 ? (
+//             <h2>Tous les messages</h2>
+//             {error && <p style={{ color: "red" }}>{error}</p>}{" "}
+//             {/* Affichage de l'erreur */}
+//             {messages.length > 0 ? (
 //               <ul>
-//                 {sentMessages.map((messages) => (
-//                   <li key={messages.id}>
-//                     {messages.content} {messages.imageMessages?.path[0] && "📷"}
+//                 {messages.map((message) => (
+//                   <li key={message.id}>
+//                     <p>
+//                       <strong>Expéditeur :</strong> {message.senderId}
+//                     </p>
+//                     <p>
+//                       <strong>Destinataire :</strong> {message.receiverId}
+//                     </p>
+//                     <p>
+//                       <strong>Contenu :</strong> {message.content}
+//                     </p>
+//                     <p>
+//                       <strong>Date :</strong> {message.sentAt}
+//                     </p>
+//                     {message.imageMessages &&
+//                       message.imageMessages.length > 0 &&
+//                       message.imageMessages[0]?.path && (
+//                         <p>
+//                           <strong>Image :</strong>{" "}
+//                           <Image
+//                             width={100}
+//                             height={100}
+//                             src={message.imageMessages[0].path}
+//                             alt="Message image"
+//                           />
+//                         </p>
+//                       )}
 //                   </li>
 //                 ))}
 //               </ul>
 //             ) : (
-//               <p>Aucun message envoyé trouvé.</p>
-//             )}
-//           </div>
-//           <div>
-//             <h2>Messages reçus</h2>
-//             {receivedMessages.length > 0 ? (
-//               <ul>
-//                 {receivedMessages.map((messages) => (
-//                   <li key={messages.id}>
-//                     {messages.content} {messages.imageMessages?.path[0] && "📷"}
-//                   </li>
-//                 ))}
-//               </ul>
-//             ) : (
-//               <p>Aucun message reçu trouvé.</p>
+//               <p>Aucun message trouvé.</p>
 //             )}
 //           </div>
 //         </>
@@ -92,15 +102,14 @@
 
 // export default Page;
 "use client";
-
 import { useSession } from "next-auth/react";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
 
 const Page = () => {
   const { data: session } = useSession();
-  const [sentMessages, setSentMessages] = useState([]);
-  const [receivedMessages, setReceivedMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -111,40 +120,24 @@ const Page = () => {
         try {
           const response = await fetch(`/api/chat?userId=${userId}`);
           const data = await response.json();
-          console.log("Données reçues :", data);
+          console.log("Données reçues de l'API :", data); // Affichage des données
 
           if (response.ok) {
-            // Vérifier la présence des messages
             if (!data.messages || data.messages.length === 0) {
               console.log("Aucun message trouvé.");
             }
-
-            const sent = data.messages.filter((message) => {
-              console.log(
-                `Vérification message envoyé : senderId=${message.senderId}, userId=${userId}`
-              );
-              return message.senderId === userId;
-            });
-
-            const received = data.messages.filter((message) => {
-              console.log(
-                `Vérification message reçu : receiverId=${message.receiverId}, userId=${userId}`
-              );
-              return message.receiverId === userId;
-            });
-
-            console.log("Messages envoyés :", sent);
-            console.log("Messages reçus :", received);
-
-            setSentMessages(sent);
-            setReceivedMessages(received);
+            setMessages(data.messages); // Placer tous les messages dans l'état
           } else {
+            setError(
+              data.message || "Erreur lors de la récupération des messages."
+            );
             console.error(
               "Erreur lors de la récupération des messages :",
               data.message || data.messages
             );
           }
         } catch (error) {
+          setError("Erreur réseau : " + error.message);
           console.error("Erreur réseau :", error);
         }
       }
@@ -160,77 +153,65 @@ const Page = () => {
         <>
           <p>User ID: {session.user.id}</p>
           <div>
-            <h2>Messages envoyés</h2>
-            {sentMessages.length > 0 ? (
+            <h2>Tous les messages</h2>
+            {error && <p style={{ color: "red" }}>{error}</p>}
+            {messages.length > 0 ? (
               <ul>
-                {sentMessages.map((message) => (
-                  <li key={message.id}>
-                    <p>
-                      <strong>Expéditeur :</strong> {message.senderId}
-                    </p>
-                    <p>
-                      <strong>Destinataire :</strong> {message.receiverId}
-                    </p>
-                    <p>
-                      <strong>Contenu :</strong> {message.content}
-                    </p>
-                    <p>
-                      <strong>Date :</strong> {message.date}
-                    </p>{" "}
-                    {/* Affichage de la date du message */}
-                    {message.imageMessages?.path[0] && (
+                {messages.map((message) => {
+                  console.log("Message reçu:", message);
+
+                  // Vérification des conditions d'affichage des messages
+                  const isSent = message.senderId === session.user.id;
+                  const isReceived = message.receiverId === session.user.id;
+
+                  console.log("isSent:", isSent, "isReceived:", isReceived);
+
+                  // Ajout d'une condition pour afficher même si le message est envoyé ou reçu
+                  return (
+                    <li key={message.id}>
                       <p>
-                        <strong>Image :</strong>{" "}
-                        <Image
-                          width={50}
-                          height={50}
-                          src={message.imageMessages.path[0]}
-                          alt="Message image"
-                        />
+                        <strong>Expéditeur :</strong> {message.senderId}
                       </p>
-                    )}
-                  </li>
-                ))}
+                      <p>
+                        <strong>Destinataire :</strong> {message.receiverId}
+                      </p>
+                      <p>
+                        <strong>Contenu :</strong> {message.content}
+                      </p>
+                      <p>
+                        <strong>Date :</strong> {message.sentAt}
+                      </p>
+
+                      {/* Afficher un message envoyé ou reçu */}
+                      {isSent && (
+                        <p>
+                          <strong>Status :</strong> Message envoyé
+                        </p>
+                      )}
+                      {isReceived && (
+                        <p>
+                          <strong>Status :</strong> Message reçu
+                        </p>
+                      )}
+
+                      {/* Affichage de l'image si elle existe */}
+                      {message.imageMessages?.[0]?.path && (
+                        <p>
+                          <strong>Image :</strong>{" "}
+                          <Image
+                            width={100}
+                            height={100}
+                            src={message.imageMessages[0].path}
+                            alt="Message image"
+                          />
+                        </p>
+                      )}
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
-              <p>Aucun message envoyé trouvé.</p>
-            )}
-          </div>
-          <div>
-            <h2>Messages reçus</h2>
-            {receivedMessages.length > 0 ? (
-              <ul>
-                {receivedMessages.map((message) => (
-                  <li key={message.id}>
-                    <p>
-                      <strong>Expéditeur :</strong> {message.senderId}
-                    </p>
-                    <p>
-                      <strong>Destinataire :</strong> {message.receiverId}
-                    </p>
-                    <p>
-                      <strong>Contenu :</strong> {message.content}
-                    </p>
-                    <p>
-                      <strong>Date :</strong> {message.date}
-                    </p>{" "}
-                    {/* Affichage de la date du message */}
-                    {message.imageMessages?.path[0] && (
-                      <p>
-                        <strong>Image :</strong>{" "}
-                        <Image
-                          height={50}
-                          width={50}
-                          src={message.imageMessages.path[0]}
-                          alt="Message image"
-                        />
-                      </p>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            ) : (
-              <p>Aucun message reçu trouvé.</p>
+              <p>Aucun message trouvé.</p>
             )}
           </div>
         </>
