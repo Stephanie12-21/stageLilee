@@ -16,9 +16,9 @@ import {
 
 const Navigation = () => {
   const { data: session } = useSession();
+
   const pathname = usePathname();
   const [isAnnoncesOpen, setIsAnnoncesOpen] = useState(false); // État pour gérer le sous-menu "Annonces"
-
   const DataLinkNav = [
     {
       icon: Home,
@@ -53,7 +53,7 @@ const Navigation = () => {
     {
       icon: Mail,
       name: "Messages",
-      href: session ? `/admin/messages` : "#",
+      href: session ? `/admin/messages/${session.user.id}` : "#",
     },
     {
       icon: Users,

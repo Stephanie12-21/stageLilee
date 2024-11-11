@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import { NextResponse } from "next/server"; // Importez NextResponse
 
 // Fonction pour envoyer l'email de vérification
-async function sendSuspensionEmail(email, raison) {
+async function sendVerificationEmail(email, prenom, verificationCode) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -16,8 +16,8 @@ async function sendSuspensionEmail(email, raison) {
   const mailOptions = {
     from: process.env.SMTP_USER,
     to: email,
-    subject: "Votre compte LILEE est suspendu ",
-    text: `Bonjour ${prenom},\n\nNous vous informons que votre compte sur la plateforme LILEE est suspendu. Voici la raison: ${raison}`,
+    subject: "Vérification de vos informations personnelles",
+    text: `Bonjour ${prenom},\n\nVotre code de vérification est : ${verificationCode}\n\nMerci de vérifier votre adresse email.`,
   };
 
   try {
@@ -42,13 +42,14 @@ export async function POST(req) {
   }
 
   try {
-    await sendSuspensionEmail(prenom);
+    await sendVerificationEmail(email, prenom, verificationCode);
     return NextResponse.json(
       { message: "E-mail envoyé avec succès" },
       { status: 200 }
     );
   } catch (error) {
-    console.log(error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ error: error.message }, { status: 500 }); // Renvoie le message d'erreur
   }
 }
+
+//////////////////////////////////////////////////////////////////////////

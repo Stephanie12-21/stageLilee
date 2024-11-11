@@ -55,7 +55,6 @@ export async function POST(request) {
       },
     });
 
-    // Ajout des images associées à l'article
     const articleId = newArticle.id;
 
     const imageInsertions = imageUrls.map((imageUrl) => {

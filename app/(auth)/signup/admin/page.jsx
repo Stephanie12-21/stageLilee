@@ -83,7 +83,7 @@ const Administrator = () => {
     if (step === 1) {
       const generatedCodes = generateVerificationCodes();
       try {
-        const response = await fetch("/api/user/verifEmail/", {
+        const response = await fetch("/api/user/emailVerif/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

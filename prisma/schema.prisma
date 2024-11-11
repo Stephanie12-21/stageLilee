@@ -219,4 +219,3 @@ model imageMessages {
   messages      message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
 //pour les messages
-// Fin du schéma
