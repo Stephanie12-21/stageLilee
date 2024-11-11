@@ -614,7 +614,7 @@ const Annonce = () => {
         {annonces.length === 0 ? (
           <p>Aucune annonce trouvée.</p>
         ) : (
-          annonces.map((annonce, i) => (
+          annonces.slice(0, 3).map((annonce, i) => (
             <motion.div
               key={annonce.id}
               custom={i}

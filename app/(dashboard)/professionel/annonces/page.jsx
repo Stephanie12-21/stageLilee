@@ -25,7 +25,6 @@ const Annonces = () => {
     }
   }, [status, router]);
 
-  // Fonction pour récupérer les annonces
   const fetchAnnonces = async (userId) => {
     try {
       const response = await fetch(`/api/annonce?userId=${userId}`);
@@ -125,7 +124,7 @@ const Annonces = () => {
                 <div className="flex flex-col space-y-3">
                   <Label
                     htmlFor="categorie"
-                    className="bg-slate-300 p-2 rounded-[4px]"
+                    className="bg-slate-300 p-2 w-fit rounded-[4px]"
                   >
                     {annonce.categorieAnnonce}
                   </Label>
