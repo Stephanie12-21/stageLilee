@@ -1,96 +1,178 @@
-// import { Button } from "@/components/ui/button";
-// import React from "react";
+"use client";
+import React, { useState, useEffect } from "react";
+import { Users, Building2, FileText, TrendingUp } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  ChartContainer,
+  ChartLegend,
+  ChartLegendContent,
+  ChartTooltip,
+  ChartTooltipContent,
+} from "@/components/ui/chart";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Area, AreaChart, Bar, BarChart, CartesianGrid, XAxis } from "recharts";
 
-// const page = () => {
-//   return (
-//     <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-//       <div className="flex items-center">
-//         <h1 className="text-lg font-semibold md:text-2xl">Inventory</h1>
-//       </div>
-//       <div
-//         className="flex flex-1 items-center justify-center rounded-lg border border-dashed shadow-sm"
-//         x-chunk="dashboard-02-chunk-1"
-//       >
-//         <div className="flex flex-col items-center gap-1 text-center">
-//           <h3 className="text-2xl font-bold tracking-tight">
-//             You have no products
-//           </h3>
-//           <p className="text-sm text-muted-foreground">
-//             You can start selling as soon as you add a product.
-//           </p>
-//           <Button className="mt-4">Add Product</Button>
-//         </div>
-//       </div>
-//     </main>
-//   );
-// };
+const chartConfig = {
+  annonces: { label: "Annonces", color: "green" },
+  utilisateurs: { label: "Utilisateurs", color: "red" },
+  companies: { label: "Entreprises", color: "yellow" },
+};
 
-// export default page;
+const StatsCard = ({
+  title,
+  value = 0,
+  icon: Icon,
+  gradient,
+  increase = 0,
+}) => (
+  <div
+    className={`relative overflow-hidden rounded-xl p-6 ${gradient} transition-transform hover:scale-105`}
+  >
+    <div className="absolute right-0 top-0 opacity-10">
+      <Icon size={100} className="transform translate-x-8 -translate-y-8" />
+    </div>
+    <div className="relative">
+      <div className="flex items-center gap-3">
+        <Icon size={24} className="text-white" />
+        <h3 className="font-semibold text-white">{title}</h3>
+      </div>
+      <p className="mt-4 text-3xl font-bold text-white">
+        {value.toLocaleString()}
+      </p>
+      <div className="mt-4 flex items-center gap-2 text-white/80">
+        <TrendingUp size={16} />
+        <span className="text-sm">+{increase} depuis hier</span>
+      </div>
+    </div>
+  </div>
+);
 
-import { Logout } from "@/app/(dialog)/Logout/page";
-import { authOptions } from "@/app/api/auth/[...nextauth]/route";
-import { getServerSession } from "next-auth";
-import Image from "next/image";
-import Link from "next/link";
+const StatsDashboard = ({ stats, previousStats }) => (
+  <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-3">
+    <StatsCard
+      title="Total Annonces"
+      value={stats.annonces}
+      icon={FileText}
+      gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+      increase={stats.annonces - (previousStats?.annonces || 0)}
+    />
+    <StatsCard
+      title="Total Utilisateurs"
+      value={stats.utilisateurs}
+      icon={Users}
+      gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
+      increase={stats.utilisateurs - (previousStats?.utilisateurs || 0)}
+    />
+    <StatsCard
+      title="Total Entreprises"
+      value={stats.companies}
+      icon={Building2}
+      gradient="bg-gradient-to-br from-amber-500 to-amber-600"
+      increase={stats.companies - (previousStats?.companies || 0)}
+    />
+  </div>
+);
 
-const AdminPage = async () => {
-  const session = await getServerSession(authOptions);
-  console.log(session);
+const AdminPreview = () => {
+  const [stats, setStats] = useState(null);
+  const [previousStats, setPreviousStats] = useState({
+    annonces: 0,
+    utilisateurs: 0,
+    companies: 0,
+  });
+  const [chartData, setChartData] = useState([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await fetch("/api/stats/");
+        const data = await response.json();
+
+        if (stats) setPreviousStats(stats);
+
+        setStats({
+          annonces: data.totalAnnonces,
+          utilisateurs: data.totalUsers,
+          companies: data.totalCompanies,
+        });
+
+        setChartData(data.history || []);
+      } catch (error) {
+        console.error("Erreur lors de la récupération des données :", error);
+      }
+    };
+
+    fetchStats();
+  }, [stats]); // Added stats as a dependency
+
+  if (!stats) return <div>Chargement...</div>;
 
   return (
-    <div>
-      {session?.user ? (
-        <div>
-          <div className="flex items-center">
-            {session.user.image ? (
-              <Image
-                src={session.user.image}
-                height={200}
-                width={200}
-                alt={`${session.user.nom} ${session.user.prenom}`}
-                className="w-16 h-16 rounded-full mr-4"
-              />
-            ) : (
-              <div className="w-16 h-16 bg-gray-300 rounded-full mr-4" />
-            )}
-            <span className="font-bold text-xl">
-              Bienvenue à toi -{" "}
-              <span className="text-orange-500 font-bold text-xl">
-                {session.user.nom}
-              </span>
-            </span>
-          </div>
-          <div>
-            Vous avez le rôle
-            <span className="text-orange-500 font-bold text-xl">
-              {session.user.role}
-            </span>
-          </div>
-          <div className="flex justify-center items-center space-x-10">
-            <Logout />
-            <Link href="/Annonce">Liste des annonces</Link>
-            {session.user.role !== "USER" && (
-              <Link href="/blog">Liste des articles</Link>
-            )}
-            <Link href={`/user//${session.user.id}`}>Voir le profil</Link>
-            <Link href={`/user//${session.user.id}`}>
-              Modifier le mot de passe
-            </Link>
-            <Link href="/formContact">Contacter Lilee</Link>
-          </div>
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-7 pt-8 pb-0">
+        <div className="flex justify-between items-center mb-2">
+          <h1 className="text-2xl font-bold text-gray-800 px-6">
+            Tableau de bord admin
+          </h1>
         </div>
-      ) : (
-        <div>
-          <h2>
-            Veuillez vous connecter à votre compte
-            <span>
-              <Link href="/login">Se connecter</Link>
-            </span>
-          </h2>
+        <StatsDashboard stats={stats} previousStats={previousStats} />
+        <div className="p-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Bar Chart - Multiple</CardTitle>
+              <CardDescription>January - June 2024</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ChartContainer config={chartConfig}>
+                <BarChart data={chartData} width={500} height={300}>
+                  <CartesianGrid vertical={false} />
+                  <XAxis
+                    dataKey="month"
+                    tickLine={false}
+                    tickMargin={10}
+                    axisLine={false}
+                    tickFormatter={(value) => value.slice(0, 3)}
+                  />
+                  <ChartTooltip
+                    cursor={false}
+                    content={<ChartTooltipContent indicator="dashed" />}
+                  />
+                  <Bar
+                    dataKey="desktop"
+                    fill="var(--color-desktop)"
+                    radius={4}
+                  />
+                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                </BarChart>
+              </ChartContainer>
+            </CardContent>
+            <CardFooter className="flex-col items-start gap-2 text-sm">
+              <div className="flex gap-2 font-medium leading-none">
+                Trending up by 5.2% this month{" "}
+                <TrendingUp className="h-4 w-4" />
+              </div>
+              <div className="leading-none text-muted-foreground">
+                Showing total visitors for the last 6 months
+              </div>
+            </CardFooter>
+          </Card>
         </div>
-      )}
+      </div>
     </div>
   );
 };
 
-export default AdminPage;
+export default AdminPreview;

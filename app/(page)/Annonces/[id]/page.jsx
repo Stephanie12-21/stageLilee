@@ -33,11 +33,12 @@ import { DeleteIcon, EditIcon, MoreHorizontal, StarIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import StarRatingDialog from "@/app/(dialog)/note/page";
 import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
-import ChatBubble from "@/app/(dialog)/chat/page";
+import ChatDialog from "@/app/(dialog)/chat/page";
 
 const InfoAnnonces = ({ params }) => {
   const [isLiked, setIsLiked] = useState(false);
   const { id } = params;
+  const [senderId, setSenderId] = useState(null);
   const { data: session, status } = useSession();
   const [annonceId, setAnnonceId] = useState("");
   const [userName, setUserName] = useState("");
@@ -64,6 +65,13 @@ const InfoAnnonces = ({ params }) => {
     setIsLiked(!isLiked);
   };
   const router = useRouter();
+
+  useEffect(() => {
+    // Vérifie si session est définie, puis met à jour senderId
+    if (session?.user?.id) {
+      setSenderId(session.user.id);
+    }
+  }, [session]);
 
   const handlePublish = async (e) => {
     e.preventDefault();
@@ -237,8 +245,14 @@ const InfoAnnonces = ({ params }) => {
     return totalRating / ratedComments.length;
   };
 
-  const handleChat = () => {
-    setChatModal(true);
+  const handleChat = (id) => {
+    if (id) {
+      console.log("L'envoyeur du message sera :", id);
+      setSenderId(id);
+      setChatModal(true); // Ouvre le modal car l'utilisateur est connecté
+    } else {
+      console.error("Utilisateur non connecté !");
+    }
   };
 
   const handleCloseChat = (userId) => {
@@ -413,8 +427,21 @@ const InfoAnnonces = ({ params }) => {
               </CardDescription>
             </CardHeader>
 
+            {/* <CardFooter className="flex justify-center">
+              <Button onClick={() => handleChat(session.user.id)}>
+                Discuter avec le vendeur
+              </Button>
+            </CardFooter> */}
             <CardFooter className="flex justify-center">
-              <Button onClick={handleChat}>Discuter avec le vendeur</Button>
+              {session && session.user ? (
+                <Button onClick={() => handleChat(session.user.id)}>
+                  Discuter avec le vendeur
+                </Button>
+              ) : (
+                <Button onClick={() => handleChat(null)}>
+                  Connectez-vous pour discuter
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </div>
@@ -704,10 +731,11 @@ const InfoAnnonces = ({ params }) => {
         currentRating={note}
       />
 
-      <ChatBubble
+      <ChatDialog
         isOpen={chatModal}
         onClose={handleCloseChat}
         userId={userId}
+        senderId={senderId}
       />
     </div>
   );

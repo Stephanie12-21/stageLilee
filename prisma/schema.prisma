@@ -28,25 +28,48 @@ model image {
 }
 
 // Pour les comptes
+// model user {
+//   id                 Int         @id @default(autoincrement())
+//   nom                String
+//   prenom             String
+//   email              String      @unique
+//   phone              String      @unique
+//   hashPassword       String
+//   statutUser         statutUser 
+//   role               role        
+//   profileImages      profileImage[]
+//   createdAt          DateTime    @default(now())
+//   updatedAt          DateTime    @updatedAt
+//   companyId          Int?       
+//   company            company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
+//   annonces           annonces[]  
+//   commentaire        commentaire[]
+//   favoris           favoris[]  
+//   temoignages       temoignages[]
+//   messages           message[]  @relation("UserMessages", references: [id], fields: [id])
+// }
 model user {
-  id                 Int         @id @default(autoincrement())
+  id                 Int            @id @default(autoincrement())
   nom                String
   prenom             String
-  email              String      @unique
-  phone              String      @unique
+  email              String         @unique
+  phone              String         @unique
   hashPassword       String
-  statutUser         statutUser 
-  role               role        
+  statutUser         statutUser
+  role               role
   profileImages      profileImage[]
-  createdAt          DateTime    @default(now())
-  updatedAt          DateTime    @updatedAt
-  companyId          Int?       
-  company            company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-  annonces           annonces[]  
+  createdAt          DateTime       @default(now())
+  updatedAt          DateTime       @updatedAt
+  companyId          Int?
+  company            company?       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  annonces           annonces[]
   commentaire        commentaire[]
-  favoris           favoris[]  
-  temoignages       temoignages[]
+  favoris            favoris[]
+  temoignages        temoignages[]
+  sentMessages       message[]      @relation("UserMessages")
+  receivedMessages   message[]      @relation("UserReceivedMessages")
 }
+
 
 enum statutUser {
   ACTIF
@@ -176,4 +199,24 @@ model temoignages{
 }
 //pour LILEE
 
+
+//pour les messages
+model message {
+  id              Int      @id @default(autoincrement())
+  content         String?
+  imageMessages   imageMessages[]
+  senderId        Int
+  receiverId      Int
+  sentAt          DateTime @default(now())
+  sender          user     @relation("UserMessages", fields: [senderId], references: [id])
+  receiver        user     @relation("UserReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model imageMessages {
+  id            Int      @id @default(autoincrement())
+  path          String   
+  messageId     Int      
+  messages      message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+}
+//pour les messages
 // Fin du schéma

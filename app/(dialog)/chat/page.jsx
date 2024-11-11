@@ -1,7 +1,7 @@
 import { Dialog, DialogContent, DialogClose } from "@/components/ui/dialog";
 import React from "react";
 
-const ChatBubble = ({ isOpen, onClose, userId }) => {
+const ChatDialog = ({ isOpen, onClose, userId, senderId }) => {
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="fixed bottom-0 right-0 mb-4 mr-4 z-50 max-w-md w-full bg-white p-6 rounded-lg shadow-lg">
@@ -10,13 +10,12 @@ const ChatBubble = ({ isOpen, onClose, userId }) => {
           <DialogClose asChild></DialogClose>
         </div>
         <div className="h-[400px] w-[400px] overflow-y-auto">
-          <p>
-            Mon message que je souhaite envoyé à l&apos; utilisateur : {userId}
-          </p>
+          <p>Le destinataire du message est l&apos; utilisateur : {userId}</p>
+          <p>L&apos;envoyeur du message est l&apos; utilisateur : {senderId}</p>
         </div>
       </DialogContent>
     </Dialog>
   );
 };
 
-export default ChatBubble;
+export default ChatDialog;

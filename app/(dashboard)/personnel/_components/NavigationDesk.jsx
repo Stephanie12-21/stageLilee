@@ -4,7 +4,7 @@ import { usePathname } from "next/navigation";
 import React from "react";
 
 const DataLinkNav = [
-  { icon: Home, name: "Dashboard", href: "/personnel" },
+  // { icon: Home, name: "Dashboard", href: "/personnel" },
   { icon: Megaphone, name: "Annonces", href: "/personnel/annonces" },
   { icon: Heart, name: "Favoris", href: "/personnel/favoris" },
   { icon: Mail, name: "Messages", href: "/personnel/messages" },

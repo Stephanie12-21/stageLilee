@@ -62,7 +62,7 @@ export default function LayoutAdmin({ children }) {
     }
 
     const data = {
-      userId: session.user.id, // Utilisation de l'id de l'utilisateur
+      userId: session.user.id,
       testimony,
       rating,
     };
@@ -80,6 +80,7 @@ export default function LayoutAdmin({ children }) {
         alert("Témoignage soumis avec succès !");
         setTestimony("");
         setRating(0);
+        handleCloseDialog();
       } else {
         alert("Erreur lors de la soumission du témoignage.");
       }
