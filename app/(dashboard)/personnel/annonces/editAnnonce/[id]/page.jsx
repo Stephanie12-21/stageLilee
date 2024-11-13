@@ -126,7 +126,7 @@ const EditAnnonce = ({ params }) => {
       );
       return;
     }
-    const statut = "PUBLIEE";
+    const statut = "DESACTIVEE";
     const formData = new FormData();
     formData.append("titre", title);
     formData.append("description", description);

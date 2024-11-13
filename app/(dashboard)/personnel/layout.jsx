@@ -232,9 +232,9 @@ export default function LayoutAdmin({ children }) {
                     <Image
                       src={session.user.image}
                       alt="User profile"
-                      width={40} // Taille de l'image (width et height identiques pour un carré)
-                      height={40}
-                      className="w-8 h-8 rounded-full object-cover" // Ajuste l'image dans le bouton
+                      width={50}
+                      height={50}
+                      className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
                     <span className="sr-only">User profile</span>

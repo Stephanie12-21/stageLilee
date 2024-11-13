@@ -69,8 +69,6 @@ model user {
   sentMessages       message[]      @relation("UserMessages")
   receivedMessages   message[]      @relation("UserReceivedMessages")
 }
-
-
 enum statutUser {
   ACTIF
   SUSPENDU
@@ -145,13 +143,13 @@ model annonces {
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   imageAnnonces     imageAnnonce[]
-  categorieAnnonce   categorieAnnonce
+  categorieAnnonce  categorieAnnonce
   userId            Int         
   user              user          @relation(fields: [userId], references: [id], onDelete: Cascade)
-  commentaire       commentaire[]
+  commentaire       commentaire[] 
   favoris           favoris[]  
+  messages          message[] // Relation avec les messages
 }
-
 enum statut {
   PUBLIEE       
   DESACTIVEE        
@@ -202,20 +200,23 @@ model temoignages{
 
 //pour les messages
 model message {
-  id              Int      @id @default(autoincrement())
+  id              Int             @id @default(autoincrement())
   content         String?
-  imageMessages   imageMessages[]
   senderId        Int
   receiverId      Int
-  sentAt          DateTime @default(now())
-  sender          user     @relation("UserMessages", fields: [senderId], references: [id])
-  receiver        user     @relation("UserReceivedMessages", fields: [receiverId], references: [id])
+  annonceId       Int
+  sentAt          DateTime        @default(now())
+  sender          user            @relation("UserMessages", fields: [senderId], references: [id])
+  receiver        user            @relation("UserReceivedMessages", fields: [receiverId], references: [id])
+  annonce         annonces        @relation(fields: [annonceId], references: [id])
+  imageMessages   imageMessages[] // Relation vers les images
 }
 
 model imageMessages {
   id            Int      @id @default(autoincrement())
   path          String   
   messageId     Int      
-  messages      message  @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messages      message?  @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
+
 //pour les messages
