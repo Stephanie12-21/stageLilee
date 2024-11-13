@@ -11,11 +11,12 @@ import Image from "next/image";
 import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
-const ChatDialog = ({ isOpen, onClose, userId, senderId }) => {
+const ChatDialog = ({ isOpen, onClose, userId, senderId, annonceId }) => {
   const [message, setMessage] = useState("");
   const [selectedImages, setSelectedImages] = useState([]);
   const sender = senderId;
   const receiver = userId;
+  const annonce = annonceId;
 
   const handleImageUpload = (event) => {
     const files = Array.from(event.target.files);
@@ -37,6 +38,45 @@ const ChatDialog = ({ isOpen, onClose, userId, senderId }) => {
     }
   };
 
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   if (!message && selectedImages.length === 0) {
+  //     alert("Vous n'avez saisi aucun message.");
+  //     return;
+  //   }
+
+  //   const formData = new FormData();
+  //   formData.append("message", message);
+  //   formData.append("sender", sender);
+  //   formData.append("receiver", receiver);
+  //   formData.append("annonce", annonce);
+  //   // Télécharger chaque image et l'ajouter au formData
+  //   for (const image of selectedImages) {
+  //     const response = await fetch(image); // Notez l'utilisation de `await`
+  //     const blob = await response.blob();
+  //     formData.append("images", blob, "uploaded_image.png");
+  //   }
+
+  //   try {
+  //     const response = await fetch("/api/chat", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+
+  //     const result = await response.json();
+
+  //     if (response.ok) {
+  //       toast.success("Message envoyé avec succès !");
+  //       setMessage("");
+  //       setSelectedImages([]);
+  //     } else {
+  //       toast.error(result.message || "Erreur lors de l'envoi du message");
+  //     }
+  //   } catch (error) {
+  //     console.error("Erreur lors de la soumission :", error);
+  //     alert("Erreur interne du serveur.");
+  //   }
+  // };
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!message && selectedImages.length === 0) {
@@ -48,12 +88,13 @@ const ChatDialog = ({ isOpen, onClose, userId, senderId }) => {
     formData.append("message", message);
     formData.append("sender", sender);
     formData.append("receiver", receiver);
+    formData.append("annonce", annonce);
 
     // Télécharger chaque image et l'ajouter au formData
     for (const image of selectedImages) {
-      const response = await fetch(image); // Notez l'utilisation de `await`
-      const blob = await response.blob();
-      formData.append("images", blob, "uploaded_image.png");
+      const response = await fetch(image); // Récupérer l'image en blob
+      const blob = await response.blob(); // Convertir en blob
+      formData.append("images", blob, "uploaded_image.png"); // Ajouter au formData
     }
 
     try {
@@ -66,6 +107,7 @@ const ChatDialog = ({ isOpen, onClose, userId, senderId }) => {
 
       if (response.ok) {
         toast.success("Message envoyé avec succès !");
+
         setMessage("");
         setSelectedImages([]);
       } else {
@@ -91,6 +133,7 @@ const ChatDialog = ({ isOpen, onClose, userId, senderId }) => {
             <p>
               L&apos;envoyeur du message est l&apos;utilisateur : {senderId}
             </p>
+            <p>L&apos;annonce sélectionné est l&apos;annonce : {annonceId}</p>
           </div>
           <DialogFooter>
             <div className="w-full flex flex-col space-y-2 bg-white border border-gray-800 rounded-lg px-4 py-2">
@@ -149,7 +192,7 @@ const ChatDialog = ({ isOpen, onClose, userId, senderId }) => {
         </DialogContent>
       </Dialog>
       <ToastContainer
-        position="top-right"
+        position="top-center"
         autoClose={5000}
         hideProgressBar={false}
         closeOnClick

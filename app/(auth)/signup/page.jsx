@@ -37,9 +37,9 @@ const SignUpPage = () => {
               <Button asChild className="w-full text-[16px]">
                 <Link href={"/signup/professionnel"}>Professionel</Link>
               </Button>
-              {/* <Button asChild className="w-full text-[16px]">
+              <Button asChild className="w-full text-[16px]">
                 <Link href={"/signup/admin"}>Administrateur</Link>
-              </Button> */}
+              </Button>
             </div>
             {/* ===== button ===== */}
           </div>

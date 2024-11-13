@@ -106,7 +106,7 @@ const AddAnnonce = () => {
       );
       return;
     }
-    const statut = "PUBLIEE";
+    const statut = "DESACTIVEE";
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", description);
@@ -133,9 +133,17 @@ const AddAnnonce = () => {
       }
 
       const result = await response.json();
-      toast.success("Annonce ajoutée avec succès !");
-      router.push("/personnel/annonces/");
-      resetForm();
+      toast.info(
+        "Annonce ajoutée avec succès ! L'administrateur va valider votre annonce et vous recevrez une notification par email."
+      );
+      await fetch("/api/notifications", {
+        method: "POST",
+      });
+
+      setTimeout(() => {
+        router.push("/professionel/annonces/");
+        resetForm();
+      }, 10000);
     } catch (error) {
       console.error("Erreur :", error);
       toast.error("Une erreur est survenue lors de l'ajout de l'annonce.");

@@ -245,13 +245,25 @@ const InfoAnnonces = ({ params }) => {
     return totalRating / ratedComments.length;
   };
 
-  const handleChat = (id) => {
+  // const handleChat = (id) => {
+  //   if (id) {
+  //     console.log("L'envoyeur du message sera :", id);
+  //     setSenderId(id);
+  //     setChatModal(true); // Ouvre le modal car l'utilisateur est connecté
+  //   } else {
+  //     console.error("Utilisateur non connecté !");
+  //   }
+  // };
+
+  const handleChat = (id, annonceId) => {
     if (id) {
       console.log("L'envoyeur du message sera :", id);
+      console.log("L'annonce sélectionnée est :", annonceId);
       setSenderId(id);
-      setChatModal(true); // Ouvre le modal car l'utilisateur est connecté
+      setChatModal(true);
     } else {
       console.error("Utilisateur non connecté !");
+      console.log("L'annonce sélectionnée est :", annonceId);
     }
   };
 
@@ -432,13 +444,24 @@ const InfoAnnonces = ({ params }) => {
                 Discuter avec le vendeur
               </Button>
             </CardFooter> */}
-            <CardFooter className="flex justify-center">
+            {/* <CardFooter className="flex justify-center">
               {session && session.user ? (
                 <Button onClick={() => handleChat(session.user.id)}>
                   Discuter avec le vendeur
                 </Button>
               ) : (
                 <Button onClick={() => handleChat(null)}>
+                  Connectez-vous pour discuter
+                </Button>
+              )}
+            </CardFooter> */}
+            <CardFooter className="flex justify-center">
+              {session && session.user ? (
+                <Button onClick={() => handleChat(session.user.id, annonceId)}>
+                  Discuter avec le vendeur
+                </Button>
+              ) : (
+                <Button onClick={() => handleChat(null, annonceId)}>
                   Connectez-vous pour discuter
                 </Button>
               )}
@@ -736,6 +759,7 @@ const InfoAnnonces = ({ params }) => {
         onClose={handleCloseChat}
         userId={userId}
         senderId={senderId}
+        annonceId={annonceId}
       />
     </div>
   );

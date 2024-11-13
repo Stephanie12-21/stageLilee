@@ -2,7 +2,7 @@ import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
 
-async function sendSuspensionEmail(email, raison, annonceTitre) {
+async function sendSuspensionEmail(email, annonceTitre) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -12,12 +12,11 @@ async function sendSuspensionEmail(email, raison, annonceTitre) {
       pass: process.env.SMTP_PASS,
     },
   });
-
   const mailOptions = {
     from: process.env.SMTP_USER,
     to: email,
     subject: "Notification d'activation d'annonce",
-    text: `Bonjour,\n\nVotre annonce portant le titre "${annonceTitre}" a été activée.\n\nMerci de contacter l'administration si vous avez des questions.`,
+    text: `Bonjour,\n\nVotre annonce portant le titre "${annonceTitre}" a été vérifiée et publiée sur la plateforme LILEE.\n\nMerci de contacter l'administration si vous avez des questions.`,
   };
 
   try {
@@ -34,7 +33,6 @@ export async function PUT(request, { params }) {
     const { id } = params;
     const body = await request.json();
     const { statut, email, annonceTitre } = body;
-
     const validStatut = ["PUBLIEE", "DESACTIVEE"];
     if (!validStatut.includes(statut)) {
       return NextResponse.json(

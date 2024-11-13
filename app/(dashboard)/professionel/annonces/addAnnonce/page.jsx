@@ -138,9 +138,11 @@ const AddAnnonce = () => {
       toast.info(
         "Annonce ajoutée avec succès ! L'administrateur va valider votre annonce et vous recevrez une notification par email."
       );
+      await fetch("/api/notifications", {
+        method: "POST",
+      });
 
       setTimeout(() => {
-        
         router.push("/professionel/annonces/");
         resetForm();
       }, 10000); // 3000 ms = 3 secondes (ajustez selon la durée d'affichage souhaitée)
