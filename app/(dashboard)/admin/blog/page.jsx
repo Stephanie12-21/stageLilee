@@ -73,7 +73,7 @@ const Blog = () => {
           onChange={(e) => setSearchFilter(e.target.value)}
           className="border border-gray-300 text-[18px] rounded-md p-6 w-[700px]"
         />
-        <Link href="/admin/blog/addBlog">
+        <Link href="/blog/AddBlog">
           <Button className="p-6 text-[18px] rounded-[10px]">
             Créer un nouvel article
           </Button>
@@ -152,9 +152,14 @@ const Blog = () => {
                           </p>
                         </div>
 
-                        <p className="text-[#353945] font-medium text-[16px] pt-4">
-                          {article.contenu.substring(0, 100)}...
-                        </p>
+                        <p className="text-[#353945] font-medium text-[16px] pt-4"></p>
+                        <div
+                          className="text-[#353945] font-medium text-[18px] pt-4"
+                          dangerouslySetInnerHTML={{
+                            __html: article.contenu.replace(/^"|"$/g, ""), // Retirer les guillemets
+                          }}
+                        />
+
                         <div className="flex justify-between items-end pt-[235px] space-x-7">
                           <Link href={`/admin/blog/${article.id}`}>
                             <Button className="px-5 py-2 text-[14px] rounded-[10px] space-x-3">

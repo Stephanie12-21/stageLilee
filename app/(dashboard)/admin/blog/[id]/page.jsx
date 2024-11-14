@@ -4,6 +4,19 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 // Fonction asynchrone pour récupérer les détails d'un article par son ID
+const fetchArticle = async (id) => {
+  try {
+    const response = await fetch(`/api/blog/${id}`);
+    if (!response.ok) {
+      throw new Error("Article non trouvé");
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Erreur lors de la récupération de l'article:", error);
+    throw error;
+  }
+};
 
 const ArticleDetailPage = ({ params }) => {
   const { id } = params;
@@ -11,19 +24,6 @@ const ArticleDetailPage = ({ params }) => {
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const fetchArticle = async (id) => {
-    try {
-      const response = await fetch(`/api/blog/${id}`);
-      if (!response.ok) {
-        throw new Error("Article non trouvé");
-      }
-      const data = await response.json();
-      return data;
-    } catch (error) {
-      console.error("Erreur lors de la récupération de l'article:", error);
-      throw error;
-    }
-  };
   useEffect(() => {
     if (id) {
       fetchArticle(id)
@@ -111,9 +111,13 @@ const ArticleDetailPage = ({ params }) => {
             </div>
           )}
         </div>
-        <p className="text-[#353945] font-medium text-[18px] pt-4">
-          {article.contenu}
-        </p>
+        {/* Affichage du contenu avec HTML */}
+        <div
+          className="text-[#353945] font-medium text-[18px] pt-4"
+          dangerouslySetInnerHTML={{
+            __html: article.contenu.replace(/^"|"$/g, ""), // Retirer les guillemets
+          }}
+        />
       </div>
     </div>
   );

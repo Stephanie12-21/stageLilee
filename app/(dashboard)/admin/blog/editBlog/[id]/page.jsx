@@ -1,10 +1,10 @@
-// code qui marche pas avec deux images
 "use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { X } from "lucide-react"; // Importation de l'icône X
+import RichTextEditor from "../../../_components/RichEditor";
 
 const fetchArticle = async (id) => {
   try {
@@ -26,10 +26,11 @@ const ArticleDetailPageModif = ({ params }) => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     titre: "",
-    contenu: "",
+    contenu: "", // Utilisé uniquement pour affichage initial
     categorieArticle: "",
-    files: [], // Utiliser un tableau pour les fichiers
+    files: [],
   });
+  const [contenu, setContenu] = useState({}); // Stocker le contenu en JSON
   const router = useRouter();
 
   useEffect(() => {
@@ -39,10 +40,11 @@ const ArticleDetailPageModif = ({ params }) => {
           setArticle(data);
           setFormData({
             titre: data.titre,
-            contenu: data.contenu,
+            contenu: data.contenu, // Afficher le contenu initial
             categorieArticle: data.categorieArticle,
-            files: [], // Initialiser le tableau d'images
+            files: [],
           });
+          setContenu(data.contenu ? JSON.parse(data.contenu) : {}); // Charger le JSON si existant
         })
         .catch((err) => setError(err.message));
     }
@@ -75,7 +77,7 @@ const ArticleDetailPageModif = ({ params }) => {
 
     const formDataToSend = new FormData();
     formDataToSend.append("titre", formData.titre);
-    formDataToSend.append("contenu", formData.contenu);
+    formDataToSend.append("contenu", JSON.stringify(contenu)); // Convertir en JSON
     formDataToSend.append("categorieArticle", formData.categorieArticle);
     formData.files.forEach((file) => {
       formDataToSend.append("files", file); // Ajouter chaque image au FormData
@@ -150,16 +152,12 @@ const ArticleDetailPageModif = ({ params }) => {
           >
             Contenu de l&apos;article
           </label>
-          <textarea
-            id="contenu"
-            name="contenu"
-            value={formData.contenu}
-            onChange={handleChange}
-            className="mt-1 p-2 w-full h-40 border border-gray-300 rounded-md"
+          <RichTextEditor
+            content={contenu}
+            onChange={(json) => setContenu(json)} // L'éditeur retourne un JSON
           />
         </div>
 
-        {/* Champ pour les images */}
         <div className="mb-4">
           <label
             htmlFor="files"
@@ -171,13 +169,12 @@ const ArticleDetailPageModif = ({ params }) => {
             type="file"
             id="files"
             name="files"
-            multiple // Permettre la sélection multiple
+            multiple
             onChange={handleChange}
             className="mt-1 p-2 w-full border border-gray-300 rounded-md"
           />
         </div>
 
-        {/* Afficher les images sélectionnées */}
         <div className="flex space-x-2 mt-4">
           {formData.files.map((file, index) => (
             <div key={index} className="relative">
