@@ -62,10 +62,10 @@ const Informations = () => {
   ];
 
   return (
-    <div className="container mx-auto flex items-center justify-between my-5 h-[400px]">
+    <div className="container flex items-center justify-between">
       <motion.div
         ref={ref}
-        className="flex items-center justify-between w-full mx-auto space-x-4"
+        className="grid grid-cols-1 md:grid-cols-4 gap-4 items-center justify-between w-full"
         initial="hidden"
         animate={controls}
       >
@@ -74,21 +74,23 @@ const Informations = () => {
             key={i}
             custom={i}
             variants={cardVariants}
-            className="w-full max-w-xs flex justify-between items-center flex-col h-[250px] bg-[#fccd83] hover:bg-[#FCA311] rounded-[36px]"
+            // className="w-full max-w-xs flex justify-between items-center flex-col h-[250px]  rounded-[36px]"
           >
-            <CardHeader>
-              <Image
-                src={card.src}
-                alt="Description de l'image"
-                width={72}
-                height={60}
-                className="mt-8"
-              />
-            </CardHeader>
-            <CardContent className="flex justify-between items-center flex-col mb-5">
-              <h4 className="text-lg font-semibold">{card.title1}</h4>
-              <p className="text-lg font-semibold">{card.title2}</p>
-            </CardContent>
+            <Card className="bg-[#fccd83] hover:bg-[#FCA311]">
+              <CardHeader>
+                <Image
+                  src={card.src}
+                  alt="Description de l'image"
+                  width={72}
+                  height={60}
+                  className="mt-8 mx-auto"
+                />
+              </CardHeader>
+              <CardContent className="flex justify-between items-center flex-col mb-5">
+                <h4 className="text-lg font-semibold">{card.title1}</h4>
+                <p className="text-lg font-semibold">{card.title2}</p>
+              </CardContent>
+            </Card>
           </motion.div>
         ))}
       </motion.div>

@@ -1,3 +1,4 @@
+import ComponentCard from "@/components/ComponentCard";
 import Annonce from "@/components/MainComponent/Sections/Annonce/Annonce";
 import Faq from "@/components/MainComponent/Sections/Faq/Faq";
 import Hero from "@/components/MainComponent/Sections/Hero/Hero";

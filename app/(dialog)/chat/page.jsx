@@ -7,115 +7,50 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { CircleX, Paperclip, Send } from "lucide-react";
-import Image from "next/image";
 import React, { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
 
+// Firebase imports
+import { ref, set, push } from "firebase/database";
+import { db } from "@/firebaseconfig";
+
 const ChatDialog = ({ isOpen, onClose, userId, senderId, annonceId }) => {
   const [message, setMessage] = useState("");
-  const [selectedImages, setSelectedImages] = useState([]);
   const sender = senderId;
   const receiver = userId;
   const annonce = annonceId;
 
-  const handleImageUpload = (event) => {
-    const files = Array.from(event.target.files);
-    files.forEach((file) => {
-      console.log(
-        `Nom : ${file.name}, Type : ${file.type}, Taille : ${file.size} octets`
-      );
-    });
-    const imageUrls = files.map((file) => URL.createObjectURL(file));
-    setSelectedImages((prevImages) => [...prevImages, ...imageUrls]);
-  };
-
-  const handleSendClick = () => {
-    if (message.trim() || selectedImages.length > 0) {
-      console.log("Message :", message);
-      console.log("Images sélectionnées :", selectedImages);
-      setMessage("");
-      setSelectedImages([]);
-    }
-  };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   if (!message && selectedImages.length === 0) {
-  //     alert("Vous n'avez saisi aucun message.");
-  //     return;
-  //   }
-
-  //   const formData = new FormData();
-  //   formData.append("message", message);
-  //   formData.append("sender", sender);
-  //   formData.append("receiver", receiver);
-  //   formData.append("annonce", annonce);
-  //   // Télécharger chaque image et l'ajouter au formData
-  //   for (const image of selectedImages) {
-  //     const response = await fetch(image); // Notez l'utilisation de `await`
-  //     const blob = await response.blob();
-  //     formData.append("images", blob, "uploaded_image.png");
-  //   }
-
-  //   try {
-  //     const response = await fetch("/api/chat", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-
-  //     const result = await response.json();
-
-  //     if (response.ok) {
-  //       toast.success("Message envoyé avec succès !");
-  //       setMessage("");
-  //       setSelectedImages([]);
-  //     } else {
-  //       toast.error(result.message || "Erreur lors de l'envoi du message");
-  //     }
-  //   } catch (error) {
-  //     console.error("Erreur lors de la soumission :", error);
-  //     alert("Erreur interne du serveur.");
-  //   }
-  // };
+  // Fonction pour envoyer le message
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!message && selectedImages.length === 0) {
+    if (!message.trim()) {
       alert("Vous n'avez saisi aucun message.");
       return;
     }
 
-    const formData = new FormData();
-    formData.append("message", message);
-    formData.append("sender", sender);
-    formData.append("receiver", receiver);
-    formData.append("annonce", annonce);
-
-    // Télécharger chaque image et l'ajouter au formData
-    for (const image of selectedImages) {
-      const response = await fetch(image); // Récupérer l'image en blob
-      const blob = await response.blob(); // Convertir en blob
-      formData.append("images", blob, "uploaded_image.png"); // Ajouter au formData
-    }
+    // Références de la base de données en temps réel
+    const chatRef = ref(db, "chats");
 
     try {
-      const response = await fetch("/api/chat", {
-        method: "POST",
-        body: formData,
+      // Créer une nouvelle entrée pour le message dans Firebase Realtime Database
+      const newMessageRef = push(chatRef);
+
+      // Ajouter les données du message à la nouvelle entrée
+      await set(newMessageRef, {
+        message: message,
+        sender: sender,
+        receiver: receiver,
+        annonce: annonce,
+        timestamp: Date.now(), // Timestamp actuel en millisecondes
       });
 
-      const result = await response.json();
+      toast.success("Message envoyé avec succès !");
 
-      if (response.ok) {
-        toast.success("Message envoyé avec succès !");
-
-        setMessage("");
-        setSelectedImages([]);
-      } else {
-        toast.error(result.message || "Erreur lors de l'envoi du message");
-      }
+      // Réinitialiser le formulaire
+      setMessage("");
     } catch (error) {
-      console.error("Erreur lors de la soumission :", error);
-      alert("Erreur interne du serveur.");
+      console.error("Erreur lors de l'envoi du message :", error);
+      toast.error("Erreur lors de l'envoi du message");
     }
   };
 
@@ -133,48 +68,11 @@ const ChatDialog = ({ isOpen, onClose, userId, senderId, annonceId }) => {
             <p>
               L&apos;envoyeur du message est l&apos;utilisateur : {senderId}
             </p>
-            <p>L&apos;annonce sélectionné est l&apos;annonce : {annonceId}</p>
+            <p>L&apos;annonce sélectionnée est l&apos;annonce : {annonceId}</p>
           </div>
           <DialogFooter>
             <div className="w-full flex flex-col space-y-2 bg-white border border-gray-800 rounded-lg px-4 py-2">
-              <div className="flex space-x-2 overflow-x-auto">
-                {selectedImages.map((src, index) => (
-                  <div key={index} className="relative">
-                    <Image
-                      src={src}
-                      width={50}
-                      height={50}
-                      alt={`selected-${index}`}
-                      className="h-20 w-20 object-cover rounded-md"
-                    />
-                    <button
-                      className="absolute top-0 right-0 bg-gray-700 text-white rounded-full p-1"
-                      onClick={() => {
-                        setSelectedImages(
-                          selectedImages.filter((_, i) => i !== index)
-                        );
-                        URL.revokeObjectURL(src);
-                      }}
-                    >
-                      <CircleX color="#e71313" />
-                    </button>
-                  </div>
-                ))}
-              </div>
-
               <div className="flex items-center space-x-2">
-                <Paperclip
-                  onClick={() => document.getElementById("imageUpload").click()}
-                  className="h-6 w-6 text-gray-500 hover:text-gray-600 cursor-pointer"
-                />
-                <input
-                  id="imageUpload"
-                  type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
-                  multiple
-                  onChange={handleImageUpload}
-                />
                 <input
                   type="text"
                   value={message}

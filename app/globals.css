@@ -29,17 +29,38 @@
     --chart-3: 197 37% 24%;
     --chart-4: 43 74% 66%;
     --chart-5: 27 87% 67%;
-    --font-poppins: 'Poppins', sans-serif;
+    --font-poppins: "Poppins", sans-serif;
   }
 }
 
 @layer base {
   * {
     @apply border-border;
-    
   }
   body {
     @apply bg-background text-foreground;
     @apply overflow-x-hidden;
+  }
+
+  .editor-content a {
+    @apply text-blue-600 underline hover:text-blue-800;
+  }
+  .editor-content h2 {
+    @apply text-xl font-bold;
+  }
+  .editor-content h3 {
+    @apply text-lg font-bold;
+  }
+  .editor-content h4 {
+    @apply text-base font-bold;
+  }
+  .editor-content h5 {
+    @apply text-base font-bold;
+  }
+  .editor-content h6 {
+    @apply text-base font-bold;
+  }
+  .editor-content pre {
+    @apply p-2 bg-foreground text-background rounded-md;
   }
 }

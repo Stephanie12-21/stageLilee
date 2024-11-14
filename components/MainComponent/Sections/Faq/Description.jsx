@@ -27,21 +27,22 @@ const Description = () => {
       exit="exit"
       variants={variants}
       transition={{ duration: 0.5 }}
-      className="container mx-auto w-[450px] flex flex-col space-y-5"
+      className="w-full flex items-center gap-10 py-20"
     >
-      <h1 className="text-[48px] font-semibold">Comment ça marche?</h1>
-      <p>
-        Vous trouverez ci-jointes les questions et les réponses qui vous
-        aideront à mieux utiliser la plateforme.
-        <br />
-        <br />
-        Si vous avez d&apos;autres questions, vous êtes invité à contacter
-        l&apos;administrateur
-      </p>{" "}
-      <div>
+      <div className="w-full flex flex-col md:items-center md:justify-between md:flex-row gap-4">
+        <div className="w-full">
+          <h1 className="text-[48px] font-semibold">Comment ça marche?</h1>
+          <p>
+            Vous trouverez ci-jointes les questions et les réponses qui vous
+            aideront à mieux utiliser la plateforme.
+            <br />
+            Si vous avez d&apos;autres questions, vous êtes invité à contacter
+            l&apos;administrateur
+          </p>
+        </div>
         <Button
           onClick={handleConctactAdmin}
-          className="h-fit w-fit p-3 font-semibold text-[18px] rounded-[10px] flex items-center"
+          className="font-semibold text-base md:flex-1"
         >
           Contacter l&apos;administrateur
         </Button>

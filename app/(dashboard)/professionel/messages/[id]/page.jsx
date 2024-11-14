@@ -1473,6 +1473,8 @@ import { useSession } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState, useRef } from "react";
+import { db } from "@/firebaseconfig"; // Assurez-vous que la configuration est correcte
+import { ref, onValue } from "firebase/database";
 
 const Page = () => {
   const [message, setMessage] = useState("");
@@ -1486,6 +1488,8 @@ const Page = () => {
   const [showInfoDropdown, setShowInfoDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const router = useRouter();
+  const [filteredMessages, setFilteredMessages] = useState([]);
+  const [searchTerm, setSearchTerm] = useState(""); // Added state for search term
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -1498,41 +1502,57 @@ const Page = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  useEffect(() => {
-    const fetchMessages = async () => {
-      if (session?.user?.id) {
-        const userId = session.user.id;
-
-        try {
-          const response = await fetch(`/api/chat?userId=${userId}`);
-          const data = await response.json();
-          console.log(data);
-          if (response.ok) {
-            const sortedMessages = data.messages.sort(
-              (a, b) => new Date(b.sentAt) - new Date(a.sentAt)
-            );
-            setMessages(sortedMessages);
-            if (sortedMessages.length > 0) {
-              setSelectedMessage(sortedMessages[0]);
-            }
-          } else {
-            setError(
-              data.message || "Erreur lors de la récupération des messages."
-            );
-          }
-        } catch (error) {
-          setError("Erreur réseau : " + error.message);
-        } finally {
-          setLoading(false);
+  // Récupérer les messages depuis Firebase
+  const fetchMessages = () => {
+    const messagesRef = ref(db, "chats");
+    onValue(
+      messagesRef,
+      (snapshot) => {
+        const data = snapshot.val();
+        if (data) {
+          const messagesList = Object.keys(data).map((key) => ({
+            id: key,
+            ...data[key],
+          }));
+          setMessages(messagesList);
+          setFilteredMessages(messagesList); // Initialiser les messages filtrés
+          setLoading(false); // Fin du chargement
+        } else {
+          setLoading(false); // Fin du chargement, même si aucune donnée n'a été récupérée
         }
+      },
+      (error) => {
+        console.error("Erreur de récupération des messages:", error);
+        setError("Erreur lors de la récupération des messages.");
+        setLoading(false); // Fin du chargement même en cas d'erreur
       }
-    };
+    );
+  };
 
+  useEffect(() => {
     fetchMessages();
-  }, [session?.user?.id]);
+  }, []);
 
+  // Filtrer les messages en fonction du terme de recherche
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredMessages(messages); // Si le terme de recherche est vide, afficher tous les messages
+    } else {
+      const filtered = messages.filter((message) =>
+        message.message.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredMessages(filtered); // Définir les messages filtrés
+    }
+  }, [searchTerm, messages]);
+
+  // Fonction de réponse à un message
   const handleReply = async () => {
     if (!replyContent.trim()) return;
+
+    if (!session?.user?.id) {
+      setError("Utilisateur non connecté.");
+      return;
+    }
 
     try {
       const response = await fetch("/api/chat/reply", {
@@ -1541,7 +1561,7 @@ const Page = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          userId: session?.user?.id,
+          userId: session.user.id,
           originalMessageId: selectedMessage.id,
           content: replyContent,
           images: selectedImages,
@@ -1552,6 +1572,7 @@ const Page = () => {
         const repliedMessage = await response.json();
         setMessages((prevMessages) => [...prevMessages, repliedMessage]);
         setReplyContent("");
+        setSelectedMessage(repliedMessage); // Mettre à jour le message sélectionné après la réponse
       } else {
         const data = await response.json();
         setError(data.message || "Erreur lors de l'envoi de la réponse.");
@@ -1566,7 +1587,7 @@ const Page = () => {
   };
 
   const handleSeeAnnonce = () => {
-    router.push(`/Annonces/id=${selectedMessage.annonce.id}`);
+    router.push(`/Annonces/id=${selectedMessage?.annonce?.id}`);
   };
 
   return (
@@ -1579,6 +1600,8 @@ const Page = () => {
               type="text"
               placeholder="Rechercher..."
               className="bg-transparent ml-2 outline-none w-full text-gray-700"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)} // Ajout de la fonctionnalité de recherche
             />
           </div>
         </div>
@@ -1588,7 +1611,7 @@ const Page = () => {
           {error && <p className="p-4 text-red-500">{error}</p>}
 
           {!loading && messages.length > 0 ? (
-            messages.map((message) => {
+            filteredMessages.map((message) => {
               const isSent = message.senderId === session?.user?.id;
               const user = isSent ? message.receiver : message.sender;
 
@@ -1618,12 +1641,12 @@ const Page = () => {
                               user?.prenom || ""
                             }`}
                       </span>
-                      <span className="text-sm text-gray-500">
+                      {/* <span className="text-sm text-gray-500">
                         {new Intl.DateTimeFormat("fr-FR", {
                           hour: "2-digit",
                           minute: "2-digit",
                         }).format(new Date(message.sentAt))}
-                      </span>
+                      </span> */}
                     </div>
                     <p className="text-sm text-gray-500 truncate">
                       {message.content}
@@ -1668,120 +1691,46 @@ const Page = () => {
                     }`}
                     onClick={toggleInfoDropdown}
                   >
-                    <Info className="w-6 h-6 text-gray-600" />
+                    <Info className="w-5 h-5 text-gray-500" />
                   </button>
-
-                  {/* Dropdown pour les informations de l'annonce */}
                   {showInfoDropdown && (
-                    <div className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50">
-                      <div className="p-4">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-lg font-semibold">
-                            Informations de l&apos;annonce
-                          </h3>
-                          <button
-                            onClick={() => setShowInfoDropdown(false)}
-                            className="p-1 hover:bg-gray-100 rounded-full"
-                          >
-                            <X className="w-5 h-5 text-gray-500" />
-                          </button>
-                        </div>
-
-                        {/* Contenu du dropdown */}
-                        <div className="space-y-4">
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-gray-700">
-                              Titre de l&apos;annonce :{" "}
-                            </h4>
-                            <p className="text-gray-600">
-                              <strong>{selectedMessage.annonce.titre}</strong>
-                            </p>
-                          </div>
-
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-gray-700">
-                              Description :
-                            </h4>
-                            <p className="text-gray-600">
-                              <strong>
-                                {selectedMessage.annonce.description}
-                              </strong>
-                            </p>
-                          </div>
-
-                          <div className="space-y-2">
-                            <h4 className="font-medium text-gray-700">
-                              Adresse :
-                            </h4>
-                            <p className="text-gray-600">
-                              <strong>{selectedMessage.annonce.adresse}</strong>
-                            </p>
-                          </div>
-
-                          <div className="pt-2">
-                            <button
-                              onClick={handleSeeAnnonce}
-                              className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600 transition-colors"
-                            >
-                              Voir l&apos;annonce
-                            </button>
-                          </div>
-                        </div>
-                      </div>
+                    <div className="absolute top-full right-0 mt-2 bg-white shadow-lg rounded-lg border border-gray-200">
+                      <button
+                        onClick={handleSeeAnnonce}
+                        className="block w-full p-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+                      ></button>
                     </div>
                   )}
                 </div>
               </div>
+              <div className="mt-4 text-gray-700">
+                {selectedMessage.content}
+              </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
-              <div>
-                <Badge>{selectedMessage.content} </Badge>
-              </div>
-              <span className="text-sm text-gray-500">
-                {!isNaN(new Date(selectedMessage.sentAt).getTime())
-                  ? new Intl.DateTimeFormat("fr-FR", {
-                      weekday: "short",
-                      year: "numeric",
-                      month: "2-digit",
-                      day: "2-digit",
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    }).format(new Date(selectedMessage.sentAt))
-                  : "Date invalide"}
-              </span>
-            </div>
-
-            <div className="p-4 border-t border-gray-200">
-              <div className="flex items-center space-x-2">
-                <Paperclip
-                  onClick={() => document.getElementById("imageUpload").click()}
-                  className="h-6 w-6 text-gray-500 hover:text-gray-600 cursor-pointer"
-                />
-                <input
-                  id="imageUpload"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  multiple
-                />
-                <input
-                  type="text"
-                  value={replyContent}
-                  onChange={(e) => setReplyContent(e.target.value)}
-                  placeholder="Votre message..."
-                  className="flex-1 bg-gray-100 rounded-full px-4 py-2 outline-none text-gray-700"
-                />
-                <Send
-                  onClick={handleReply}
-                  className="h-6 w-6 text-blue-500 hover:text-blue-600 cursor-pointer transform rotate-45"
-                />
-              </div>
+            {/* Réponse */}
+            <div className="flex-1 p-4 border-t border-gray-200">
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded-md"
+                rows={4}
+                placeholder="Répondre..."
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+              />
+              <button
+                onClick={handleReply}
+                className="mt-2 bg-blue-500 text-white rounded-md p-2"
+              >
+                <Send className="w-5 h-5 inline-block mr-2" />
+                Répondre
+              </button>
             </div>
           </>
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-500">
-            Sélectionnez une conversation pour commencer
+          <div className="flex-1 flex justify-center items-center">
+            <p className="text-gray-500">
+              Sélectionnez un message pour afficher le détail.
+            </p>
           </div>
         )}
       </div>

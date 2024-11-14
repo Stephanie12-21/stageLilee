@@ -1,37 +1,24 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { toast, Toaster } from "sonner";
-import { Button } from "@/components/ui/button";
-import { FaEllipsisV } from "react-icons/fa";
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import { signOut, useSession } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+import { Menu } from "lucide-react";
+
+const links = [
+  { path: "/", name: "Accueil" },
+  { path: "/Annonces", name: "Annonces" },
+  { path: "/Contact", name: "Contact" },
+  { path: "/Blog", name: "Blog" },
+];
 
 // Define the ListLink component
 export const ListLink = () => {
   const path = usePathname();
-
-  const links = [
-    { path: "/", name: "Accueil" },
-    { path: "/Annonces", name: "Annonces" },
-    { path: "/Contact", name: "Contact" },
-    { path: "/Blog", name: "Blog" },
-  ];
-
   return (
-    <nav className="flex justify-between items-center gap-10">
+    <nav className="flex max-md:hidden justify-between items-center gap-8">
       {links.map((link) => (
         <Link
           href={link.path}
@@ -61,139 +48,17 @@ export const ListLink = () => {
   );
 };
 
-// Define the ListButton component
-
-export const ListButton = () => {
-  const { data: session, status } = useSession();
-  const router = useRouter();
-
-  const handleSignOut = () => {
-    signOut();
-  };
-
-  // Ensure the role path only generates if session data is available
-  const getRolePath = () => {
-    const role = session?.user?.role;
-    if (role === "PERSO") return "/personnel";
-    if (role === "PRO") return "/professionel";
-    if (role === "ADMIN") return "/admin";
-    return ""; // Default to home if no role
-  };
-
-  // Only generate URLs if session data is available
-  const rolePath = session ? getRolePath() : "";
-  const profileUrl = `${rolePath}/profile/${session?.user?.id}`;
-  const securityUrl = `${rolePath}/security/${session?.user?.id}`;
-  const clientSpaceUrl = rolePath;
-
-  if (status === "loading") return <p>Loading...</p>;
-
-  return (
-    <div className="flex gap-2 items-center">
-      {session ? (
-        <DropdownMenu>
-          <div className="flex items-center space-x-3 bg-dark rounded-full p-2">
-            <Image
-              src={session.user.image || "/default-avatar.png"}
-              alt="User profile"
-              width={50}
-              height={50}
-              className="w-[50px] h-[50px] rounded-full object-cover"
-            />
-            <div className="flex flex-col">
-              <span className="text-orange-500 font-bold text-[16px]">
-                {session.user.nom} {session.user.prenom}
-              </span>
-            </div>
-
-            <DropdownMenuTrigger asChild>
-              <button className="p-2 rounded-full hover:bg-gray-700">
-                <FaEllipsisV className="text-gray-400" />
-              </button>
-            </DropdownMenuTrigger>
-          </div>
-
-          <DropdownMenuContent align="end" className="w-64 mt-2">
-            <DropdownMenuLabel>
-              <p className="text-orange-500 font-bold text-xl">
-                {session.user.nom} {session.user.prenom}
-              </p>
-              <p className="text-gray-600 text-sm">{session.user.email}</p>
-            </DropdownMenuLabel>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem>
-              <Link href={profileUrl}>Votre profil</Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem>
-              <Link href={securityUrl}>Sécurité</Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem>
-              <Link href={clientSpaceUrl}>Espace client</Link>
-            </DropdownMenuItem>
-
-            <DropdownMenuSeparator />
-
-            <DropdownMenuItem>
-              <Button variant="outline" onClick={handleSignOut}>
-                Se déconnecter
-              </Button>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      ) : (
-        <div className="flex gap-2">
-          <Toaster position="top-right" className="text-[20px] font-semibold" />
-          <Button
-            className="px-5 rounded-[10px] text-[16px] text-white font-semibold bg-transparent border-[1px] hover:bg-transparent hover:text-white"
-            variant="outline"
-            onClick={() =>
-              toast("", {
-                description: (
-                  <div>
-                    <span style={{ fontSize: "17px", fontStyle: "semibold" }}>
-                      Pour pouvoir déposer une annonce et se satisfaire
-                      pleinement des fonctionnalités du site, il faut
-                      d&apos;abord accéder à votre espace utilisateur.
-                    </span>
-                    <div className="mt-2">
-                      <span
-                        className="text-[#15213d] text-[17px] hover:underline font-semibold cursor-pointer"
-                        onClick={() => toast.dismiss()}
-                      >
-                        Très bien, d&apos;accord
-                      </span>
-                    </div>
-                  </div>
-                ),
-              })
-            }
-          >
-            Déposer une annonce
-          </Button>
-          <Button
-            asChild
-            className="px-5 rounded-[10px] text-[16px] font-semibold bg-transparent border-[1px] hover:border"
-          >
-            <Link href={"/login"}>Se connecter</Link>
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-};
 // Define the NavBar component
 
-const NavBar = () => {
+export default function NavBar() {
+  const [toggle, setToggle] = useState(false);
+
+  const toggleMenu = () => {
+    setToggle((prevState) => !prevState);
+  };
+
   return (
-    <div className="container pt-5">
+    <div className="container p-4 md:px-8">
       <div className="flex justify-between items-center ">
         <Link href="/">
           <Image
@@ -204,10 +69,50 @@ const NavBar = () => {
           />
         </Link>
         <ListLink />
-        <ListButton />
+        <Menu
+          onClick={toggleMenu}
+          className="absolute text-muted hidden max-md:block z-50 right-8 cursor-pointer"
+        />
+        {toggle && <NavMob toggleMenu={toggleMenu} />}
       </div>
     </div>
   );
-};
+}
 
-export default NavBar;
+function NavMob({ toggleMenu }) {
+  const path = usePathname();
+  return (
+    <div className="z-10 left-0 absolute top-0 right-0 w-full min-h-screen h-full bg-red-600 transform translate-y-0">
+      <div className="flex flex-col items-center gap-24 container p-4 md:px-8">
+        <nav className="flex flex-col mt-32 items-center gap-16">
+          {links.map((link) => (
+            <Link
+              href={link.path}
+              key={link.path}
+              className="relative capitalize text-white text-xl font-semibold"
+              onClick={toggleMenu}
+            >
+              {link.name}
+              {link.path === path && (
+                <motion.span
+                  initial={{ opacity: 0, y: "100%" }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ type: "tween", duration: 0.3 }}
+                  layoutId="underline"
+                  className="absolute left-0 bottom-0 w-full h-[3px] bg-white"
+                />
+              )}
+              <motion.span
+                whileHover={{ scaleX: 1 }}
+                whileFocus={{ scaleX: 1 }}
+                initial={{ scaleX: 0 }}
+                transition={{ type: "tween", duration: 0.3 }}
+                className="absolute left-0 bottom-0 w-full h-[3px] bg-white"
+              />
+            </Link>
+          ))}
+        </nav>
+      </div>
+    </div>
+  );
+}

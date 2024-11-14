@@ -36,7 +36,7 @@ export default function Hero() {
             disableOnInteraction: true,
           }}
           modules={[Autoplay, Navigation]}
-          className="w-[1300px] h-[400px] rounded-[24px] shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl"
+          className="w-full h-[400px] rounded-[24px] shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl"
         >
           <SwiperSlide className="flex items-center justify-center text-center text-lg  bg-white  shadow-lg rounded-lg">
             <div className="flex justify-center items-center">

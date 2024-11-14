@@ -2,11 +2,11 @@
 import React from "react";
 import { AnimatePresence } from "framer-motion";
 import Description from "./Description";
-import { QuestionList } from "./QuestionList";
+import QuestionList from "./QuestionList";
 
 const Faq = () => {
   return (
-    <div className="container mx-auto flex justify-between items-center gap-x-10 h-[600px]">
+    <div className="container flex flex-col gap-8 p-4 md:px-8 items-start">
       <AnimatePresence>
         <Description />
         <QuestionList />
