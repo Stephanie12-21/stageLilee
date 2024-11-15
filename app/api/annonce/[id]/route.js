@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import { orderBy } from "firebase/firestore";
 
 export async function GET(request, { params }) {
   const { id } = params;
@@ -100,29 +101,139 @@ export async function DELETE(req, { params }) {
   }
 }
 
+// export async function PUT(request, { params }) {
+//   try {
+//     const idParam = params.id;
+//     const id = idParam.includes("=") ? idParam.split("=")[1] : idParam;
+
+//     console.log("ID extrait:", id);
+
+//     if (!id || isNaN(parseInt(id, 10))) {
+//       return new NextResponse(
+//         JSON.stringify({ message: "ID invalide ou manquant." }),
+//         { status: 400 }
+//       );
+//     }
+
+//     const body = await request.formData();
+//     const titre = body.get("titre");
+//     const description = body.get("description");
+//     const categorieAnnonce = body.get("category");
+//     const localisation = body.get("localisation");
+//     const adresse = body.get("adresse");
+//     const statut = body.get("statut");
+//     const imageFiles = body.getAll("images");
+//     const userId = parseInt(body.get("userId"), 10);
+
+//     if (
+//       !titre ||
+//       !description ||
+//       !categorieAnnonce ||
+//       !statut ||
+//       !adresse ||
+//       !localisation ||
+//       !userId ||
+//       imageFiles.length === 0
+//     ) {
+//       return new NextResponse(
+//         JSON.stringify({ message: "Tous les champs doivent être renseignés." }),
+//         { status: 400 }
+//       );
+//     }
+
+//     const updatedAnnonce = await db.annonces.update({
+//       where: { id: parseInt(id, 10) },
+//       data: {
+//         titre,
+//         description,
+//         adresse,
+//         localisation,
+//         categorieAnnonce,
+//         statut,
+//         userId,
+//       },
+//     });
+
+//     if (imageFiles.length > 0) {
+//       await db.imageAnnonce.deleteMany({
+//         where: { annoncesId: updatedAnnonce.id },
+//       });
+
+//       for (const file of imageFiles) {
+//         const formData = new FormData();
+//         formData.append("file", file);
+//         formData.append("upload_preset", "ko4bjtic");
+
+//         const uploadResponse = await fetch(
+//           "https://api.cloudinary.com/v1_1/dtryutlkz/image/upload",
+//           {
+//             method: "POST",
+//             body: formData,
+//           }
+//         );
+
+//         const uploadResult = await uploadResponse.json();
+//         if (!uploadResponse.ok || !uploadResult.secure_url) {
+//           throw new Error("Échec du téléchargement de l'image");
+//         }
+
+//         await db.imageAnnonce.create({
+//           data: {
+//             path: uploadResult.secure_url,
+//             annoncesId: updatedAnnonce.id,
+//           },
+//         });
+//       }
+//     }
+
+//     return new NextResponse(
+//       JSON.stringify({ message: "Article mis à jour avec succès!" }),
+//       { status: 200 }
+//     );
+//   } catch (error) {
+//     console.error(error);
+//     return new NextResponse(
+//       JSON.stringify({ message: "Erreur lors de la mise à jour de l'article" }),
+//       { status: 500 }
+//     );
+//   }
+// }
+
 export async function PUT(request, { params }) {
   try {
-    const idParam = params.id;
-    const id = idParam.includes("=") ? idParam.split("=")[1] : idParam;
+    let id;
 
-    console.log("ID extrait:", id);
+    // Extraction et décodage de l'ID depuis les paramètres
+    if (params.id) {
+      id = decodeURIComponent(params.id); // Décoder les caractères encodés
+      if (id.includes("=")) {
+        // Si l'ID est sous la forme "id=11", extraire la partie après "="
+        id = id.split("=")[1];
+      }
+    }
 
+    console.log("ID extrait après décodage :", id);
+
+    // Validation de l'ID
     if (!id || isNaN(parseInt(id, 10))) {
-      return new NextResponse(
-        JSON.stringify({ message: "ID invalide ou manquant." }),
+      return NextResponse.json(
+        { message: "ID invalide ou manquant." },
         { status: 400 }
       );
     }
 
+    const idToUse = parseInt(id, 10);
+
+    // Corps de la logique pour la mise à jour
     const body = await request.formData();
     const titre = body.get("titre");
     const description = body.get("description");
-    const categorieAnnonce = body.get("category");
+    const categorieAnnonce = body.get("categorieAnnonce");
     const localisation = body.get("localisation");
     const adresse = body.get("adresse");
     const statut = body.get("statut");
-    const imageFiles = body.getAll("images");
     const userId = parseInt(body.get("userId"), 10);
+    const imageFiles = body.getAll("files");
 
     if (
       !titre ||
@@ -131,17 +242,16 @@ export async function PUT(request, { params }) {
       !statut ||
       !adresse ||
       !localisation ||
-      !userId ||
-      imageFiles.length === 0
+      isNaN(userId)
     ) {
-      return new NextResponse(
-        JSON.stringify({ message: "Tous les champs doivent être renseignés." }),
+      return NextResponse.json(
+        { message: "Tous les champs doivent être renseignés." },
         { status: 400 }
       );
     }
 
     const updatedAnnonce = await db.annonces.update({
-      where: { id: parseInt(id, 10) },
+      where: { id: idToUse },
       data: {
         titre,
         description,
@@ -172,6 +282,7 @@ export async function PUT(request, { params }) {
         );
 
         const uploadResult = await uploadResponse.json();
+
         if (!uploadResponse.ok || !uploadResult.secure_url) {
           throw new Error("Échec du téléchargement de l'image");
         }
@@ -185,14 +296,14 @@ export async function PUT(request, { params }) {
       }
     }
 
-    return new NextResponse(
-      JSON.stringify({ message: "Article mis à jour avec succès!" }),
+    return NextResponse.json(
+      { message: "Article mis à jour avec succès!" },
       { status: 200 }
     );
   } catch (error) {
-    console.error(error);
-    return new NextResponse(
-      JSON.stringify({ message: "Erreur lors de la mise à jour de l'article" }),
+    console.error("Erreur lors de la mise à jour:", error);
+    return NextResponse.json(
+      { message: "Erreur lors de la mise à jour de l'article" },
       { status: 500 }
     );
   }

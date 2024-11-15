@@ -421,6 +421,7 @@ import {
   CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
 
 const ITEMS_TO_SHOW = 4;
 
@@ -668,9 +669,12 @@ const Annonce = () => {
                     </button>
                   </div>
                   <CardContent className="p-4">
-                    <div className="text-sm text-muted-foreground mb-1">
+                    <Badge
+                      variant="secondary"
+                      className="text-sm text-muted-foreground mb-1"
+                    >
                       {annonce.categorieAnnonce}
-                    </div>
+                    </Badge>
                     <h2 className="text-lg font-semibold mb-1">
                       {annonce.titre}
                     </h2>

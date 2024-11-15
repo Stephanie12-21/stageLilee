@@ -25,6 +25,7 @@ const ArticleForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
     if (!titre || !contenu || !categorieArticle || imageFiles.length === 0) {
       alert(
         "Tous les champs doivent être remplis et au moins une image doit être uploadée."
@@ -34,9 +35,8 @@ const ArticleForm = () => {
 
     const formData = new FormData();
     formData.append("titre", titre);
-    formData.append("contenu", JSON.stringify(contenu)); // Sérialiser le contenu JSON
+    formData.append("contenu", JSON.stringify(contenu));
     formData.append("categorieArticle", categorieArticle);
-
     imageFiles.forEach((file) => {
       formData.append("images", file);
     });
@@ -51,7 +51,11 @@ const ArticleForm = () => {
 
       if (response.ok) {
         alert("Article publié avec succès !");
-        // Réinitialiser le formulaire ici si nécessaire
+        // Réinitialiser le formulaire après le succès
+        setTitre("");
+        setContenu({});
+        setCategorieArticle("");
+        setImageFiles([]);
       } else {
         alert(result.message || "Erreur lors de la publication de l'article.");
       }
@@ -94,7 +98,7 @@ const ArticleForm = () => {
             </label>
             <RichTextEditor
               content={contenu}
-              onChange={(json) => setContenu(json)} // L'éditeur retourne maintenant un objet JSON
+              onChange={(json) => setContenu(json)}
             />
           </div>
 
@@ -151,7 +155,6 @@ const ArticleForm = () => {
                       type="button"
                       onClick={() => removeImage(index)}
                       className="absolute top-2 right-2 bg-red-500 hover:bg-red-600 text-white p-1 rounded-full"
-                      size="icon"
                     >
                       <X className="h-4 w-4" />
                     </Button>

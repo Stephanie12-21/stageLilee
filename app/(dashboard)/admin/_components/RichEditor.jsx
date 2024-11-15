@@ -32,38 +32,38 @@ export default function RichTextEditor({ content, onChange = () => {} }) {
       }),
       Highlight,
       Link.configure({
-        openOnClick: true, // Permet d'ouvrir le lien dans un nouvel onglet
-        linkOnPaste: true, // Transforme automatiquement les URL collées en liens
-        autolink: true, // Transforme automatiquement les URLs en liens
+        openOnClick: true,
+        linkOnPaste: true,
+        autolink: true,
         HTMLAttributes: {
-          target: "_blank", // Ouvre le lien dans un nouvel onglet
-          rel: "noopener noreferrer", // Sécurise le lien
+          target: "_blank",
+          rel: "noopener noreferrer",
         },
         renderHTML({ node }) {
           return [
             "a",
             {
-              href: node.attrs.href, // Lien URL
-              target: node.attrs.target, // Ouvrir dans un nouvel onglet
-              rel: node.attrs.rel, // Sécurité
-              class: "text-blue-500 underline hover:text-blue-700", // Style bleu et souligné
+              href: node.attrs.href,
+              target: node.attrs.target,
+              rel: node.attrs.rel,
+              class: "text-blue-500 underline hover:text-blue-700",
             },
-            node.children, // Contenu du lien
+            node.children,
           ];
         },
       }),
     ],
-    content, // Initialisation avec le contenu passé en prop
+    content,
     editorProps: {
       attributes: {
         class:
-          "min-h-[156px] border rounded-md bg-slate-50 py-2 px-3 focus:outline-none", // Style de l'éditeur
+          "min-h-[300px] border rounded-md bg-slate-50 py-2 px-3 focus:outline-none",
       },
     },
     onUpdate: ({ editor }) => {
-      const html = editor.getHTML(); // Récupère le HTML mis à jour
+      const html = editor.getHTML();
       console.log("Editor content updated:", html);
-      onChange(html); // Appelle la fonction onChange pour notifier le parent
+      onChange(html);
     },
   });
 

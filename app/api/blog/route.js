@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { NextResponse } from "next/server"; // Assurez-vous que vous utilisez Next.js
+import { NextResponse } from "next/server"; 
 
 export async function POST(request) {
   try {

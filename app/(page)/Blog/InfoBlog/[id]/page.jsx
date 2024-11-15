@@ -110,9 +110,12 @@ const InfoBlog = ({ params }) => {
           </div>
         )}
 
-        <div className="max-w-3xl w-full mx-auto pt-20 px-2 sm:px-8 space-y-4">
-          {article.contenu}
-        </div>
+        <div
+          className="text-[#353945] font-medium text-[18px] pt-4"
+          dangerouslySetInnerHTML={{
+            __html: article.contenu.replace(/^"|"$/g, ""), // Retirer les guillemets
+          }}
+        />
 
         <div className="pt-20">
           <div className="container mx-auto flex items-center w-full pt-10 place-content-center">

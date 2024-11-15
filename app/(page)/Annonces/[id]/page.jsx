@@ -431,7 +431,14 @@ const InfoAnnonces = ({ params }) => {
                 </div>
               </div>
               <CardDescription className="flex flex-col space-y-6">
-                <div>{description.substring(0, 300)}...</div>
+                <div>
+                  <div
+                    className="text-[#353945] font-medium text-[18px] pt-4"
+                    dangerouslySetInnerHTML={{
+                      __html: description.replace(/^"|"$/g, ""), // Retirer les guillemets
+                    }}
+                  />
+                </div>
                 <div>
                   <strong>Publié par : </strong>
                   {userName}
@@ -439,22 +446,6 @@ const InfoAnnonces = ({ params }) => {
               </CardDescription>
             </CardHeader>
 
-            {/* <CardFooter className="flex justify-center">
-              <Button onClick={() => handleChat(session.user.id)}>
-                Discuter avec le vendeur
-              </Button>
-            </CardFooter> */}
-            {/* <CardFooter className="flex justify-center">
-              {session && session.user ? (
-                <Button onClick={() => handleChat(session.user.id)}>
-                  Discuter avec le vendeur
-                </Button>
-              ) : (
-                <Button onClick={() => handleChat(null)}>
-                  Connectez-vous pour discuter
-                </Button>
-              )}
-            </CardFooter> */}
             <CardFooter className="flex justify-center">
               {session && session.user ? (
                 <Button onClick={() => handleChat(session.user.id, annonceId)}>
@@ -502,7 +493,13 @@ const InfoAnnonces = ({ params }) => {
               </CardHeader>
               <CardContent className="space-y-7">
                 <div className="space-y-1">
-                  la description est :{description}
+                  la description est :
+                  <div
+                    className="container px-5 py-4"
+                    dangerouslySetInnerHTML={{
+                      __html: description.replace(/^"|"$/g, ""), // Retirer les guillemets
+                    }}
+                  />
                 </div>
               </CardContent>
 

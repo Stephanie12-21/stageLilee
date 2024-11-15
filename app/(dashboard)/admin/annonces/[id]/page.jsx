@@ -305,9 +305,14 @@ const InfoAnnonces = ({ params }) => {
         <p>
           <strong>Catégorie:</strong> {category}
         </p>
-        <p>
-          <strong>Description:</strong> {description}
-        </p>
+        <div
+          className="text-[#353945] font-medium text-[18px] pt-4"
+          dangerouslySetInnerHTML={{
+            __html:
+              description.replace(/^"|"$/g, "") ||
+              "<p>Contenu non disponible.</p>",
+          }}
+        />
         <p>
           <strong>Adresse:</strong> {adresse}
         </p>

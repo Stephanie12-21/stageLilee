@@ -6,20 +6,6 @@ import Image from "next/image";
 import { X } from "lucide-react"; // Importation de l'icône X
 import RichTextEditor from "../../../_components/RichEditor";
 
-const fetchArticle = async (id) => {
-  try {
-    const response = await fetch(`/api/blog/${id}`);
-    if (!response.ok) {
-      throw new Error("Article non trouvé");
-    }
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error("Erreur lors de la récupération de l'article:", error);
-    throw error;
-  }
-};
-
 const ArticleDetailPageModif = ({ params }) => {
   const { id } = params;
   const [article, setArticle] = useState(null);
@@ -32,6 +18,20 @@ const ArticleDetailPageModif = ({ params }) => {
   });
   const [contenu, setContenu] = useState({}); // Stocker le contenu en JSON
   const router = useRouter();
+  
+  const fetchArticle = async (id) => {
+    try {
+      const response = await fetch(`/api/blog/${id}`);
+      if (!response.ok) {
+        throw new Error("Article non trouvé");
+      }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'article:", error);
+      throw error;
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -68,7 +68,7 @@ const ArticleDetailPageModif = ({ params }) => {
   const handleRemoveImage = (index) => {
     setFormData((prev) => ({
       ...prev,
-      files: prev.files.filter((_, i) => i !== index), // Supprimer l'image sélectionnée
+      files: prev.files.filter((_, i) => i !== index),
     }));
   };
 

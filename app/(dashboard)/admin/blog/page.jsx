@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 const Blog = () => {
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState(null);
-
   const [searchFilter, setSearchFilter] = useState("");
+  const [expandedArticleId, setExpandedArticleId] = useState(null); // Gérer l'affichage complet de l'article
 
   // Fonction pour récupérer les articles
   const fetchArticles = async () => {
@@ -63,6 +63,10 @@ const Blog = () => {
     }
   };
 
+  const removeQuotes = (content) => {
+    return content.replace(/^"|"$/g, "");
+  };
+
   return (
     <div className="container mx-auto">
       <div className="flex justify-between items-center pt-4 mx-10">
@@ -73,7 +77,7 @@ const Blog = () => {
           onChange={(e) => setSearchFilter(e.target.value)}
           className="border border-gray-300 text-[18px] rounded-md p-6 w-[700px]"
         />
-        <Link href="/blog/AddBlog">
+        <Link href="/admin/blog/addBlog">
           <Button className="p-6 text-[18px] rounded-[10px]">
             Créer un nouvel article
           </Button>
@@ -152,11 +156,12 @@ const Blog = () => {
                           </p>
                         </div>
 
-                        <p className="text-[#353945] font-medium text-[16px] pt-4"></p>
+                        {/* Affichage des 100 premiers caractères ou tout le contenu si l'article est étendu */}
                         <div
-                          className="text-[#353945] font-medium text-[18px] pt-4"
                           dangerouslySetInnerHTML={{
-                            __html: article.contenu.replace(/^"|"$/g, ""), // Retirer les guillemets
+                            __html:
+                              removeQuotes(article.contenu.substring(0, 100)) +
+                              "...", // Affichage des 100 premiers caractères
                           }}
                         />
 

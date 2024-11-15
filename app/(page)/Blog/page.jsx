@@ -45,6 +45,9 @@ const Blog = () => {
   useEffect(() => {
     fetchArticles();
   }, []);
+  const removeQuotes = (content) => {
+    return content.replace(/^"|"$/g, "");
+  };
 
   return (
     <div className="container mx-auto py-10 space-y-5">
@@ -120,9 +123,20 @@ const Blog = () => {
                           </p>
                         </div>
 
-                        <p className="text-[#353945] font-medium text-[16px] pt-4">
-                          {article.contenu.substring(0, 300)}...
-                        </p>
+                        {/* <div
+                          className="text-[#353945] font-medium text-[18px] pt-4"
+                          dangerouslySetInnerHTML={{
+                            __html: article.contenu.replace(/^"|"$/g, ""), 
+                          }}
+                        /> */}
+                        <div
+                          dangerouslySetInnerHTML={{
+                            __html:
+                              removeQuotes(article.contenu.substring(0, 100)) +
+                              "...", // Affichage des 100 premiers caractères
+                          }}
+                        />
+
                         <div className="pt-3">
                           <Link href={`/Blog/InfoBlog/${article.id}`}>
                             <Button className="px-5 py-2 text-[14px] rounded-[10px] space-x-3">
