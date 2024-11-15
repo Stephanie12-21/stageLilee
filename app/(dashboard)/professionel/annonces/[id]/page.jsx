@@ -55,7 +55,7 @@ const InfoAnnonces = ({ params }) => {
           setImages(data.imageAnnonces);
           if (data.localisation) setIframeSrc(data.localisation);
         } else {
-          console.error("Annonce non trouvée");
+          console.error("Annonce non trouvée, avec l'id annonce :", id);
         }
       } catch (error) {
         console.error("Erreur lors de la récupération de l'annonce :", error);

@@ -1,91 +1,77 @@
 "use client";
-import React, { useEffect, useState } from "react";
-import { useSession } from "next-auth/react";
-import { z } from "zod";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Alert } from "@/components/ui/alert";
-import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { X } from "lucide-react";
+
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { X } from "lucide-react";
+
 import {
   Select,
+  SelectTrigger,
   SelectContent,
   SelectGroup,
   SelectItem,
-  SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
+import { useSession } from "next-auth/react";
+import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
-// Schéma de validation Zod
-const annonceSchema = z.object({
-  title: z.string().min(5, "Le titre doit contenir au moins 5 caractères"),
-  description: z
-    .string()
-    .min(10, "La description doit contenir au moins 10 caractères"),
-  images: z.array(z.instanceof(File)).optional(),
-  category: z.string().min(1, "La catégorie d'activité est requise."),
-  localisation: z.string().min(1, "La localisation est requise."),
-  adresse: z.string().min(1, "L'adresse est requise."),
-});
-
-const EditAnnonce = ({ params }) => {
+const ArticleDetailPageModif = ({ params }) => {
   const { id } = params;
   const { data: session, status } = useSession();
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState("");
-  const [description, setDescription] = useState("");
-  const [images, setImages] = useState([]);
-  const [errors, setErrors] = useState({});
-  const [localisation, setLocalisation] = useState("");
-  const [adresse, setAdresse] = useState("");
+  const [article, setArticle] = useState(null);
+  const [error, setError] = useState(null);
+  const [formData, setFormData] = useState({
+    titre: "",
+    description: "",
+    category: "",
+    localisation: "",
+    adresse: "",
+    files: [],
+  });
+  const [contenu, setContenu] = useState({});
   const [iframeSrc, setIframeSrc] = useState("");
+  const [errors, setErrors] = useState({});
   const router = useRouter();
 
-  useEffect(() => {
-    // Appel API pour récupérer les données de l'annonce
-    async function fetchAnnonce() {
-      try {
-        const response = await fetch(`/api/annonce/${id}`);
-        if (response.ok) {
-          const data = await response.json();
-          console.log("Données reçues par l'API :", data);
-          setTitle(data.titre);
-          setCategory(data.categorieAnnonce); // Préremplit la catégorie
-          setDescription(data.description);
-          setAdresse(data.adresse);
-          setLocalisation(data.localisation);
-          //setImages(data.imageAnnonces);
-          if (data.localisation) setIframeSrc(data.localisation);
-        } else {
-          console.error("Annonce non trouvée");
-        }
-      } catch (error) {
-        console.error("Erreur lors de la récupération de l'annonce :", error);
+  const fetchArticle = async (id) => {
+    try {
+      const response = await fetch(`/api/annonce/${id}`);
+      if (!response.ok) {
+        throw new Error("Annonce non trouvée");
       }
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'annonce:", error);
+      throw error;
     }
-    fetchAnnonce();
-  }, [id]);
-
-  const resetForm = () => {
-    setTitle("");
-    setDescription("");
-    setCategory("");
-    setLocalisation("");
-    setAdresse("");
-    setImages([]);
-    setIframeSrc("");
-    setErrors({});
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchArticle(id)
+        .then((data) => {
+          setArticle(data);
+          setFormData({
+            titre: data.titre,
+            description: data.description ? JSON.parse(data.description) : {},
+            category: data.categorieAnnonce,
+            localisation: data.localisation,
+            adresse: data.adresse,
+            files: [],
+          });
+          setContenu(data.description ? JSON.parse(data.description) : {});
+          setIframeSrc(data.localisation || ""); // Charger l'iframe si localisation existante
+        })
+        .catch((err) => setError(err.message));
+    }
+  }, [id]);
 
   const handleLocalisationChange = (e) => {
     const value = e.target.value;
-    setLocalisation(value);
-    console.log("Valeur de localisation:", value);
+    setFormData((prev) => ({ ...prev, localisation: value }));
     const regex = /https:\/\/www\.google\.com\/maps\/embed\?pb=([^&]+)/;
     const match = value.match(regex);
 
@@ -101,111 +87,97 @@ const EditAnnonce = ({ params }) => {
     }
   };
 
-  const handleImageChange = (e) => {
-    const selectedImages = Array.from(e.target.files);
-    setImages((prevImages) => [...prevImages, ...selectedImages]);
+  const handleChange = (e) => {
+    const { name, value, files } = e.target;
+    if (files) {
+      setFormData((prev) => ({
+        ...prev,
+        files: [...prev.files, ...Array.from(files)],
+      }));
+    } else {
+      setFormData((prev) => ({
+        ...prev,
+        [name]: value,
+      }));
+    }
   };
 
   const handleRemoveImage = (index) => {
-    setImages(images.filter((_, i) => i !== index));
+    setFormData((prev) => ({
+      ...prev,
+      files: prev.files.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      !title ||
-      !description ||
-      !category ||
-      !localisation ||
-      !adresse ||
-      images.length === 0
-    ) {
-      alert(
-        "Tous les champs doivent être remplis et au moins une image doit être uploadée."
-      );
-      return;
-    }
+    const formDataToSend = new FormData();
     const statut = "DESACTIVEE";
-    const formData = new FormData();
-    formData.append("titre", title);
-    formData.append("description", description);
-    formData.append("category", category);
-    formData.append("adresse", adresse);
-    formData.append("localisation", localisation);
-    formData.append("statut", statut);
-    formData.append("userId", session.user.id);
-
-    if (images.length > 0) {
-      images.forEach((image) => {
-        formData.append("images", image);
-      });
-    }
-
-    console.log("Données valides :", {
-      title,
-      description,
-      category,
-      localisation,
-      adresse,
-      images,
+    formDataToSend.append("titre", formData.titre);
+    formDataToSend.append("description", JSON.stringify(contenu));
+    formDataToSend.append("categorieAnnonce", formData.category);
+    formDataToSend.append("localisation", formData.localisation);
+    formDataToSend.append("statut", statut);
+    formDataToSend.append("userId", session.user.id);
+    formDataToSend.append("adresse", formData.adresse);
+    formData.files.forEach((file) => {
+      formDataToSend.append("files", file);
     });
 
     try {
       const response = await fetch(`/api/annonce/${id}`, {
         method: "PUT",
-        body: formData,
+        body: formDataToSend,
       });
-
       if (!response.ok) {
-        throw new Error("Erreur lors de la modification de l'annonce");
+        throw new Error("Erreur lors de la mise à jour de l'annonce");
       }
-
-      const result = await response.json();
-      console.log("Réponse du serveur :", result);
-      toast.success("Annonce mise à jout avec succès !");
-      resetForm();
-      router.push("/personnel/annonces/");
+      alert("Annonce mise à jour !");
+      router.push(`/professionel/annonces/${id}`);
     } catch (error) {
-      console.error("Erreur :", error);
-      toast.error(
-        "Une erreur est survenue lors de la mise à jour de l'annonce."
-      );
+      console.error("Erreur de mise à jour:", error);
+      alert("Erreur lors de la mise à jour.");
     }
   };
 
-  const handleCancel = () => {
-    router.push("/personnel/annonces/");
-  };
+  if (error) {
+    return <p className="text-red-500">{error}</p>;
+  }
+
+  if (!article) {
+    return <p>Chargement...</p>;
+  }
 
   return (
-    <div className="container mx-auto p-8">
-      <h1 className="font-bold text-3xl">
-        Modifier une Annonce par l&apos;utilisateur : {session?.user.nom} <br />
-        avec l&apos;ID : {session?.user.id}
-      </h1>
-      <div className="flex flex-col space-y-4 w-full">
-        {/* titre */}
-        <div>
-          <Label htmlFor="title">Titre:</Label>
-          <Input
+    <div className="container mx-auto p-10">
+      <h1 className="text-3xl font-bold mb-5">Modifier l&apos;annonce</h1>
+      <form onSubmit={handleSubmit} className="space-y-5">
+        <div className="mb-4">
+          <label
+            htmlFor="titre"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Titre de l&apos;annonce
+          </label>
+          <input
             type="text"
-            id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            required
-            error={errors.title}
+            id="titre"
+            name="titre"
+            value={formData.titre}
+            onChange={handleChange}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
           />
-          {errors.title && <Alert variant="error">{errors.title}</Alert>}
         </div>
 
-        {/* catégorie */}
-        <div>
+        <div className="space-y-3">
           <Label htmlFor="category">Catégorie:</Label>
           <Select
             className="w-full"
-            value={category} // Assurez-vous que la valeur est liée à l'état
-            onValueChange={(value) => setCategory(value)}
+            value={formData.category}
+            onValueChange={(value) =>
+              setFormData((prev) => ({ ...prev, category: value }))
+            }
           >
             <SelectTrigger className="w-full px-4">
               <SelectValue placeholder="Sélectionner une catégorie" />
@@ -219,114 +191,128 @@ const EditAnnonce = ({ params }) => {
                 <SelectItem value="VOITURE">Voitures</SelectItem>
                 <SelectItem value="LOISIR">Loisir</SelectItem>
                 <SelectItem value="MATERIEL">
-                  Matériels / Equipements
+                  Matériels / Équipements
                 </SelectItem>
                 <SelectItem value="MOBILIER">Mobilier</SelectItem>
               </SelectGroup>
             </SelectContent>
           </Select>
-          {errors.category && <Alert variant="error">{errors.category}</Alert>}
         </div>
 
-        {/* description */}
-        <div>
-          <Label htmlFor="description">Description:</Label>
-          <Textarea
-            id="description"
-            placeholder="Décrivez ici toutes les informations pertinentes concernant l'objet de votre annonce."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            error={errors.description}
+        <div className="mb-4">
+          <label
+            htmlFor="description"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Description de l&apos;annonce
+          </label>
+          <RichTextEditor
+            content={contenu}
+            onChange={(json) => setContenu(json)}
           />
-          {errors.description && (
-            <Alert variant="error">{errors.description}</Alert>
-          )}
         </div>
 
-        {/* ADRESSE */}
-        <div>
-          <Label htmlFor="adresse">Adresse exacte:</Label>
-          <Input
-            type="text"
-            id="adresse"
-            value={adresse}
-            onChange={(e) => setAdresse(e.target.value)}
-            required
-            error={errors.adresse}
-          />
-          {errors.adresse && <Alert variant="error">{errors.adresse}</Alert>}
-        </div>
-
-        {/* Localisation */}
-        <div>
-          <Label htmlFor="localisation">
-            Localisation (prendre uniquement la source de l&apos;iframe Google
-            Maps):
-          </Label>
-          <Input
+        <div className="mb-4">
+          <label
+            htmlFor="localisation"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Localisation de l&apos;annonce (URL iframe)
+          </label>
+          <input
             type="text"
             id="localisation"
-            value={localisation}
+            name="localisation"
+            value={formData.localisation}
             onChange={handleLocalisationChange}
-            required
-            error={errors.localisation}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
           />
           {errors.localisation && (
-            <Alert variant="error">{errors.localisation}</Alert>
+            <p className="text-red-500 text-sm mt-1">{errors.localisation}</p>
           )}
         </div>
 
-        {/* Affichage de l'iframe Google Maps */}
         {iframeSrc && (
-          <iframe
-            src={iframeSrc}
-            width="1200"
-            height="500"
-            style={{ border: 0 }}
-            allowFullScreen=""
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-          ></iframe>
+          <div className="mt-4">
+            <iframe
+              src={iframeSrc}
+              width="1200"
+              height="500"
+              style={{ border: "0" }}
+              allowFullScreen
+              loading="lazy"
+              title="Localisation"
+              className="w-full"
+            />
+          </div>
         )}
 
-        <div>
-          <Label htmlFor="images">Images:</Label>
-          <Input
-            type="file"
-            id="images"
-            onChange={handleImageChange}
-            accept="image/*"
-            multiple
+        <div className="mb-4">
+          <label
+            htmlFor="adresse"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Adresse de l&apos;annonce
+          </label>
+          <input
+            type="text"
+            id="adresse"
+            name="adresse"
+            value={formData.adresse}
+            onChange={handleChange}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
           />
-          <div className="flex space-x-4 mt-4">
-            {images.map((image, index) => (
-              <div key={index} className="relative">
-                <Image
-                  src={URL.createObjectURL(image)}
-                  alt={`preview-${index}`}
-                  width={200}
-                  height={200}
-                  className="w-32 h-32 object-cover rounded"
-                />
-                <button
-                  type="button"
-                  className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                  onClick={() => handleRemoveImage(index)}
-                >
-                  <X size={16} />
-                </button>
-              </div>
-            ))}
-          </div>
         </div>
 
-        <Button onClick={handleSubmit}>Modifier l&apos;annonce</Button>
-        <Button onClick={handleCancel}>Annuler les modifications</Button>
-        <ToastContainer />
-      </div>
+        <div className="mb-4">
+          <label
+            htmlFor="files"
+            className="block text-lg font-medium text-gray-700"
+          >
+            Images de l&apos;annonce
+          </label>
+          <input
+            type="file"
+            id="files"
+            name="files"
+            multiple
+            onChange={handleChange}
+            className="mt-1 p-2 w-full border border-gray-300 rounded-md"
+          />
+        </div>
+
+        <div className="flex space-x-2 mt-4">
+          {formData.files.map((file, index) => (
+            <div key={index} className="relative">
+              <Image
+                src={URL.createObjectURL(file)}
+                width={200}
+                height={200}
+                alt={`Prévisualisation de l'image ${index + 1}`}
+                className="h-20 w-20 object-cover border border-gray-300 rounded-md"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemoveImage(index)}
+                className="absolute top-0 right-0 bg-red-700 rounded-full p-1"
+              >
+                <X className="w-5 h-5 text-white" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div>
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-500 text-white font-bold rounded-md hover:bg-blue-700"
+          >
+            Mettre à jour l&apos;annonce
+          </button>
+        </div>
+      </form>
     </div>
   );
 };
 
-export default EditAnnonce;
+export default ArticleDetailPageModif;

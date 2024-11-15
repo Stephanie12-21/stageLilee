@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import Image from "next/image";
@@ -21,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import RichTextEditor from "../../_components/RichEditor";
+import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
 // Schéma de validation Zod
 const annonceSchema = z.object({

@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import Image from "next/image";
-import RichTextEditor from "../../_components/RichEditor";
+import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
 const ArticleForm = () => {
   const [titre, setTitre] = useState("");

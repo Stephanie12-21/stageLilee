@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
-const layoutAdmin = ({children}) => {
-  return (
-    <div>{children}</div>
-  )
-}
+const layoutAdmin = ({ children }) => {
+  return <div>{children}</div>;
+};
 
-export default layoutAdmin
+export default layoutAdmin;

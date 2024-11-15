@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { X } from "lucide-react"; // Importation de l'icône X
-import RichTextEditor from "../../../_components/RichEditor";
+import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
 const ArticleDetailPageModif = ({ params }) => {
   const { id } = params;
@@ -18,7 +18,7 @@ const ArticleDetailPageModif = ({ params }) => {
   });
   const [contenu, setContenu] = useState({}); // Stocker le contenu en JSON
   const router = useRouter();
-  
+
   const fetchArticle = async (id) => {
     try {
       const response = await fetch(`/api/blog/${id}`);

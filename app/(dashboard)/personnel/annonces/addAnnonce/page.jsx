@@ -8,7 +8,6 @@ import "react-toastify/dist/ReactToastify.css";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Alert } from "@/components/ui/alert";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import Image from "next/image";
@@ -21,7 +20,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useRouter } from "next/navigation";
-import RichTextEditor from "@/app/(dashboard)/admin/_components/RichEditor";
+import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
 // Schéma de validation Zod
 const annonceSchema = z.object({
@@ -107,7 +106,7 @@ const AddAnnonce = () => {
       );
       return;
     }
-    const statut = "DESACTIVEE";
+    const statut = "PUBLIEE";
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", JSON.stringify(description));
@@ -134,17 +133,9 @@ const AddAnnonce = () => {
       }
 
       const result = await response.json();
-      toast.info(
-        "Annonce ajoutée avec succès ! L'administrateur va valider votre annonce et vous recevrez une notification par email."
-      );
-      await fetch("/api/notifications", {
-        method: "POST",
-      });
-
-      setTimeout(() => {
-        router.push("/professionel/annonces/");
-        resetForm();
-      }, 10000);
+      toast.success("Annonce ajoutée avec succès !");
+      router.push(`/admin/annonces/`);
+      resetForm();
     } catch (error) {
       console.error("Erreur :", error);
       toast.error("Une erreur est survenue lors de l'ajout de l'annonce.");
@@ -211,15 +202,7 @@ const AddAnnonce = () => {
         {/* description */}
         <div className="space-y-3">
           <Label htmlFor="description">Description:</Label>
-          {/* <Textarea
-            id="description"
-            placeholder="Décrivez ici toutes les informations pertinentes concerant l'objet de votre annonce.
-            Par exemple: règlements à respecter, les dates de disponibilités, le prix, s'il s'agit de location."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            error={errors.description}
-          /> */}
+
           <RichTextEditor
             content={description}
             onChange={(json) => setDescription(json)} // L'éditeur retourne maintenant un objet JSON
