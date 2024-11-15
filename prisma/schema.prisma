@@ -69,6 +69,7 @@ model user {
   sentMessages       message[]      @relation("UserMessages")
   receivedMessages   message[]      @relation("UserReceivedMessages")
 }
+
 enum statutUser {
   ACTIF
   SUSPENDU
@@ -220,3 +221,13 @@ model imageMessages {
 }
 
 //pour les messages
+
+//pour la newsletter
+model newsletter {
+  id                Int     @id @default(autoincrement())
+  email             String  @unique
+  unsubscribeToken  String? // Optionnel
+}
+
+
+//pour la newsletter
