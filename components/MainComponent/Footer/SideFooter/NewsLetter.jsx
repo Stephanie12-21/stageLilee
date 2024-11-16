@@ -94,7 +94,7 @@
 //       const data = await response.json();
 
 //       if (response.ok) {
-        
+
 //         setSuccessMessage("Vous êtes bien abonné à la newsletter!");
 //         setErrorMessage(""); // Effacer le message d'erreur si l'abonnement est réussi
 //       } else if (response.status === 409) {
@@ -182,10 +182,13 @@ const NewsLetter = () => {
 
       if (response.ok) {
         toast.success("Vous êtes bien abonné à la newsletter !");
+        setEmail("");
       } else if (response.status === 409) {
         toast.error("Vous êtes déjà abonné avec cet email.");
+        setEmail("");
       } else {
         toast.error("Erreur lors de l'abonnement. Essayez à nouveau.");
+        setEmail("");
       }
     } catch (error) {
       console.error("Erreur réseau :", error);

@@ -29,7 +29,8 @@ const ChatDialog = ({ isOpen, onClose, userId, senderId, annonceId }) => {
     }
 
     // Références de la base de données en temps réel
-    const chatRef = ref(db, "chats");
+    // const chatRef = ref(db, `chats/${annonceId}/messages`);
+    const chatRef = ref(db, `chats`);
 
     try {
       // Créer une nouvelle entrée pour le message dans Firebase Realtime Database

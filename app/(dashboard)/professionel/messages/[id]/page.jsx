@@ -1465,277 +1465,380 @@
 
 // export default Page;
 
+// "use client";
+
+// import { Badge } from "@/components/ui/badge";
+// import { Paperclip, Send, Search, Info, X } from "lucide-react";
+// import { useSession } from "next-auth/react";
+// import Image from "next/image";
+// import { useRouter } from "next/navigation";
+// import React, { useEffect, useState, useRef } from "react";
+// import { db } from "@/firebaseconfig"; // Assurez-vous que la configuration est correcte
+// import { ref, onValue } from "firebase/database";
+
+// const Page = () => {
+//   const [message, setMessage] = useState("");
+//   const { data: session } = useSession();
+//   const [messages, setMessages] = useState([]);
+//   const [error, setError] = useState(null);
+//   const [loading, setLoading] = useState(true);
+//   const [selectedMessage, setSelectedMessage] = useState(null);
+//   const [replyContent, setReplyContent] = useState("");
+//   const [selectedImages, setSelectedImages] = useState([]);
+//   const [showInfoDropdown, setShowInfoDropdown] = useState(false);
+//   const dropdownRef = useRef(null);
+//   const router = useRouter();
+//   const [filteredMessages, setFilteredMessages] = useState([]);
+//   const [searchTerm, setSearchTerm] = useState(""); // Added state for search term
+
+//   useEffect(() => {
+//     const handleClickOutside = (event) => {
+//       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+//         setShowInfoDropdown(false);
+//       }
+//     };
+
+//     document.addEventListener("mousedown", handleClickOutside);
+//     return () => document.removeEventListener("mousedown", handleClickOutside);
+//   }, []);
+
+//   // Récupérer les messages depuis Firebase
+//   const fetchMessages = () => {
+//     const messagesRef = ref(db, `chats/${annonceId}/messages`);
+//     onValue(
+//       messagesRef,
+//       (snapshot) => {
+//         const data = snapshot.val();
+//         if (data) {
+//           const messagesList = Object.keys(data).map((key) => ({
+//             id: key,
+//             ...data[key],
+//           }));
+//           setMessages(messagesList);
+//           setFilteredMessages(messagesList); // Initialiser les messages filtrés
+//           setLoading(false); // Fin du chargement
+//         } else {
+//           setLoading(false); // Fin du chargement, même si aucune donnée n'a été récupérée
+//         }
+//       },
+//       (error) => {
+//         console.error("Erreur de récupération des messages:", error);
+//         setError("Erreur lors de la récupération des messages.");
+//         setLoading(false); // Fin du chargement même en cas d'erreur
+//       }
+//     );
+//   };
+
+//   useEffect(() => {
+//     fetchMessages();
+//   }, []);
+
+//   // Filtrer les messages en fonction du terme de recherche
+//   useEffect(() => {
+//     if (searchTerm.trim() === "") {
+//       setFilteredMessages(messages); // Si le terme de recherche est vide, afficher tous les messages
+//     } else {
+//       const filtered = messages.filter((message) =>
+//         message.message.toLowerCase().includes(searchTerm.toLowerCase())
+//       );
+//       setFilteredMessages(filtered); // Définir les messages filtrés
+//     }
+//   }, [searchTerm, messages]);
+
+//   // Fonction de réponse à un message
+//   const handleReply = async () => {
+//     if (!replyContent.trim()) return;
+
+//     if (!session?.user?.id) {
+//       setError("Utilisateur non connecté.");
+//       return;
+//     }
+
+//     try {
+//       const response = await fetch("/api/chat/reply", {
+//         method: "POST",
+//         headers: {
+//           "Content-Type": "application/json",
+//         },
+//         body: JSON.stringify({
+//           userId: session.user.id,
+//           originalMessageId: selectedMessage.id,
+//           content: replyContent,
+//           images: selectedImages,
+//         }),
+//       });
+
+//       if (response.ok) {
+//         const repliedMessage = await response.json();
+//         setMessages((prevMessages) => [...prevMessages, repliedMessage]);
+//         setReplyContent("");
+//         setSelectedMessage(repliedMessage); // Mettre à jour le message sélectionné après la réponse
+//       } else {
+//         const data = await response.json();
+//         setError(data.message || "Erreur lors de l'envoi de la réponse.");
+//       }
+//     } catch (error) {
+//       setError("Erreur réseau : " + error.message);
+//     }
+//   };
+
+//   const toggleInfoDropdown = () => {
+//     setShowInfoDropdown(!showInfoDropdown);
+//   };
+
+//   const handleSeeAnnonce = () => {
+//     router.push(`/Annonces/id=${selectedMessage?.annonce?.id}`);
+//   };
+
+//   return (
+//     <div className="flex h-screen bg-white">
+//       <div className="w-80 border-r border-gray-200">
+//         <div className="p-4 border-b border-gray-200">
+//           <div className="flex items-center bg-gray-100 rounded-lg p-2">
+//             <Search className="w-4 h-4 text-gray-500" />
+//             <input
+//               type="text"
+//               placeholder="Rechercher..."
+//               className="bg-transparent ml-2 outline-none w-full text-gray-700"
+//               value={searchTerm}
+//               onChange={(e) => setSearchTerm(e.target.value)} // Ajout de la fonctionnalité de recherche
+//             />
+//           </div>
+//         </div>
+
+//         <div className="overflow-y-auto h-[calc(100vh-73px)]">
+//           {loading && <p className="p-4 text-gray-500">Chargement...</p>}
+//           {error && <p className="p-4 text-red-500">{error}</p>}
+
+//           {!loading && messages.length > 0 ? (
+//             filteredMessages.map((message) => {
+//               const isSent = message.senderId === session?.user?.id;
+//               const user = isSent ? message.receiver : message.sender;
+
+//               return (
+//                 <div
+//                   key={message.id}
+//                   onClick={() => setSelectedMessage(message)}
+//                   className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer ${
+//                     selectedMessage?.id === message.id ? "bg-gray-100" : ""
+//                   }`}
+//                 >
+//                   <Image
+//                     src={
+//                       user?.profileImages?.[0]?.path || "/default-avatar.png"
+//                     }
+//                     alt={`${user?.nom || "Utilisateur"} ${user?.prenom || ""}`}
+//                     width={48}
+//                     height={48}
+//                     className="rounded-full object-cover"
+//                   />
+//                   <div className="ml-4 flex-1">
+//                     <div className="flex justify-between">
+//                       <span className="font-semibold text-gray-900">
+//                         {isSent
+//                           ? "Vous"
+//                           : `${user?.nom || "Expéditeur"} ${
+//                               user?.prenom || ""
+//                             }`}
+//                       </span>
+//                       {/* <span className="text-sm text-gray-500">
+//                         {new Intl.DateTimeFormat("fr-FR", {
+//                           hour: "2-digit",
+//                           minute: "2-digit",
+//                         }).format(new Date(message.sentAt))}
+//                       </span> */}
+//                     </div>
+//                     <p className="text-sm text-gray-500 truncate">
+//                       {message.content}
+//                     </p>
+//                   </div>
+//                 </div>
+//               );
+//             })
+//           ) : (
+//             <p className="p-4 text-gray-500">Aucun message trouvé.</p>
+//           )}
+//         </div>
+//       </div>
+
+//       {/* Zone de chat */}
+//       <div className="flex-1 flex flex-col">
+//         {selectedMessage ? (
+//           <>
+//             <div className="p-4 border-b border-gray-200">
+//               <div className="flex items-center justify-between relative">
+//                 <div className="flex items-center">
+//                   <Image
+//                     src={
+//                       selectedMessage.sender?.profileImages?.[0]?.path ||
+//                       "/default-avatar.png"
+//                     }
+//                     alt={`${selectedMessage.sender?.nom || ""} ${
+//                       selectedMessage.sender?.prenom || ""
+//                     }`}
+//                     width={40}
+//                     height={40}
+//                     className="rounded-full object-cover"
+//                   />
+//                   <span className="ml-4 font-semibold text-gray-900">
+//                     {selectedMessage.sender.nom} {selectedMessage.sender.prenom}
+//                   </span>
+//                 </div>
+//                 <div className="relative" ref={dropdownRef}>
+//                   <button
+//                     className={`p-2 hover:bg-gray-100 rounded-full transition-colors ${
+//                       showInfoDropdown ? "bg-gray-100" : ""
+//                     }`}
+//                     onClick={toggleInfoDropdown}
+//                   >
+//                     <Info className="w-5 h-5 text-gray-500" />
+//                   </button>
+//                   {showInfoDropdown && (
+//                     <div className="absolute top-full right-0 mt-2 bg-white shadow-lg rounded-lg border border-gray-200">
+//                       <button
+//                         onClick={handleSeeAnnonce}
+//                         className="block w-full p-2 text-left text-sm text-gray-700 hover:bg-gray-100"
+//                       ></button>
+//                     </div>
+//                   )}
+//                 </div>
+//               </div>
+//               <div className="mt-4 text-gray-700">
+//                 {selectedMessage.content}
+//               </div>
+//             </div>
+
+//             {/* Réponse */}
+//             <div className="flex-1 p-4 border-t border-gray-200">
+//               <textarea
+//                 className="w-full p-2 border border-gray-300 rounded-md"
+//                 rows={4}
+//                 placeholder="Répondre..."
+//                 value={replyContent}
+//                 onChange={(e) => setReplyContent(e.target.value)}
+//               />
+//               <button
+//                 onClick={handleReply}
+//                 className="mt-2 bg-blue-500 text-white rounded-md p-2"
+//               >
+//                 <Send className="w-5 h-5 inline-block mr-2" />
+//                 Répondre
+//               </button>
+//             </div>
+//           </>
+//         ) : (
+//           <div className="flex-1 flex justify-center items-center">
+//             <p className="text-gray-500">
+//               Sélectionnez un message pour afficher le détail.
+//             </p>
+//           </div>
+//         )}
+//       </div>
+//     </div>
+//   );
+// };
+
+// export default Page;
 "use client";
-
-import { Badge } from "@/components/ui/badge";
-import { Paperclip, Send, Search, Info, X } from "lucide-react";
-import { useSession } from "next-auth/react";
-import Image from "next/image";
-import { useRouter } from "next/navigation";
-import React, { useEffect, useState, useRef } from "react";
-import { db } from "@/firebaseconfig"; // Assurez-vous que la configuration est correcte
+import React, { useEffect, useState } from "react";
 import { ref, onValue } from "firebase/database";
+import { db } from "@/firebaseconfig";
 
-const Page = () => {
-  const [message, setMessage] = useState("");
-  const { data: session } = useSession();
-  const [messages, setMessages] = useState([]);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [selectedMessage, setSelectedMessage] = useState(null);
-  const [replyContent, setReplyContent] = useState("");
-  const [selectedImages, setSelectedImages] = useState([]);
-  const [showInfoDropdown, setShowInfoDropdown] = useState(false);
-  const dropdownRef = useRef(null);
-  const router = useRouter();
-  const [filteredMessages, setFilteredMessages] = useState([]);
-  const [searchTerm, setSearchTerm] = useState(""); // Added state for search term
+const ChatList = ({ userId }) => {
+  const [conversations, setConversations] = useState([]);
+  const [selectedChat, setSelectedChat] = useState(null);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowInfoDropdown(false);
-      }
+    const fetchConversations = () => {
+      const chatsRef = ref(db, "chats");
+
+      // Écouter les changements dans les données
+      onValue(chatsRef, (snapshot) => {
+        const data = snapshot.val();
+
+        // Afficher les données reçues dans une alerte
+        alert(JSON.stringify(data, null, 2)); // Affiche les données dans une alerte formatée en JSON
+
+        if (data) {
+          // Filtrer les messages liés à l'utilisateur
+          const userConversations = Object.entries(data)
+            .map(([key, value]) => ({
+              id: key,
+              ...value,
+            }))
+            .filter(
+              (chat) => chat.sender === userId || chat.receiver === userId
+            );
+
+          console.log(
+            "Conversations filtrées pour l'utilisateur connecté :",
+            userConversations
+          ); // Afficher les conversations filtrées dans la console
+
+          setConversations(userConversations);
+        } else {
+          setConversations([]);
+        }
+      });
     };
 
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  // Récupérer les messages depuis Firebase
-  const fetchMessages = () => {
-    const messagesRef = ref(db, "chats");
-    onValue(
-      messagesRef,
-      (snapshot) => {
-        const data = snapshot.val();
-        if (data) {
-          const messagesList = Object.keys(data).map((key) => ({
-            id: key,
-            ...data[key],
-          }));
-          setMessages(messagesList);
-          setFilteredMessages(messagesList); // Initialiser les messages filtrés
-          setLoading(false); // Fin du chargement
-        } else {
-          setLoading(false); // Fin du chargement, même si aucune donnée n'a été récupérée
-        }
-      },
-      (error) => {
-        console.error("Erreur de récupération des messages:", error);
-        setError("Erreur lors de la récupération des messages.");
-        setLoading(false); // Fin du chargement même en cas d'erreur
-      }
-    );
-  };
-
-  useEffect(() => {
-    fetchMessages();
-  }, []);
-
-  // Filtrer les messages en fonction du terme de recherche
-  useEffect(() => {
-    if (searchTerm.trim() === "") {
-      setFilteredMessages(messages); // Si le terme de recherche est vide, afficher tous les messages
-    } else {
-      const filtered = messages.filter((message) =>
-        message.message.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-      setFilteredMessages(filtered); // Définir les messages filtrés
-    }
-  }, [searchTerm, messages]);
-
-  // Fonction de réponse à un message
-  const handleReply = async () => {
-    if (!replyContent.trim()) return;
-
-    if (!session?.user?.id) {
-      setError("Utilisateur non connecté.");
-      return;
-    }
-
-    try {
-      const response = await fetch("/api/chat/reply", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          userId: session.user.id,
-          originalMessageId: selectedMessage.id,
-          content: replyContent,
-          images: selectedImages,
-        }),
-      });
-
-      if (response.ok) {
-        const repliedMessage = await response.json();
-        setMessages((prevMessages) => [...prevMessages, repliedMessage]);
-        setReplyContent("");
-        setSelectedMessage(repliedMessage); // Mettre à jour le message sélectionné après la réponse
-      } else {
-        const data = await response.json();
-        setError(data.message || "Erreur lors de l'envoi de la réponse.");
-      }
-    } catch (error) {
-      setError("Erreur réseau : " + error.message);
-    }
-  };
-
-  const toggleInfoDropdown = () => {
-    setShowInfoDropdown(!showInfoDropdown);
-  };
-
-  const handleSeeAnnonce = () => {
-    router.push(`/Annonces/id=${selectedMessage?.annonce?.id}`);
-  };
+    fetchConversations();
+  }, [userId]);
 
   return (
-    <div className="flex h-screen bg-white">
-      <div className="w-80 border-r border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <div className="flex items-center bg-gray-100 rounded-lg p-2">
-            <Search className="w-4 h-4 text-gray-500" />
-            <input
-              type="text"
-              placeholder="Rechercher..."
-              className="bg-transparent ml-2 outline-none w-full text-gray-700"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)} // Ajout de la fonctionnalité de recherche
-            />
-          </div>
+    <div className="p-4">
+      <h1 className="text-2xl font-bold mb-4">Mes Conversations</h1>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Liste des conversations */}
+        <div className="bg-gray-100 p-4 rounded-lg">
+          <h2 className="text-xl font-semibold mb-4">Conversations</h2>
+          {conversations.map((chat) => (
+            <div
+              key={chat.id}
+              className="p-2 border-b border-gray-300 cursor-pointer hover:bg-gray-200"
+              onClick={() => setSelectedChat(chat)}
+            >
+              <p>
+                <strong>Envoyé par :</strong> {chat.sender}
+              </p>
+              <p>
+                <strong>Reçu par :</strong> {chat.receiver}
+              </p>
+            </div>
+          ))}
         </div>
 
-        <div className="overflow-y-auto h-[calc(100vh-73px)]">
-          {loading && <p className="p-4 text-gray-500">Chargement...</p>}
-          {error && <p className="p-4 text-red-500">{error}</p>}
-
-          {!loading && messages.length > 0 ? (
-            filteredMessages.map((message) => {
-              const isSent = message.senderId === session?.user?.id;
-              const user = isSent ? message.receiver : message.sender;
-
-              return (
-                <div
-                  key={message.id}
-                  onClick={() => setSelectedMessage(message)}
-                  className={`flex items-center p-4 hover:bg-gray-50 cursor-pointer ${
-                    selectedMessage?.id === message.id ? "bg-gray-100" : ""
-                  }`}
-                >
-                  <Image
-                    src={
-                      user?.profileImages?.[0]?.path || "/default-avatar.png"
-                    }
-                    alt={`${user?.nom || "Utilisateur"} ${user?.prenom || ""}`}
-                    width={48}
-                    height={48}
-                    className="rounded-full object-cover"
-                  />
-                  <div className="ml-4 flex-1">
-                    <div className="flex justify-between">
-                      <span className="font-semibold text-gray-900">
-                        {isSent
-                          ? "Vous"
-                          : `${user?.nom || "Expéditeur"} ${
-                              user?.prenom || ""
-                            }`}
-                      </span>
-                      {/* <span className="text-sm text-gray-500">
-                        {new Intl.DateTimeFormat("fr-FR", {
-                          hour: "2-digit",
-                          minute: "2-digit",
-                        }).format(new Date(message.sentAt))}
-                      </span> */}
-                    </div>
-                    <p className="text-sm text-gray-500 truncate">
-                      {message.content}
-                    </p>
-                  </div>
-                </div>
-              );
-            })
+        {/* Détails de la conversation */}
+        <div className="col-span-2 bg-white p-4 rounded-lg">
+          {selectedChat ? (
+            <>
+              <h2 className="text-xl font-semibold mb-4">Conversation</h2>
+              <div className="space-y-4">
+                <p>
+                  <strong>Envoyé par :</strong> {selectedChat.sender}
+                </p>
+                <p>
+                  <strong>Reçu par :</strong> {selectedChat.receiver}
+                </p>
+                <p>
+                  <strong>Message :</strong> {selectedChat.message}
+                </p>
+                <p>
+                  <strong>Annonce :</strong> {selectedChat.annonce}
+                </p>
+                <p>
+                  <strong>Date :</strong>{" "}
+                  {new Date(selectedChat.timestamp).toLocaleString()}
+                </p>
+              </div>
+            </>
           ) : (
-            <p className="p-4 text-gray-500">Aucun message trouvé.</p>
+            <p>Sélectionnez une conversation pour voir les détails.</p>
           )}
         </div>
-      </div>
-
-      {/* Zone de chat */}
-      <div className="flex-1 flex flex-col">
-        {selectedMessage ? (
-          <>
-            <div className="p-4 border-b border-gray-200">
-              <div className="flex items-center justify-between relative">
-                <div className="flex items-center">
-                  <Image
-                    src={
-                      selectedMessage.sender?.profileImages?.[0]?.path ||
-                      "/default-avatar.png"
-                    }
-                    alt={`${selectedMessage.sender?.nom || ""} ${
-                      selectedMessage.sender?.prenom || ""
-                    }`}
-                    width={40}
-                    height={40}
-                    className="rounded-full object-cover"
-                  />
-                  <span className="ml-4 font-semibold text-gray-900">
-                    {selectedMessage.sender.nom} {selectedMessage.sender.prenom}
-                  </span>
-                </div>
-                <div className="relative" ref={dropdownRef}>
-                  <button
-                    className={`p-2 hover:bg-gray-100 rounded-full transition-colors ${
-                      showInfoDropdown ? "bg-gray-100" : ""
-                    }`}
-                    onClick={toggleInfoDropdown}
-                  >
-                    <Info className="w-5 h-5 text-gray-500" />
-                  </button>
-                  {showInfoDropdown && (
-                    <div className="absolute top-full right-0 mt-2 bg-white shadow-lg rounded-lg border border-gray-200">
-                      <button
-                        onClick={handleSeeAnnonce}
-                        className="block w-full p-2 text-left text-sm text-gray-700 hover:bg-gray-100"
-                      ></button>
-                    </div>
-                  )}
-                </div>
-              </div>
-              <div className="mt-4 text-gray-700">
-                {selectedMessage.content}
-              </div>
-            </div>
-
-            {/* Réponse */}
-            <div className="flex-1 p-4 border-t border-gray-200">
-              <textarea
-                className="w-full p-2 border border-gray-300 rounded-md"
-                rows={4}
-                placeholder="Répondre..."
-                value={replyContent}
-                onChange={(e) => setReplyContent(e.target.value)}
-              />
-              <button
-                onClick={handleReply}
-                className="mt-2 bg-blue-500 text-white rounded-md p-2"
-              >
-                <Send className="w-5 h-5 inline-block mr-2" />
-                Répondre
-              </button>
-            </div>
-          </>
-        ) : (
-          <div className="flex-1 flex justify-center items-center">
-            <p className="text-gray-500">
-              Sélectionnez un message pour afficher le détail.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
 };
 
-export default Page;
+export default ChatList;

@@ -8,33 +8,53 @@ async function sendNewsletterEmail(email) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_PORT === "465", // Secure si port 465
+    secure: process.env.SMTP_PORT === "465",
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
   });
 
-  // Générer un token sécurisé pour le lien de désabonnement
-  const unsubscribeToken = jwt.sign({ email }, process.env.JWT_SECRET, {
-    expiresIn: "7d", // Expire dans 7 jours
-  });
+  const unsubscribeToken = jwt.sign({ email }, process.env.JWT_SECRET);
 
-  // URL de désabonnement
   const unsubscribeUrl = `${process.env.FRONTEND_URL}/Unsubscribe?token=${unsubscribeToken}`;
 
   const mailOptions = {
-    from: process.env.SMTP_USER,
+    from: `"Lilee" <${process.env.SMTP_USER}>`, // Ceci définit le nom d'affichage
     to: email,
-    subject: "Notification d'abonnement à la newsletter",
+    subject: "Bienvenue à la newsletter Lilee",
     html: `
-      <p>Bonjour,</p>
-      <p>Merci de vous être abonné à la newsletter de Lilee.</p>
-      <p>Si vous souhaitez vous désabonner, cliquez sur le bouton ci-dessous : ${unsubscribeUrl}</p>
-      <a href="${unsubscribeUrl}" style="text-decoration: underline; color: blue;">Se désabonner</a>
-      <p>À bientôt,</p>
-      <p>L'équipe de Lilee</p>
-    `,
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+      
+
+      <div style="background-color: #FCA311; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Bienvenue chez Lilee!</h1>
+      </div>
+
+      <div style="padding: 20px; line-height: 1.5; color: #333333;">
+        <p style="font-size: 16px; margin-bottom: 15px;">Bonjour,</p>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">
+          Nous sommes ravis de vous compter parmi nos abonnés ! Vous recevrez désormais nos dernières actualités, conseils et offres exclusives directement dans votre boîte mail.
+        </p>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${unsubscribeUrl}"
+             style="display: inline-block; padding: 12px 24px; background-color:  #fdf3e1; color: #FCA311; text-decoration: none; border-radius: 4px; font-weight: bold;">
+            Se désabonner
+          </a>
+          
+        </div>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">À bientôt,</p>
+        <p style="font-size: 16px; font-weight: bold;">L'équipe de Lilee</p>
+      </div>
+
+      <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
+        <p>© 2024 Lilee. Tous droits réservés.</p>
+      </div>
+    </div>
+  `,
   };
 
   try {
@@ -46,37 +66,31 @@ async function sendNewsletterEmail(email) {
   }
 }
 
-// Fonction API pour gérer l'abonnement à la newsletter
 export async function POST(request) {
   try {
-    const { email } = await request.json(); // Récupération de l'email du corps de la requête
+    const { email } = await request.json();
 
-    // Validation de l'email
     if (!email || !/^[\w-]+(\.[\w-]+)*@([\w-]+\.)+[a-zA-Z]{2,7}$/.test(email)) {
       return new NextResponse(JSON.stringify({ message: "Email invalide." }), {
         status: 400,
       });
     }
 
-    // Vérifier si l'email est déjà enregistré dans la base de données
     const existingEmail = await db.newsletter.findUnique({
-      where: { email }, // Vérifier si l'email est déjà enregistré
+      where: { email },
     });
 
     if (existingEmail) {
-      // Si l'email existe déjà, retournez une réponse 409 (conflit)
       return new NextResponse(
         JSON.stringify({ message: "Cet email est déjà abonné." }),
         { status: 409 }
       );
     }
 
-    // Enregistrement de l'email dans la base de données
     await db.newsletter.create({
       data: { email },
     });
 
-    // Envoi de l'email de confirmation
     await sendNewsletterEmail(email);
 
     // Retourner une réponse de succès
