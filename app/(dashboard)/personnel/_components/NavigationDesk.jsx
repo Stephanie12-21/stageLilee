@@ -53,18 +53,18 @@ const Navigation = () => {
   const { data: session } = useSession();
 
   const DataLinkNav = [
-    // { icon: Home, name: "Dashboard", href: "/professionel" },
-    { icon: Megaphone, name: "Annonces", href: "/professionel/annonces" },
-    { icon: Heart, name: "Favoris", href: "/professionel/favoris" },
+    // { icon: Home, name: "Dashboard", href: "/personnel" },
+    { icon: Megaphone, name: "Annonces", href: "/personnel/annonces" },
+    { icon: Heart, name: "Favoris", href: "/personnel/favoris" },
     {
       icon: Mail,
       name: "Messages",
-      href: session ? `/professionel/messages/${session.user.id}` : "#",
+      href: session ? `/personnel/messages/${session.user.id}` : "#",
     },
     {
       icon: TrendingUp,
       name: "Transactions",
-      href: "/professionel/transactions",
+      href: "/personnel/transactions",
     },
   ];
 

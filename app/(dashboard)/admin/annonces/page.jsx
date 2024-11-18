@@ -73,7 +73,7 @@ const Annonces = () => {
         prevAnnonces.filter((annonce) => annonce.id !== selectedAnnonceId)
       );
 
-      console.log("Données supprimées");
+      // console.log("Données supprimées");
     } catch (error) {
       console.error("Erreur lors de la suppression des données :", error);
     } finally {

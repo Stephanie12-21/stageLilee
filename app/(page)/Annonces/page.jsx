@@ -51,29 +51,29 @@ export default function Annonces() {
       const filteredData = data
         .filter((annonce) => annonce.statut !== "DESACTIVEE")
         .map((annonce) => {
-          console.log("Annonce:", annonce);
-          console.log(
-            "Utilisateur associé:",
-            `${annonce.user.nom} ${annonce.user.prenom}`
-          );
+          // console.log("Annonce:", annonce);
+          // console.log(
+          //   "Utilisateur associé:",
+          //   `${annonce.user.nom} ${annonce.user.prenom}`
+          // );
 
           // Récupérer toutes les notes associées à cette annonce
           const notes = annonce.commentaire
             .map((c) => c.note)
             .filter((note) => note !== null); // Exclure les notes nulles
 
-          console.log("Notes associées :", notes);
+          //console.log("Notes associées :", notes);
 
           if (notes.length > 0) {
             // Calculer la moyenne des notes
             const total = notes.reduce((acc, note) => acc + note, 0);
             const average = total / notes.length;
-            console.log("Moyenne des notes :", average.toFixed(2));
+           // console.log("Moyenne des notes :", average.toFixed(2));
 
             // Ajouter la moyenne à l'annonce sans la formater à l'avance
             annonce.averageNote = average;
           } else {
-            console.log("Aucune note trouvée pour cette annonce.");
+          //  console.log("Aucune note trouvée pour cette annonce.");
             annonce.averageNote = 0;
           }
 

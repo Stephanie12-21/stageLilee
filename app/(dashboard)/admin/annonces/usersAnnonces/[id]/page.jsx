@@ -21,15 +21,15 @@ const InfoAnnonces = ({ params }) => {
         const response = await fetch(`/api/annonce/${id}`);
         if (response.ok) {
           const data = await response.json();
-          console.log("les données reçues sont : ", data);
+          //console.log("les données reçues sont : ", data);
 
           // On vérifie si 'user' est disponible avant d'afficher le nom
           const userName = data.user
             ? `${data.user.prenom} ${data.user.nom}`
             : "Utilisateur non trouvé";
           const userId = data.user ? `${data.user.id}` : "ID user non trouvé";
-          console.log("l'user qui a publié est :", userName);
-          console.log("l'ID user qui a publié est :", userId);
+          // console.log("l'user qui a publié est :", userName);
+          // console.log("l'ID user qui a publié est :", userId);
 
           // Mise à jour des états avec les données reçues
           setAnnonceId(data.id);

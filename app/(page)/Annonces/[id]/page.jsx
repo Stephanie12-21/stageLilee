@@ -117,7 +117,7 @@ const InfoAnnonces = ({ params }) => {
   const handleEditComment = (commentItem) => {
     setEditCommentId(commentItem.id);
     setEditCommentText(commentItem.commentaire);
-    console.log("commentaire à mettre à jour :", editCommentText);
+    //  console.log("commentaire à mettre à jour :", editCommentText);
   };
 
   const handleUpdateComment = async () => {
@@ -135,8 +135,8 @@ const InfoAnnonces = ({ params }) => {
     formData.append("IdCommentaire", editCommentId);
     formData.append("Commentaire", editCommentText);
 
-    console.log("commentaire à mettre à jour :", editCommentText);
-    console.log("ID commentaire à mettre à jour :", editCommentId);
+    // console.log("commentaire à mettre à jour :", editCommentText);
+    // console.log("ID commentaire à mettre à jour :", editCommentId);
 
     try {
       const response = await fetch(`/api/comments/${editCommentId}/`, {
@@ -178,7 +178,7 @@ const InfoAnnonces = ({ params }) => {
   const handleDeleteClick = (commentItem) => {
     setSelectedCommentId(commentItem.id);
     setShowDeleteModal(true);
-    console.log(`ID du commentaire sélectionné : ${commentItem.id}`);
+    // console.log(`ID du commentaire sélectionné : ${commentItem.id}`);
   };
 
   const handleCloseModal = () => {
@@ -220,8 +220,8 @@ const InfoAnnonces = ({ params }) => {
     const note = commentItem.note || 0;
     setSelectedCommentId(commentItem.id);
     const commentId = `${commentItem.id}`;
-    console.log("commentaire sélectionné:", commentId);
-    console.log("note enregistrée à ce commentaire:", note);
+    // console.log("commentaire sélectionné:", commentId);
+    // console.log("note enregistrée à ce commentaire:", note);
   };
 
   const handleCloseRatingModal = () => {
@@ -231,7 +231,7 @@ const InfoAnnonces = ({ params }) => {
   const calculateAverageRating = (comments) => {
     const ratedComments = comments.filter((comment) => comment.note != null);
 
-    console.log("Nombre de notes:", ratedComments.length);
+    //console.log("Nombre de notes:", ratedComments.length);
 
     if (ratedComments.length === 0) return 0;
 
@@ -257,18 +257,18 @@ const InfoAnnonces = ({ params }) => {
 
   const handleChat = (id, annonceId) => {
     if (id) {
-      console.log("L'envoyeur du message sera :", id);
-      console.log("L'annonce sélectionnée est :", annonceId);
+      // console.log("L'envoyeur du message sera :", id);
+      // console.log("L'annonce sélectionnée est :", annonceId);
       setSenderId(id);
       setChatModal(true);
     } else {
       console.error("Utilisateur non connecté !");
-      console.log("L'annonce sélectionnée est :", annonceId);
+      // console.log("L'annonce sélectionnée est :", annonceId);
     }
   };
 
   const handleCloseChat = (userId) => {
-    console.log("user id du vendeur :", userId);
+    //console.log("user id du vendeur :", userId);
     setChatModal(false);
   };
 
@@ -346,15 +346,15 @@ const InfoAnnonces = ({ params }) => {
         const response = await fetch(`/api/annonce/${id}`);
         if (response.ok) {
           const data = await response.json();
-          console.log("les données reçues sont : ", data);
+          // console.log("les données reçues sont : ", data);
 
           // On vérifie si 'user' est disponible avant d'afficher le nom
           const userName = data.user
             ? `${data.user.prenom} ${data.user.nom}`
             : "Utilisateur non trouvé";
           const userId = data.user ? `${data.user.id}` : "ID user non trouvé";
-          console.log("l'user qui a publié est :", userName);
-          console.log("l'ID user qui a publié est :", userId);
+          // console.log("l'user qui a publié est :", userName);
+          // console.log("l'ID user qui a publié est :", userId);
 
           // Mise à jour des états avec les données reçues
           setAnnonceId(data.id);
@@ -435,7 +435,7 @@ const InfoAnnonces = ({ params }) => {
                   <div
                     className="text-[#353945] font-medium text-[18px] pt-4"
                     dangerouslySetInnerHTML={{
-                      __html: description.replace(/^"|"$/g, ""), // Retirer les guillemets
+                      __html: description.replace(/^"|"$/g, ""),
                     }}
                   />
                 </div>
@@ -519,7 +519,7 @@ const InfoAnnonces = ({ params }) => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-2">
-                <div className="mb-6  flex justify-between items-center space-x-3">
+                <div className="mb-6 flex justify-between items-center space-x-3">
                   <input
                     type="text"
                     placeholder="Exprimez-vous..."
@@ -573,11 +573,11 @@ const InfoAnnonces = ({ params }) => {
                           </p>
 
                           {/* Vérification pour afficher ou non le DropdownMenu */}
-                          {commentItem.user.id === session.user.id && (
+                          {commentItem.user.id === session?.user?.id && (
                             <DropdownMenu>
                               <DropdownMenuTrigger>
-                                <Button variant="link" className="text-xs">
-                                  <MoreHorizontal className="w-4 h-4" />
+                                <Button variant="default" className="text-xl">
+                                  <MoreHorizontal className="w-8 h-8" />
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuPortal>

@@ -137,7 +137,7 @@ const InfoAnnonces = ({ params }) => {
   const handleEditComment = (commentItem) => {
     setEditCommentId(commentItem.id);
     setEditCommentText(commentItem.commentaire);
-    console.log("commentaire à mettre à jour :", editCommentText);
+    // console.log("commentaire à mettre à jour :", editCommentText);
   };
 
   const handleUpdateComment = async () => {
@@ -155,8 +155,8 @@ const InfoAnnonces = ({ params }) => {
     formData.append("IdCommentaire", editCommentId);
     formData.append("Commentaire", editCommentText);
 
-    console.log("commentaire à mettre à jour :", editCommentText);
-    console.log("ID commentaire à mettre à jour :", editCommentId);
+    // console.log("commentaire à mettre à jour :", editCommentText);
+    // console.log("ID commentaire à mettre à jour :", editCommentId);
 
     try {
       const response = await fetch(`/api/comments/${editCommentId}/`, {
@@ -198,7 +198,7 @@ const InfoAnnonces = ({ params }) => {
   const handleDeleteClick = (commentItem) => {
     setSelectedCommentId(commentItem.id);
     setShowDeleteModal(true);
-    console.log(`ID du commentaire sélectionné : ${commentItem.id}`);
+    // console.log(`ID du commentaire sélectionné : ${commentItem.id}`);
   };
 
   const handleCloseModal = () => {
@@ -240,8 +240,8 @@ const InfoAnnonces = ({ params }) => {
     const note = commentItem.note || 0;
     setSelectedCommentId(commentItem.id);
     const commentId = `${commentItem.id}`;
-    console.log("commentaire sélectionné:", commentId);
-    console.log("note enregistrée à ce commentaire:", note);
+    // console.log("commentaire sélectionné:", commentId);
+    // console.log("note enregistrée à ce commentaire:", note);
   };
 
   const handleCloseRatingModal = () => {

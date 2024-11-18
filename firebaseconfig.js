@@ -21,3 +21,26 @@ const firestore = getFirestore(app);
 const storage = getStorage(app); // Initialisation du stockage
 
 export { db, firestore, storage };
+
+// import { initializeApp } from "firebase/app";
+// import { getDatabase } from "firebase/database";
+// import { getFirestore } from "firebase/firestore";
+// import { getStorage } from "firebase/storage";
+
+// const firebaseConfig = {
+//   apiKey: "AIzaSyBcM3lueR5tIYBtE4Ley2Kp0fXIqq15nWs",
+//   authDomain: "lilee-8d29d.firebaseapp.com",
+//   projectId: "lilee-8d29d",
+//   storageBucket: "lilee-8d29d.firebasestorage.app",
+//   messagingSenderId: "393342285004",
+//   appId: "1:393342285004:web:2de2cfc11e44bee8603e69",
+//   measurementId: "G-PQVNEH6C9M",
+// };
+
+// // Initialize Firebase
+// const app = initializeApp(firebaseConfig);
+// const db = getDatabase(app);
+// const firestore = getFirestore(app);
+// const storage = getStorage(app);
+
+// export { db, firestore, storage };

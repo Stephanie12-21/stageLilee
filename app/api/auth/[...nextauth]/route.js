@@ -115,7 +115,7 @@ export const authOptions = {
         };
       }
 
-      console.log("JWT data:", { token });
+      //console.log("JWT data:", { token });
       return token;
     },
 
@@ -133,7 +133,7 @@ export const authOptions = {
         role: token.role || null,
       };
 
-      console.log(" session data:", { session });
+      // console.log(" session data:", { session });
       return session;
     },
   },
