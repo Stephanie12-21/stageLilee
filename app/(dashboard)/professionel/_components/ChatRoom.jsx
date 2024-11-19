@@ -136,7 +136,7 @@ const ChatRoom = ({ user, selectedChatroom }) => {
   const messagesContainerRef = useRef(null);
 
   useEffect(() => {
-    console.log("From ChatRoom, selectedChatroom:", selectedChatroom);
+   // console.log("From ChatRoom, selectedChatroom:", selectedChatroom);
 
     if (selectedChatroom) {
       // Fetch messages for the current chatroom
@@ -180,6 +180,7 @@ const ChatRoom = ({ user, selectedChatroom }) => {
         messageType: "text",
         senderId: me.id,
         receiverId: other.id,
+        time: new Date().toISOString(),
         timestamp: serverTimestamp(),
       };
 
@@ -198,23 +199,22 @@ const ChatRoom = ({ user, selectedChatroom }) => {
   };
 
   return (
-    <div>
-      <h1>Chatroom Details</h1>
-      <p>Chatroom ID: {selectedChatroom.id}</p>
-      <p>Receiver Name: {selectedChatroom.otherData?.nom || "Inconnu"}</p>
-      <p>Last Message: {selectedChatroom.latestMessage || "Aucun message"}</p>
-      <div className="flex flex-col h-screen">
-        <div className="flex-1 overflow-y-auto p-10" ref={messagesContainerRef}>
-          {messages?.map((msg) => (
-            <MessageCard key={msg.id} message={msg} user={me.id} />
-          ))}
-        </div>
-        <MessageInput
-          sendMessage={sendMessage}
-          message={message}
-          setMessage={setMessage}
-        />
+    <div className="flex flex-col h-screen">
+      <div className="flex-1 overflow-y-auto p-10" ref={messagesContainerRef}>
+        {messages?.map((message) => (
+          <MessageCard
+            key={message.id}
+            message={message}
+            me={me}
+            other={other}
+          />
+        ))}
       </div>
+      <MessageInput
+        sendMessage={sendMessage}
+        message={message}
+        setMessage={setMessage}
+      />
     </div>
   );
 };

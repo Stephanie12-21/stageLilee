@@ -11,7 +11,7 @@ export async function POST(request) {
     const userId = parseInt(body.userId, 10); // Conversion en entier
 
     // Affiche les données reçues pour déboguer
-    console.log("Données reçues :", { testimony, rating, userId });
+   // console.log("Données reçues :", { testimony, rating, userId });
 
     // Validation des données
     if (!testimony || isNaN(rating) || isNaN(userId)) {

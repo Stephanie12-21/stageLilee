@@ -19,7 +19,7 @@ export async function GET() {
       },
     });
 
-    console.log("données reçues :", testimonies);
+    // console.log("données reçues :", testimonies);
     // Retourne les témoignages et les informations utilisateur (avec image) sous forme de réponse JSON
     return NextResponse.json(
       {
