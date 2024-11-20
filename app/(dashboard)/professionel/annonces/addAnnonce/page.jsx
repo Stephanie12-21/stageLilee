@@ -106,7 +106,7 @@ const AddAnnonce = () => {
       );
       return;
     }
-    const statut = "PUBLIEE";
+    const statut = "DESACTIVEE";
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", JSON.stringify(description));
@@ -134,7 +134,7 @@ const AddAnnonce = () => {
 
       const result = await response.json();
       toast.success("Annonce ajoutée avec succès !");
-      router.push(`/admin/annonces/`);
+      router.push(`/professionel/annonces/`);
       resetForm();
     } catch (error) {
       console.error("Erreur :", error);

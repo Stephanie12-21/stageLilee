@@ -27,17 +27,6 @@ const MessageProPage = () => {
     return <div>Chargement...</div>;
   }
 
-  // return (
-  //   <div className="flex h-screen">
-  //     <div className="flex-shrink-0 w-4/12 overflow-y-auto p-4">
-  //       <User userData={user} setSelectedChatroom={setSelectedChatroom} />;{" "}
-  //     </div>
-
-  //     <div className="flex-grow w-3/12">
-  //       <ChatRoom user={user} setSelectedChatroom={selectedChatroom} />
-  //     </div>
-  //   </div>
-  // );
   return (
     <div className="flex h-screen">
       <div className="flex-shrink-0 w-4/12 overflow-y-auto p-4">

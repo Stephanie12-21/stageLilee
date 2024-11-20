@@ -145,12 +145,14 @@ model annonces {
   updatedAt         DateTime     @updatedAt
   imageAnnonces     imageAnnonce[]
   categorieAnnonce  categorieAnnonce
+  sousCategorie     String
   userId            Int         
   user              user          @relation(fields: [userId], references: [id], onDelete: Cascade)
   commentaire       commentaire[] 
   favoris           favoris[]  
   messages          message[] // Relation avec les messages
 }
+
 enum statut {
   PUBLIEE       
   DESACTIVEE        
