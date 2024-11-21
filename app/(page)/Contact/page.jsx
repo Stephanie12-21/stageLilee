@@ -126,6 +126,7 @@ const Contact = () => {
                     />
                   </div>
                 </div>
+
                 <div className="space-y-2">
                   <Label
                     htmlFor="email"
@@ -142,6 +143,7 @@ const Contact = () => {
                     className="col-span-3 items-start w-full bg-[#edf2f7] text-[15px] text-[#27272E] font-medium"
                   />
                 </div>
+                
                 <div className="space-y-2">
                   <Label
                     htmlFor="num"

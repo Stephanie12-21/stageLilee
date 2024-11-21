@@ -21,12 +21,20 @@ import {
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Progress } from "@/components/ui/progress";
-import { Camera, MapPin, FileText, ImagePlus, X } from "lucide-react";
+import { MapPin, FileText, ImagePlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { Alert } from "@/components/ui/alert";
 import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 import Image from "next/image";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogFooter,
+  AlertDialogTitle,
+  AlertDialogDescription,
+} from "@/components/ui/alert-dialog";
 
 export default function Component() {
   const [step, setStep] = useState(1);
@@ -47,6 +55,7 @@ export default function Component() {
   const [description, setDescription] = useState({});
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
+  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [localisation, setLocalisation] = useState("");
   const [adresse, setAdresse] = useState("");
   const [iframeSrc, setIframeSrc] = useState("");
@@ -110,6 +119,10 @@ export default function Component() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (images.length > 10) {
+      setIsAlertOpen(true);
+      return;
+    }
 
     if (
       !title ||
@@ -170,6 +183,11 @@ export default function Component() {
     setStep((prev) => prev - 1);
   };
 
+  const handlePayRedirect = () => {
+    setIsAlertOpen(false);
+    router.push("/personnel/annonces/paiement");
+  };
+
   const hasPredefinedSousCategories =
     sousCategoriesMap[formData.categorie] !== undefined;
   const sousCategories = sousCategoriesMap[formData.categorie] || [];
@@ -177,7 +195,7 @@ export default function Component() {
   const steps = [
     { icon: FileText, title: "Informations" },
     { icon: MapPin, title: "Localisation" },
-    { icon: Camera, title: "Description" },
+    { icon: FileText, title: "Description" },
     { icon: ImagePlus, title: "Images" },
   ];
 
@@ -514,6 +532,25 @@ export default function Component() {
         autoClose={5000}
         hideProgressBar={false}
       />
+      <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limite d&apos;images dépassée</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vous avez atteint la limite de 10 images. Voulez-vous payer pour
+              ajouter plus d&apos;images ?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button onClick={() => setIsAlertOpen(false)} variant="outline">
+              Annuler
+            </Button>
+            <Button onClick={handlePayRedirect} className="ml-2">
+              Payer
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
