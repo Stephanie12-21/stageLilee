@@ -3,7 +3,6 @@ import { compare } from "bcrypt";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { db } from "@/lib/db";
-import { statutUser } from "@prisma/client";
 
 export const authOptions = {
   adapter: PrismaAdapter(db),
@@ -88,6 +87,30 @@ export const authOptions = {
       },
     }),
   ],
+
+  events: {
+    createUser: async (message) => {
+      // Ajout de `async` pour permettre l'utilisation d'`await`
+      const userId = message.user.id;
+      const userEmail = message.user.email;
+
+      if (!userId || !userEmail) {
+        return; // Arrête la fonction si `userId` n'est pas défini
+      }
+
+      try {
+        // Crée un client Stripe
+        const stripeCustomer = await stripe.customers.create({
+          email: userEmail, // Utilisation de `userEmail`
+        });
+
+        // Log ou effectuez une action avec le client Stripe créé
+        console.log("Stripe Customer Created:", stripeCustomer);
+      } catch (error) {
+        console.error("Error creating Stripe customer:", error);
+      }
+    },
+  },
 
   callbacks: {
     async jwt({ token, user }) {

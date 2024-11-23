@@ -42,7 +42,7 @@
 //   );
 // }
 
-import { Heart, Mail, Megaphone, TrendingUp } from "lucide-react";
+import { Box, Heart, Mail, Megaphone, TrendingUp } from "lucide-react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -65,6 +65,11 @@ const Navigation = () => {
       icon: TrendingUp,
       name: "Transactions",
       href: "/personnel/transactions",
+    },
+    {
+      icon: Box,
+      name: "Abonnement",
+      href: "/personnel/souscription",
     },
   ];
 

@@ -59,6 +59,7 @@ export default function Component() {
   const [localisation, setLocalisation] = useState("");
   const [adresse, setAdresse] = useState("");
   const [iframeSrc, setIframeSrc] = useState("");
+  const [isProcessing, setIsProcessing] = useState(false);
 
   const sousCategoriesMap = {
     IMMOBILIER: [
@@ -183,9 +184,32 @@ export default function Component() {
     setStep((prev) => prev - 1);
   };
 
-  const handlePayRedirect = () => {
-    setIsAlertOpen(false);
-    router.push("/personnel/annonces/paiement");
+  const handlePayRedirect = async () => {
+    try {
+      setIsProcessing(true);
+
+      // Appel à votre API Next.js pour créer la session de paiement
+      const response = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ images }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la création de la session de paiement");
+      }
+
+      const session = await response.json();
+
+      // Rediriger l'utilisateur vers Stripe Checkout
+      window.location.href = session.url;
+    } catch (error) {
+      console.error("Erreur lors de la redirection vers Stripe:", error);
+      setIsProcessing(false);
+      alert("Une erreur est survenue lors du processus de paiement.");
+    }
   };
 
   const hasPredefinedSousCategories =
@@ -532,13 +556,78 @@ export default function Component() {
         autoClose={5000}
         hideProgressBar={false}
       />
+      {/* <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Limite d&apos;images dépassée</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vous avez sélectionné {images.length} image(s). La limite est de
+              10 images. Voulez-vous payer pour ajouter plus d&apos;images ?
+              <div className="space-y-2">
+                <p>Nombre total de photos : {images.length}</p>
+                <p>Photos gratuites : 10</p>
+                <p>
+                  Photos payantes :{" "}
+                  {images.length > 10 ? images.length - 10 : 0}
+                </p>
+                <p className="font-bold">
+                  Coût supplémentaire : {Math.max(0, images.length - 10)} €
+                </p>
+
+                <p>Montant hors taxe : {montantHorsTaxe.toFixed(2)} €</p>
+                <p>TVA (20%) : {montantTVA.toFixed(2)} €</p>
+                <p className="font-bold">
+                  Montant total TTC : {montantTTC.toFixed(2)} €
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <Button onClick={() => setIsAlertOpen(false)} variant="outline">
+              Annuler
+            </Button>
+            <Button onClick={handlePayRedirect} className="ml-2">
+              Payer
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog> */}
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>Limite d&apos;images dépassée</AlertDialogTitle>
             <AlertDialogDescription>
-              Vous avez atteint la limite de 10 images. Voulez-vous payer pour
-              ajouter plus d&apos;images ?
+              Vous avez sélectionné {images.length} image(s). La limite est de
+              10 images. Voulez-vous payer pour ajouter plus d&apos;images ?
+              <div className="space-y-2">
+                <p>Nombre total de photos : {images.length}</p>
+                <p>Photos gratuites : 10</p>
+                <p>
+                  Photos payantes :{" "}
+                  {images.length > 10 ? images.length - 10 : 0}
+                </p>
+                <p className="font-bold">
+                  Coût supplémentaire : {Math.max(0, images.length - 10)} €
+                </p>
+                {/* Calcul des montants */}
+                <p>
+                  Montant hors taxe :{" "}
+                  {Math.max(0, images.length - 10) * (1.0).toFixed(2)} €
+                </p>{" "}
+                {/* 1.00 est le coût par photo supplémentaire */}
+                <p>
+                  TVA (20%) :{" "}
+                  {(Math.max(0, images.length - 10) * 1.0 * 0.2).toFixed(2)} €
+                </p>
+                <p className="font-bold">
+                  Montant total TTC :{" "}
+                  {(
+                    Math.max(0, images.length - 10) * 1.0 +
+                    Math.max(0, images.length - 10) * 1.0 * 0.2
+                  ).toFixed(2)}{" "}
+                  €
+                </p>
+              </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
