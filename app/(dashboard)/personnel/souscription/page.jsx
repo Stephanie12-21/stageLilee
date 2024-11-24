@@ -13,7 +13,7 @@ const SubscriptionPage = () => {
 
   const fetchPrices = async () => {
     try {
-      setLoading(true); // Début du chargement
+      setLoading(true);
       const response = await fetch("/api/getProduct");
       if (!response.ok) {
         throw new Error("Erreur lors de la récupération des prix");
@@ -23,7 +23,7 @@ const SubscriptionPage = () => {
     } catch (err) {
       setError(err.message);
     } finally {
-      setLoading(false); // Fin du chargement
+      setLoading(false);
     }
   };
 

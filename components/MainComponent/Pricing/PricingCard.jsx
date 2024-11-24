@@ -9,6 +9,10 @@ const PricingCard = ({ price }) => {
         return "Annonce à la Une pendant 30 jours";
       case "Boost étendu Lilee":
         return "Annonce à la Une pendant 8 semaines";
+      case "Pack Photo supplémentaire":
+        return "Ajouter des photos supplémentaires pour illustrer vos annonces";
+      case "Annonce pro LOGEMENT":
+        return "Créer une annonce pro dans la catégorie logement";
       default:
         return "";
     }
@@ -53,10 +57,6 @@ const PricingCard = ({ price }) => {
           <p className="text-orange-500 mt-1">
             {dynamicSubTitle(price.nickname)}
           </p>
-          <h3 className="text-gray-700 text-sm mt-2">
-            Votre annonce sera l&apos;une des premières que les utilisateurs
-            verront
-          </h3>
         </div>
         <div className="flex flex-col items-center justify-center pt-4">
           <h1 className="text-5xl font-bold">

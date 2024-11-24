@@ -15,7 +15,7 @@ export async function POST(request) {
       line_items: [
         {
           price: priceId,
-          quantity: 1,
+          quantity: 2,
         },
       ],
       mode: "payment",

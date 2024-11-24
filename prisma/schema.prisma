@@ -28,26 +28,6 @@ model image {
 }
 
 // Pour les comptes
-// model user {
-//   id                 Int         @id @default(autoincrement())
-//   nom                String
-//   prenom             String
-//   email              String      @unique
-//   phone              String      @unique
-//   hashPassword       String
-//   statutUser         statutUser 
-//   role               role        
-//   profileImages      profileImage[]
-//   createdAt          DateTime    @default(now())
-//   updatedAt          DateTime    @updatedAt
-//   companyId          Int?       
-//   company            company?    @relation(fields: [companyId], references: [id], onDelete: Cascade)
-//   annonces           annonces[]  
-//   commentaire        commentaire[]
-//   favoris           favoris[]  
-//   temoignages       temoignages[]
-//   messages           message[]  @relation("UserMessages", references: [id], fields: [id])
-// }
 model user {
   id                 Int            @id @default(autoincrement())
   nom                String
@@ -230,6 +210,22 @@ model newsletter {
   email             String  @unique
   unsubscribeToken  String? // Optionnel
 }
-
-
 //pour la newsletter
+
+//pour les souscriptions
+model souscriptionsPerso {
+  id             Int                @id @default(autoincrement())
+  nom            String
+  prix           Decimal            @default(0.0) 
+  createdAt      DateTime           @default(now()) 
+  updatedAt      DateTime           @updatedAt     
+  status         statusSouscription 
+}
+
+enum statusSouscription {
+  ACTIVE
+  EN_ATTENTE
+  DESACTIVEE
+}
+
+//pour les souscriptions

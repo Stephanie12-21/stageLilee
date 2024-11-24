@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export default function Component() {
-  const [step, setStep] = useState(1);
+  const [step, setStep] = useState(4);
   const [formData, setFormData] = useState({
     titre: "",
     categorie: "",
@@ -184,31 +184,73 @@ export default function Component() {
     setStep((prev) => prev - 1);
   };
 
-  const handlePayRedirect = async () => {
-    try {
-      setIsProcessing(true);
+  // const handlePayRedirect = async () => {
+  //   try {
+  //     // Appel à l'API pour créer une session de paiement
+  //     const response = await fetch("/api/paiement/suscription", {
+  //       method: "POST",
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: JSON.stringify({
+  //         userId: session.user.id,
+  //         email: session.user.email,
+  //         additionalPhotos: images.length > 10 ? images.length - 10 : 0,
+  //       }),
+  //     });
 
-      // Appel à votre API Next.js pour créer la session de paiement
-      const response = await fetch("/api/create-checkout-session", {
+  //     if (!response.ok) {
+  //       throw new Error(
+  //         "Erreur lors de la création de la session de paiement."
+  //       );
+  //     }
+
+  //     const { url } = await response.json();
+
+  //     if (url) {
+  //       // Redirection vers la page de checkout
+  //       window.location.href = url;
+  //     } else {
+  //       throw new Error("URL de session Stripe manquante.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Erreur :", error.message);
+  //     alert(
+  //       "Une erreur est survenue lors de la redirection. Veuillez réessayer."
+  //     );
+  //   }
+  // };
+
+  const handleSubscription = async (e) => {
+    e.preventDefault();
+
+    try {
+      // Appel à l'API pour créer une session de paiement Stripe
+      const response = await fetch("/api/paiement/packphoto", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ images }),
+        body: JSON.stringify({
+          additionalPhotos: images.length > 10 ? images.length - 10 : 0, // Calcul des photos payantes
+        }),
       });
 
       if (!response.ok) {
-        throw new Error("Erreur lors de la création de la session de paiement");
+        throw new Error("Erreur lors de la souscription.");
       }
 
-      const session = await response.json();
+      const data = await response.json();
 
-      // Rediriger l'utilisateur vers Stripe Checkout
-      window.location.href = session.url;
+      if (data?.url) {
+        // Redirection vers Stripe Checkout
+        window.location.assign(data.url);
+      } else {
+        throw new Error("URL de redirection manquante.");
+      }
     } catch (error) {
-      console.error("Erreur lors de la redirection vers Stripe:", error);
-      setIsProcessing(false);
-      alert("Une erreur est survenue lors du processus de paiement.");
+      console.error("Erreur :", error.message);
+      alert("Une erreur est survenue. Veuillez réessayer.");
     }
   };
 
@@ -556,42 +598,7 @@ export default function Component() {
         autoClose={5000}
         hideProgressBar={false}
       />
-      {/* <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Limite d&apos;images dépassée</AlertDialogTitle>
-            <AlertDialogDescription>
-              Vous avez sélectionné {images.length} image(s). La limite est de
-              10 images. Voulez-vous payer pour ajouter plus d&apos;images ?
-              <div className="space-y-2">
-                <p>Nombre total de photos : {images.length}</p>
-                <p>Photos gratuites : 10</p>
-                <p>
-                  Photos payantes :{" "}
-                  {images.length > 10 ? images.length - 10 : 0}
-                </p>
-                <p className="font-bold">
-                  Coût supplémentaire : {Math.max(0, images.length - 10)} €
-                </p>
 
-                <p>Montant hors taxe : {montantHorsTaxe.toFixed(2)} €</p>
-                <p>TVA (20%) : {montantTVA.toFixed(2)} €</p>
-                <p className="font-bold">
-                  Montant total TTC : {montantTTC.toFixed(2)} €
-                </p>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <Button onClick={() => setIsAlertOpen(false)} variant="outline">
-              Annuler
-            </Button>
-            <Button onClick={handlePayRedirect} className="ml-2">
-              Payer
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog> */}
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
@@ -600,43 +607,31 @@ export default function Component() {
               Vous avez sélectionné {images.length} image(s). La limite est de
               10 images. Voulez-vous payer pour ajouter plus d&apos;images ?
               <div className="space-y-2">
-                <p>Nombre total de photos : {images.length}</p>
+                <p>
+                  <strong>
+                    Nombre total de photos :{" "}
+                    <span className="text-orange-500">{images.length}</span>
+                  </strong>
+                </p>
                 <p>Photos gratuites : 10</p>
                 <p>
                   Photos payantes :{" "}
-                  {images.length > 10 ? images.length - 10 : 0}
-                </p>
-                <p className="font-bold">
-                  Coût supplémentaire : {Math.max(0, images.length - 10)} €
-                </p>
-                {/* Calcul des montants */}
-                <p>
-                  Montant hors taxe :{" "}
-                  {Math.max(0, images.length - 10) * (1.0).toFixed(2)} €
-                </p>{" "}
-                {/* 1.00 est le coût par photo supplémentaire */}
-                <p>
-                  TVA (20%) :{" "}
-                  {(Math.max(0, images.length - 10) * 1.0 * 0.2).toFixed(2)} €
-                </p>
-                <p className="font-bold">
-                  Montant total TTC :{" "}
-                  {(
-                    Math.max(0, images.length - 10) * 1.0 +
-                    Math.max(0, images.length - 10) * 1.0 * 0.2
-                  ).toFixed(2)}{" "}
-                  €
+                  <span className="text-orange-500">
+                    {images.length > 10 ? images.length - 10 : 0}
+                  </span>
                 </p>
               </div>
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <Button onClick={() => setIsAlertOpen(false)} variant="outline">
-              Annuler
-            </Button>
-            <Button onClick={handlePayRedirect} className="ml-2">
-              Payer
-            </Button>
+            <div className="flex flex-col space-y-2 w-full pt-8">
+              <Button onClick={() => setIsAlertOpen(false)} variant="outline">
+                Annuler
+              </Button>
+              <Button onClick={handleSubscription} className="ml-2">
+                Souscire au pack photos supplémentaires
+              </Button>
+            </div>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
