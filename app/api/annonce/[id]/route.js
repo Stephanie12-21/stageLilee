@@ -14,11 +14,22 @@ export async function GET(request, { params }) {
   }
 
   try {
+    // const annonce = await db.annonces.findUnique({
+    //   where: { id: numericId },
+    //   include: {
+    //     imageAnnonces: true,
+    //     user: true,
+    //   },
+    // });
     const annonce = await db.annonces.findUnique({
       where: { id: numericId },
       include: {
         imageAnnonces: true,
-        user: true,
+        user: {
+          include: {
+            profileImages: true,
+          },
+        },
       },
     });
 

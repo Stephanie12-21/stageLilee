@@ -29,21 +29,27 @@ import {
   DropdownMenuPortal,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { DeleteIcon, EditIcon, MoreHorizontal, StarIcon } from "lucide-react";
+import {
+  DeleteIcon,
+  EditIcon,
+  MoreHorizontal,
+  StarIcon,
+  X,
+} from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import StarRatingDialog from "@/app/(dialog)/note/page";
 import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
-import ChatDialog from "@/app/(dialog)/chat/page";
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper-bundle.css";
 
 const InfoAnnonces = ({ params }) => {
-  const [isLiked, setIsLiked] = useState(false);
   const { id } = params;
-  const [senderId, setSenderId] = useState(null);
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const [annonceId, setAnnonceId] = useState("");
   const [userName, setUserName] = useState("");
+  const [userPhoto, setUserPhoto] = useState("");
+  const [userDate, setUserDate] = useState("");
   const [userId, setUserId] = useState("");
-  const [chatModal, setChatModal] = useState(false);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
@@ -52,7 +58,6 @@ const InfoAnnonces = ({ params }) => {
   const [adresse, setAdresse] = useState("");
   const [iframeSrc, setIframeSrc] = useState("");
   const [comment, setComment] = useState("");
-  const [commentId, setCommentId] = useState("");
   const [comments, setComments] = useState([]);
   const [editCommentId, setEditCommentId] = useState(null);
   const [editCommentText, setEditCommentText] = useState("");
@@ -60,18 +65,12 @@ const InfoAnnonces = ({ params }) => {
   const [selectedCommentId, setSelectedCommentId] = useState(null);
   const [showModalRating, setShowModalRating] = useState(false);
   const [note, setNote] = useState("");
-
-  const toggleHeart = () => {
-    setIsLiked(!isLiked);
-  };
   const router = useRouter();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLightboxOpen, setLightboxOpen] = useState(false);
 
-  useEffect(() => {
-    // Vérifie si session est définie, puis met à jour senderId
-    if (session?.user?.id) {
-      setSenderId(session.user.id);
-    }
-  }, [session]);
+  const remainingImages = images.slice(4);
+  const remainingCount = remainingImages.length;
 
   const handlePublish = async (e) => {
     e.preventDefault();
@@ -117,7 +116,6 @@ const InfoAnnonces = ({ params }) => {
   const handleEditComment = (commentItem) => {
     setEditCommentId(commentItem.id);
     setEditCommentText(commentItem.commentaire);
-    //  console.log("commentaire à mettre à jour :", editCommentText);
   };
 
   const handleUpdateComment = async () => {
@@ -134,9 +132,6 @@ const InfoAnnonces = ({ params }) => {
     const formData = new FormData();
     formData.append("IdCommentaire", editCommentId);
     formData.append("Commentaire", editCommentText);
-
-    // console.log("commentaire à mettre à jour :", editCommentText);
-    // console.log("ID commentaire à mettre à jour :", editCommentId);
 
     try {
       const response = await fetch(`/api/comments/${editCommentId}/`, {
@@ -178,7 +173,6 @@ const InfoAnnonces = ({ params }) => {
   const handleDeleteClick = (commentItem) => {
     setSelectedCommentId(commentItem.id);
     setShowDeleteModal(true);
-    // console.log(`ID du commentaire sélectionné : ${commentItem.id}`);
   };
 
   const handleCloseModal = () => {
@@ -210,7 +204,7 @@ const InfoAnnonces = ({ params }) => {
     } catch (error) {
       alert("Erreur:", error);
     } finally {
-      handleCloseModal(); // Close the modal after the operation
+      handleCloseModal();
     }
   };
 
@@ -220,8 +214,6 @@ const InfoAnnonces = ({ params }) => {
     const note = commentItem.note || 0;
     setSelectedCommentId(commentItem.id);
     const commentId = `${commentItem.id}`;
-    // console.log("commentaire sélectionné:", commentId);
-    // console.log("note enregistrée à ce commentaire:", note);
   };
 
   const handleCloseRatingModal = () => {
@@ -231,45 +223,14 @@ const InfoAnnonces = ({ params }) => {
   const calculateAverageRating = (comments) => {
     const ratedComments = comments.filter((comment) => comment.note != null);
 
-    //console.log("Nombre de notes:", ratedComments.length);
-
     if (ratedComments.length === 0) return 0;
 
-    // Calculer la somme des notes
     const totalRating = ratedComments.reduce(
       (sum, comment) => sum + comment.note,
       0
     );
 
-    // Calculer la moyenne
     return totalRating / ratedComments.length;
-  };
-
-  // const handleChat = (id) => {
-  //   if (id) {
-  //     console.log("L'envoyeur du message sera :", id);
-  //     setSenderId(id);
-  //     setChatModal(true); // Ouvre le modal car l'utilisateur est connecté
-  //   } else {
-  //     console.error("Utilisateur non connecté !");
-  //   }
-  // };
-
-  const handleChat = (id, annonceId) => {
-    if (id) {
-      // console.log("L'envoyeur du message sera :", id);
-      // console.log("L'annonce sélectionnée est :", annonceId);
-      setSenderId(id);
-      setChatModal(true);
-    } else {
-      console.error("Utilisateur non connecté !");
-      // console.log("L'annonce sélectionnée est :", annonceId);
-    }
-  };
-
-  const handleCloseChat = (userId) => {
-    //console.log("user id du vendeur :", userId);
-    setChatModal(false);
   };
 
   const averageRating = calculateAverageRating(comments);
@@ -284,7 +245,7 @@ const InfoAnnonces = ({ params }) => {
         stars.push(
           <StarIcon
             key={i}
-            className="h-5 w-5 fill-yellow-400 text-yellow-400" // Étoile pleine en jaune
+            className="h-5 w-5 fill-yellow-400 text-yellow-400"
           />
         );
       } else if (i === fullStars + 1 && hasHalfStar) {
@@ -292,21 +253,16 @@ const InfoAnnonces = ({ params }) => {
           <div key={i} className="relative h-5 w-5">
             <StarIcon
               className="absolute h-full w-full fill-yellow-400 text-yellow-400"
-              style={{ clipPath: "inset(0 0.5em 0 0)" }} // Partie jaune
+              style={{ clipPath: "inset(0 0.5em 0 0)" }}
             />
             <StarIcon
-              className="absolute h-full w-full fill-gray-400  text-gray-400" // Partie grise
-              style={{ clipPath: "inset(0 0 0 0.5em)" }} // Partie grise
+              className="absolute h-full w-full fill-gray-400  text-gray-400"
+              style={{ clipPath: "inset(0 0 0 0.5em)" }}
             />
           </div>
         );
       } else {
-        stars.push(
-          <StarIcon
-            key={i}
-            className="h-5 w-5 text-gray-400" // Étoile vide en gris
-          />
-        );
+        stars.push(<StarIcon key={i} className="h-5 w-5 text-gray-400" />);
       }
     }
     return stars;
@@ -346,17 +302,26 @@ const InfoAnnonces = ({ params }) => {
         const response = await fetch(`/api/annonce/${id}`);
         if (response.ok) {
           const data = await response.json();
-          // console.log("les données reçues sont : ", data);
 
-          // On vérifie si 'user' est disponible avant d'afficher le nom
           const userName = data.user
             ? `${data.user.prenom} ${data.user.nom}`
             : "Utilisateur non trouvé";
+          const userPhoto =
+            data.user?.profileImages && data.user.profileImages.length > 0
+              ? data.user.profileImages[0]?.path
+              : "/default-avatar.png";
           const userId = data.user ? `${data.user.id}` : "ID user non trouvé";
-          // console.log("l'user qui a publié est :", userName);
-          // console.log("l'ID user qui a publié est :", userId);
+          const userCreatedAt = data.user?.createdAt;
+          const userDate = userCreatedAt ? new Date(userCreatedAt) : null;
 
-          // Mise à jour des états avec les données reçues
+          const formattedDate = userDate
+            ? userDate.toLocaleDateString("fr-FR", {
+                day: "2-digit",
+                month: "long",
+                year: "numeric",
+              })
+            : "Date inconnue";
+
           setAnnonceId(data.id);
           setTitle(data.titre);
           setCategory(data.categorieAnnonce);
@@ -365,8 +330,10 @@ const InfoAnnonces = ({ params }) => {
           setLocalisation(data.localisation);
           setImages(data.imageAnnonces);
           setUserName(userName);
+          setUserDate(formattedDate);
+          setUserPhoto(userPhoto);
           setUserId(userId);
-          if (data.localisation) setIframeSrc(data.localisation); // Mise à jour de l'iframe
+          if (data.localisation) setIframeSrc(data.localisation);
         } else {
           console.error("Annonce non trouvée, avec l'id annonce :", id);
         }
@@ -380,14 +347,34 @@ const InfoAnnonces = ({ params }) => {
 
   const getRolePath = () => {
     const role = session?.user?.role;
-    if (role === "PERSO") return "/personnel";
-    if (role === "PRO") return "/professionel";
-    if (role === "ADMIN") return "/admin";
+    const userId = session?.user?.id;
+    if (role === "PERSO") return `/personnel/messages/${userId}`;
+    if (role === "PRO") return `/professionel/messages/${userId}`;
+    if (role === "ADMIN") return `/admin/messages/${userId}`;
     return "";
   };
 
+  const handleChat = () => {
+    if (session && session.user) {
+      const rolePath = getRolePath();
+
+      if (rolePath) {
+        router.push(rolePath);
+      } else {
+        console.error("Rôle non défini pour cet utilisateur");
+      }
+    } else {
+      router.push("/login");
+    }
+  };
+
+  const openLightbox = (index) => {
+    setCurrentIndex(index);
+    setLightboxOpen(true);
+  };
+
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto py-10 px-20">
       <Link href="/Annonces">
         <Button className="py-5 text-[18px] rounded-[10px] space-x-3">
           <FaArrowLeft className="ml-2 mr-4" />
@@ -396,66 +383,170 @@ const InfoAnnonces = ({ params }) => {
       </Link>
 
       <div className="pt-10 pb-10 flex items-center space-x-20">
-        <div className="flex flex-col space-y-3 w-[50%]">
-          {images.length > 0 ? (
-            images.map((imageAnnonces, index) => (
+        <div className="relative">
+          {images[0]?.path && (
+            <div>
               <Image
-                key={index}
-                src={imageAnnonces.path}
-                alt={`Image ${index + 1}`}
-                width={500}
-                height={500}
-                priority="true"
-                style={{ width: "500px", margin: "10px" }}
+                src={images[0].path}
+                alt="Image principale"
+                width={800}
+                height={600}
+                style={{
+                  maxWidth: "100%",
+                  maxHeight: "400px",
+                  objectFit: "cover",
+                  cursor: "pointer",
+                  borderRadius: "10px",
+                }}
+                onClick={() => openLightbox(0)}
               />
-            ))
-          ) : (
-            <p>Aucune image disponible</p>
+            </div>
+          )}
+
+          <div className="mt-4 flex space-x-10 justify-center">
+            {images.slice(1, 4).map((image, index) => (
+              <div
+                key={index}
+                className="cursor-pointer"
+                onClick={() => openLightbox(index + 1)}
+              >
+                <Image
+                  src={image.path}
+                  alt={`Image ${index + 1}`}
+                  width={200}
+                  height={150}
+                  style={{
+                    width: "200px",
+                    height: "150px",
+                    objectFit: "cover",
+                    borderRadius: "8px",
+                  }}
+                />
+              </div>
+            ))}
+            {images.length > 4 && (
+              <div className="text-center text-sm text-gray-500 mt-4">
+                <div
+                  className="bg-gray-200 inline-block py-2 px-4 rounded-full cursor-pointer"
+                  onClick={() => openLightbox(4)}
+                >
+                  <p>
+                    + {images.length - 4} image
+                    {images.length - 4 > 1 ? "s" : ""} restante
+                    {images.length - 4 > 1 ? "s" : ""}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {isLightboxOpen && (
+            <div
+              className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50"
+              style={{
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <Swiper
+                spaceBetween={20}
+                slidesPerView={1}
+                className="w-full max-w-3xl"
+                initialSlide={currentIndex}
+                onSlideChange={(swiper) => setCurrentIndex(swiper.activeIndex)}
+              >
+                {images.map((image, index) => (
+                  <SwiperSlide key={index}>
+                    <Image
+                      src={image.path}
+                      alt={`Image ${index + 1}`}
+                      width={1200}
+                      height={900}
+                      style={{
+                        maxWidth: "90%",
+                        maxHeight: "90vh",
+                        objectFit: "contain",
+                        borderRadius: "10px",
+                        margin: "auto",
+                      }}
+                    />
+                  </SwiperSlide>
+                ))}
+              </Swiper>
+
+              <button
+                className="absolute top-4 right-4 hover:bg-[#9B9B9B] text-white p-2 rounded-full"
+                onClick={() => setLightboxOpen(false)}
+              >
+                <X />
+              </button>
+            </div>
           )}
         </div>
 
         <div className="w-[50%]">
-          <Card className="w-[700px] space-y-2 flex flex-col shadow sm:shadow-md md:shadow-lg lg:shadow-xl xl:shadow-2xl gap-4">
-            <CardHeader>
-              <div className="flex items-center space-x-80">
-                <CardTitle>Titre : {title}</CardTitle>
-                <div
-                  className="p-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer"
-                  onClick={toggleHeart}
-                >
-                  {isLiked ? (
-                    <AiFillHeart size={24} color="#FC1111" />
-                  ) : (
-                    <AiOutlineHeart size={24} color="#FC1111" />
-                  )}
+          <Card className="w-[500px] space-y-6 flex flex-col shadow-lg rounded-lg bg-white p-4 hover:shadow-2xl transition-shadow duration-300">
+            <CardHeader className="flex flex-col space-y-4">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-xl font-bold text-[#152447] hover:underline">
+                  {title}
+                </CardTitle>
+                <div className="flex space-x-1">
+                  {renderStars(averageRating)}
                 </div>
               </div>
-              <CardDescription className="flex flex-col space-y-6">
-                <div>
-                  <div
-                    className="text-[#353945] font-medium text-[18px] pt-4"
-                    dangerouslySetInnerHTML={{
-                      __html: description.replace(/^"|"$/g, ""),
-                    }}
-                  />
-                </div>
-                <div>
-                  <strong>Publié par : </strong>
-                  {userName}
+              <CardDescription className="text-[#141414] font-medium text-base space-y-4">
+                <div
+                  className="text-base font-medium leading-relaxed"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      description.length > 100
+                        ? description.substring(0, 100).replace(/^"|"$/g, "") +
+                          "..."
+                        : description.replace(/^"|"$/g, ""),
+                  }}
+                />
+
+                <div className="flex items-start space-x-4 pt-4">
+                  <div className="pt-2">
+                    <Image
+                      src={userPhoto}
+                      alt="Photo de profil de l'utilisateur"
+                      width={65}
+                      height={65}
+                      className="w-16 h-16 rounded-full object-cover  border-2 border-gray-300"
+                    />
+                  </div>
+
+                  <div className="flex flex-col p-0 space-y-1">
+                    <p className="text-[18px] font-bold text-[#666]">
+                      {userName}
+                    </p>
+                    <p className="text-[16px] text-gray-500">
+                      Membre depuis : {userDate}
+                    </p>
+                  </div>
                 </div>
               </CardDescription>
             </CardHeader>
 
-            <CardFooter className="flex justify-center">
+            <CardFooter className="flex justify-center mt-4 w-full">
               {session && session.user ? (
-                <Button onClick={() => handleChat(session.user.id, annonceId)}>
-                  Discuter avec le vendeur
+                <Button
+                  variant="default"
+                  className=" text-white py-2 w-full px-4 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  onClick={handleChat}
+                >
+                  Discuter avec l&apos;annonceur
                 </Button>
               ) : (
-                <Button onClick={() => handleChat(null, annonceId)}>
+                <Button
+                  className="bg-gray-300 text-[#353945] hover:bg-gray-400 py-2 px-4 rounded-lg shadow-md transition-all"
+                  onClick={() => router.push("/login")}
+                >
                   Connectez-vous pour discuter
                 </Button>
               )}
+              <Button></Button>
             </CardFooter>
           </Card>
         </div>
@@ -488,7 +579,6 @@ const InfoAnnonces = ({ params }) => {
           <TabsContent value="description">
             <Card className="border-none bg-inherit">
               <CardHeader>
-                {/* description détaillée */}
                 <CardTitle>Description détaillée</CardTitle>
               </CardHeader>
               <CardContent className="space-y-7">
@@ -497,7 +587,7 @@ const InfoAnnonces = ({ params }) => {
                   <div
                     className="container px-5 py-4"
                     dangerouslySetInnerHTML={{
-                      __html: description.replace(/^"|"$/g, ""), // Retirer les guillemets
+                      __html: description.replace(/^"|"$/g, ""),
                     }}
                   />
                 </div>
@@ -540,167 +630,164 @@ const InfoAnnonces = ({ params }) => {
                   <p className="font-semibold">
                     {comments.length} commentaires
                   </p>
-                  <div>
-                    <h3 className="text-xl">
-                      <strong>Moyenne des notes:</strong>{" "}
-                      {averageRating.toFixed(1)}/5
-                    </h3>
-                    <div className="flex space-x-1">
-                      {renderStars(averageRating)}
-                    </div>
-                  </div>
                 </div>
 
-                {comments.map((commentItem, index) => (
-                  <div key={index} className="flex justify-between pt-8 pr-7">
-                    <div className="flex space-x-5 border border-grey w-full p-2 rounded-lg">
-                      <div>
-                        <Avatar>
-                          <AvatarImage
-                            src={
-                              commentItem.user.profileImage ||
-                              "https://github.com/shadcn.png"
-                            }
-                            alt={commentItem.user.nom}
-                          />
-                          <AvatarFallback>Photo</AvatarFallback>
-                        </Avatar>
-                      </div>
-                      <div className="space-y-3 flex-grow">
-                        <div className="flex justify-between items-center">
-                          <p className="text-[#182135] font-bold text-[18px] hover:underline hover:cursor-default">
-                            {commentItem.user.nom} {commentItem.user.prenom}
-                          </p>
+                {comments.map((commentItem, index) => {
+                  const isSameUser =
+                    String(commentItem.user.id) === String(session?.user?.id);
 
-                          {/* Vérification pour afficher ou non le DropdownMenu */}
-                          {commentItem.user.id === session?.user?.id && (
-                            <DropdownMenu>
-                              <DropdownMenuTrigger>
-                                <Button variant="default" className="text-xl">
-                                  <MoreHorizontal className="w-8 h-8" />
-                                </Button>
-                              </DropdownMenuTrigger>
-                              <DropdownMenuPortal>
-                                <DropdownMenuContent>
-                                  <DropdownMenuGroup>
-                                    <DropdownMenuItem>
-                                      <Button
-                                        variant="link"
-                                        className="flex items-center"
-                                        onClick={() =>
-                                          handleEditComment(commentItem)
-                                        }
-                                      >
-                                        <EditIcon className="mr-2 h-4 w-4" />
-                                        Modifier
-                                      </Button>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <Button
-                                        variant="link"
-                                        className="flex items-center"
-                                        onClick={() =>
-                                          handleDeleteClick(commentItem)
-                                        }
-                                      >
-                                        <DeleteIcon className="mr-2 h-4 w-4" />
-                                        Supprimer
-                                      </Button>
-                                    </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                      <Button
-                                        variant="link"
-                                        className="flex items-center"
-                                        onClick={() =>
-                                          handleRating(commentItem)
-                                        }
-                                      >
-                                        <StarIcon className="mr-2 h-4 w-4" />
-                                        Notes
-                                      </Button>
-                                    </DropdownMenuItem>
-                                  </DropdownMenuGroup>
-                                </DropdownMenuContent>
-                              </DropdownMenuPortal>
-                            </DropdownMenu>
-                          )}
+                  return (
+                    <div key={index} className="flex justify-between pt-8 pr-7">
+                      <div className="flex space-x-5 border border-grey w-full p-2 rounded-lg">
+                        <div>
+                          <Avatar>
+                            <AvatarImage
+                              src={
+                                commentItem.user.profileImage ||
+                                "https://github.com/shadcn.png"
+                              }
+                              alt={commentItem.user.nom}
+                            />
+                            <AvatarFallback>Photo</AvatarFallback>
+                          </Avatar>
                         </div>
+                        <div className="space-y-3 flex-grow">
+                          <div className="flex justify-between items-center">
+                            <p className="text-[#182135] font-bold text-[18px] hover:underline hover:cursor-default">
+                              {commentItem.user.nom} {commentItem.user.prenom}
+                            </p>
 
-                        {editCommentId === commentItem.id ? (
-                          <Textarea
-                            type="text"
-                            value={editCommentText}
-                            onChange={(e) => setEditCommentText(e.target.value)}
-                            className="border border-gray-300 p-2 w-full rounded-lg"
-                          />
-                        ) : (
-                          <p>{commentItem.commentaire}</p>
-                        )}
+                            {isSameUser && (
+                              <DropdownMenu>
+                                <DropdownMenuTrigger>
+                                  <Button variant="outline" className="text-xl">
+                                    <MoreHorizontal className="w-8 h-8" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuPortal>
+                                  <DropdownMenuContent>
+                                    <DropdownMenuGroup>
+                                      <DropdownMenuItem>
+                                        <Button
+                                          variant="link"
+                                          className="flex items-center"
+                                          onClick={() =>
+                                            handleEditComment(commentItem)
+                                          }
+                                        >
+                                          <EditIcon className="mr-2 h-4 w-4" />
+                                          Modifier
+                                        </Button>
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem>
+                                        <Button
+                                          variant="link"
+                                          className="flex items-center"
+                                          onClick={() =>
+                                            handleDeleteClick(commentItem)
+                                          }
+                                        >
+                                          <DeleteIcon className="mr-2 h-4 w-4" />
+                                          Supprimer
+                                        </Button>
+                                      </DropdownMenuItem>
+                                      <DropdownMenuItem>
+                                        <Button
+                                          variant="link"
+                                          className="flex items-center"
+                                          onClick={() =>
+                                            handleRating(commentItem)
+                                          }
+                                        >
+                                          <StarIcon className="mr-2 h-4 w-4" />
+                                          Notes
+                                        </Button>
+                                      </DropdownMenuItem>
+                                    </DropdownMenuGroup>
+                                  </DropdownMenuContent>
+                                </DropdownMenuPortal>
+                              </DropdownMenu>
+                            )}
+                          </div>
 
-                        <div className="flex justify-between items-center pt-4">
-                          {!editCommentId && (
-                            <>
-                              {commentItem.updatedAt &&
-                              commentItem.updatedAt ===
-                                commentItem.createdAt ? (
-                                <span className="text-sm text-gray-500">
-                                  Publié le :{" "}
-                                  {new Date(
-                                    commentItem.createdAt
-                                  ).toLocaleDateString()}{" "}
-                                  à{" "}
-                                  {new Date(
-                                    commentItem.createdAt
-                                  ).toLocaleTimeString(undefined, {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  })}
-                                </span>
-                              ) : (
-                                commentItem.updatedAt && (
+                          {editCommentId === commentItem.id ? (
+                            <Textarea
+                              type="text"
+                              value={editCommentText}
+                              onChange={(e) =>
+                                setEditCommentText(e.target.value)
+                              }
+                              className="border border-gray-300 p-2 w-full rounded-lg"
+                            />
+                          ) : (
+                            <p>{commentItem.commentaire}</p>
+                          )}
+
+                          <div className="flex justify-between items-center pt-4">
+                            {!editCommentId && (
+                              <>
+                                {commentItem.updatedAt &&
+                                commentItem.updatedAt ===
+                                  commentItem.createdAt ? (
                                   <span className="text-sm text-gray-500">
-                                    Modifié le :{" "}
+                                    Publié le :{" "}
                                     {new Date(
-                                      commentItem.updatedAt
+                                      commentItem.createdAt
                                     ).toLocaleDateString()}{" "}
                                     à{" "}
                                     {new Date(
-                                      commentItem.updatedAt
+                                      commentItem.createdAt
                                     ).toLocaleTimeString(undefined, {
                                       hour: "2-digit",
                                       minute: "2-digit",
                                     })}
                                   </span>
-                                )
+                                ) : (
+                                  commentItem.updatedAt && (
+                                    <span className="text-sm text-gray-500">
+                                      {" "}
+                                      {new Date(
+                                        commentItem.updatedAt
+                                      ).toLocaleDateString()}{" "}
+                                      à{" "}
+                                      {new Date(
+                                        commentItem.updatedAt
+                                      ).toLocaleTimeString(undefined, {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                      })}
+                                    </span>
+                                  )
+                                )}
+                              </>
+                            )}
+                            <div>
+                              {commentItem.note && (
+                                <div className="flex space-x-1">
+                                  {renderStars(commentItem.note)}
+                                </div>
                               )}
-                            </>
-                          )}
-                          <div>
-                            {commentItem.note ? (
-                              <div className="flex space-x-1">
-                                {renderStars(commentItem.note)}
-                              </div>
-                            ) : null}
+                            </div>
                           </div>
-                        </div>
 
-                        {editCommentId === commentItem.id && (
-                          <div className="flex space-x-4">
-                            <Button onClick={handleUpdateComment}>
-                              Mettre à jour
-                            </Button>
-                            <Button
-                              variant="outline"
-                              onClick={handleCancelEdit}
-                            >
-                              Annuler
-                            </Button>
-                          </div>
-                        )}
+                          {editCommentId === commentItem.id && (
+                            <div className="flex space-x-4">
+                              <Button onClick={handleUpdateComment}>
+                                Mettre à jour
+                              </Button>
+                              <Button
+                                variant="outline"
+                                onClick={handleCancelEdit}
+                              >
+                                Annuler
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </CardContent>
             </Card>
           </TabsContent>
@@ -744,19 +831,10 @@ const InfoAnnonces = ({ params }) => {
 
       <StarRatingDialog
         isOpen={showModalRating}
-        annonceId={annonceId} // Pass the annonceId
-        // userId={userId} // Pass the userId
+        annonceId={annonceId}
         onClose={handleCloseRatingModal}
         commentId={selectedCommentId}
         currentRating={note}
-      />
-
-      <ChatDialog
-        isOpen={chatModal}
-        onClose={handleCloseChat}
-        userId={userId}
-        senderId={senderId}
-        annonceId={annonceId}
       />
     </div>
   );

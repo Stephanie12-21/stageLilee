@@ -10,6 +10,7 @@ import { AiOutlineEye, AiOutlineEdit, AiOutlineDelete } from "react-icons/ai";
 import Link from "next/link";
 import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
 import Image from "next/image";
+import { Rocket } from "lucide-react";
 
 const Annonces = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -93,14 +94,8 @@ const Annonces = () => {
           <Button variant="outline">Créer une annonce</Button>
         </Link>
       </div>
-      {/* <div>
-        <p>
-          Bonjour, {session?.user.nom}, tu as l&apos;identifiant{" "}
-          {session?.user.id}
-        </p>
-      </div> */}
 
-      <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
+      <div className="grid grid-cols-3 sm:grid-cols-1 lg:grid-cols-2 gap-2 pt-10 mx-10">
         {annonces.length === 0 ? (
           <p>Aucune annonce trouvée.</p>
         ) : (
@@ -167,6 +162,24 @@ const Annonces = () => {
                 </div>
 
                 <div className="flex flex-col items-end space-y-8">
+                  <Link
+                    href={`/personnel/annonces/boostAnnonce/id=${annonce.id}`}
+                  >
+                    <Rocket
+                      className="text-[#15213D] cursor-pointer text-[30px]"
+                      title="Booster"
+                    />
+                  </Link>
+
+                  {/* <Link
+                    href={`/personnel/annonces/boostAnnonce?id=${annonce.id}`}
+                  >
+                    <Rocket
+                      className="text-[#15213D] cursor-pointer text-[30px]"
+                      title="Booster"
+                    />
+                  </Link> */}
+
                   <Link href={`/personnel/annonces/id=${annonce.id}`}>
                     <AiOutlineEye
                       className="text-[#15213D] cursor-pointer text-[30px]"

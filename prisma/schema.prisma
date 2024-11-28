@@ -130,7 +130,11 @@ model annonces {
   user              user          @relation(fields: [userId], references: [id], onDelete: Cascade)
   commentaire       commentaire[] 
   favoris           favoris[]  
-  messages          message[] // Relation avec les messages
+  messages          message[] 
+  boost             boost? 
+  customerId        String?
+  plan              plan?
+ // boostAnnonce      boostAnnonce?  
 }
 
 enum statut {
@@ -213,19 +217,46 @@ model newsletter {
 //pour la newsletter
 
 //pour les souscriptions
-model souscriptionsPerso {
-  id             Int                @id @default(autoincrement())
-  nom            String
-  prix           Decimal            @default(0.0) 
-  createdAt      DateTime           @default(now()) 
-  updatedAt      DateTime           @updatedAt     
-  status         statusSouscription 
+// model boostAnnonce {
+//   id                Int                  @id @default(autoincrement())
+//   nom              String               
+//   prix             Float                
+//   startDate         DateTime             
+//   endDate           DateTime             
+//   statutBoost            statutBoost   @default(ACTIVE) 
+//   createdAt         DateTime             @default(now())
+//   updatedAt         DateTime             @updatedAt
+//   annonceId         Int                  @unique 
+//   annonces          annonces             @relation(fields: [annonceId], references: [id], onDelete: Cascade)
+// }
+
+// enum statutBoost {
+//   ACTIVE
+//   DESACTIVE
+// }
+
+
+enum plan {
+ UNE
+ RECOMMANDATION
+ URGENT
 }
 
-enum statusSouscription {
-  ACTIVE
-  EN_ATTENTE
-  DESACTIVEE
+enum periode {
+  SEMAINE
+  MOIS
 }
 
+model boost {
+  id            Int          @id @default(autoincrement())
+  plan          plan                 
+  periode       periode      
+  createdAt     DateTime     @default(now())  
+  updatedAt     DateTime     @updatedAt       
+  debutDate     DateTime     @default(now())  
+  finDate       DateTime    
+  annonceId     Int          @unique          
+  annonce       annonces     @relation(fields: [annonceId], references: [id], onDelete: Cascade) // Relation un-à-un avec l'annonce
+}
 //pour les souscriptions
+

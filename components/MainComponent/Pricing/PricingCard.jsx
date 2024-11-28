@@ -22,7 +22,7 @@ const PricingCard = ({ price }) => {
     e.preventDefault();
 
     try {
-      const response = await fetch("/api/paiement", {
+      const response = await fetch("/api/paiement/suscription", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

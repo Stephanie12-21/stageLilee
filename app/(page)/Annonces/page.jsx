@@ -12,7 +12,6 @@ import Image from "next/image";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSession } from "next-auth/react";
-import { ShieldMinus } from "lucide-react";
 
 const cardVariants = {
   visible: (i) => ({
@@ -47,40 +46,26 @@ export default function Annonces() {
       const response = await fetch("/api/annonce/getAll");
       const data = await response.json();
 
-      // Filtrer les annonces pour exclure celles qui ont un statut "DESACTIVEE"
       const filteredData = data
         .filter((annonce) => annonce.statut !== "DESACTIVEE")
         .map((annonce) => {
-          // console.log("Annonce:", annonce);
-          // console.log(
-          //   "Utilisateur associé:",
-          //   `${annonce.user.nom} ${annonce.user.prenom}`
-          // );
-
-          // Récupérer toutes les notes associées à cette annonce
           const notes = annonce.commentaire
             .map((c) => c.note)
-            .filter((note) => note !== null); // Exclure les notes nulles
-
-          //console.log("Notes associées :", notes);
+            .filter((note) => note !== null);
 
           if (notes.length > 0) {
-            // Calculer la moyenne des notes
             const total = notes.reduce((acc, note) => acc + note, 0);
             const average = total / notes.length;
-           // console.log("Moyenne des notes :", average.toFixed(2));
 
-            // Ajouter la moyenne à l'annonce sans la formater à l'avance
             annonce.averageNote = average;
           } else {
-          //  console.log("Aucune note trouvée pour cette annonce.");
             annonce.averageNote = 0;
           }
 
-          return annonce; // Retourner l'annonce avec la moyenne mise à jour
+          return annonce;
         });
 
-      setAnnonces(filteredData); // Mettre à jour les annonces filtrées
+      setAnnonces(filteredData);
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     } finally {
@@ -169,7 +154,6 @@ export default function Annonces() {
     }
   };
 
-  // Fonction pour retirer des favoris via l'API Next.js
   const removeFromFavorites = async (userId, annonceId) => {
     try {
       const response = await fetch("/api/favorites", {
@@ -1956,16 +1940,14 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
                               const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
+                                index < Math.round(annonce.averageNote);
                               return (
                                 <svg
                                   key={index}
                                   xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  fill={isFilled ? "gold" : "none"}
+                                  stroke={isFilled ? "none" : "gold"}
                                   viewBox="0 0 24 24"
                                   strokeWidth="1.5"
                                   className="w-6 h-6"
@@ -2084,16 +2066,15 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
                               const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+                                index < Math.round(annonce.averageNote);
 
                               return (
                                 <svg
                                   key={index}
                                   xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  fill={isFilled ? "gold" : "none"}
+                                  stroke={isFilled ? "none" : "gold"}
                                   viewBox="0 0 24 24"
                                   strokeWidth="1.5"
                                   className="w-6 h-6"
@@ -2228,16 +2209,14 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
                               const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
+                                index < Math.round(annonce.averageNote);
                               return (
                                 <svg
                                   key={index}
                                   xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  fill={isFilled ? "gold" : "none"}
+                                  stroke={isFilled ? "none" : "gold"}
                                   viewBox="0 0 24 24"
                                   strokeWidth="1.5"
                                   className="w-6 h-6"
@@ -2346,9 +2325,8 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
                               const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+                                index < Math.round(annonce.averageNote);
 
                               return (
                                 <svg
