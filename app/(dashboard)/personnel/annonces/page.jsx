@@ -171,14 +171,7 @@ const Annonces = () => {
                     />
                   </Link>
 
-                  {/* <Link
-                    href={`/personnel/annonces/boostAnnonce?id=${annonce.id}`}
-                  >
-                    <Rocket
-                      className="text-[#15213D] cursor-pointer text-[30px]"
-                      title="Booster"
-                    />
-                  </Link> */}
+                  
 
                   <Link href={`/personnel/annonces/id=${annonce.id}`}>
                     <AiOutlineEye

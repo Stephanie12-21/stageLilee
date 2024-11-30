@@ -15,7 +15,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -513,7 +512,7 @@ const InfoAnnonces = ({ params }) => {
                       alt="Photo de profil de l'utilisateur"
                       width={65}
                       height={65}
-                      className="w-16 h-16 rounded-full object-cover  border-2 border-gray-300"
+                      className="w-16 h-16 rounded-full object-cove  border-2 border-gray-300"
                     />
                   </div>
 

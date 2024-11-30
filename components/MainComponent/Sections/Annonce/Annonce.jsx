@@ -271,7 +271,7 @@ const Annonce = () => {
                   <CardContent className="p-4">
                     <Badge
                       variant="secondary"
-                      className="text-sm text-muted-foreground mb-1"
+                      className="text-base text-muted-foreground mb-1"
                     >
                       {annonce.categorieAnnonce}
                     </Badge>

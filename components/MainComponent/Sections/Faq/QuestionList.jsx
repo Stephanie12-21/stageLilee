@@ -1,7 +1,6 @@
 "use client";
-
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useInView } from "react-intersection-observer";
 import {
   Accordion,
@@ -31,12 +30,6 @@ const faqItems = [
           l&apos;annonce&quot;. Vous recevrez généralement une confirmation que
           votre annonce a bien été publiée.
         </li>
-        <li className="flex items-start">
-          <span className="mr-2 text-xl">•</span>
-          Après la publication, vous pourrez suivre l'évolution de votre
-          annonce, la modifier si nécessaire, ou la supprimer une fois que votre
-          objectif est atteint.
-        </li>
       </ul>
     ),
   },
@@ -44,13 +37,13 @@ const faqItems = [
     id: "item-2",
     question: "Comment faire pour trouver les annonces souhaitées ?",
     answer:
-      "Notez les caractéristiques importantes (ex : localisation, catégorie, etc.). Plus les critères sont précis, plus les résultats seront pertinents. De plus, Lilee offre la possibilité de créer des alertes qui envoient des notifications par email lorsqu&apos;une nouvelle annonce pouvant correspondre à vos critères est publiée. Pensez donc à vous abonner à la newsletter. 🙂",
+      "Notez les caractéristiques importantes (ex : localisation, catégorie, etc.). Plus les critères sont précis, plus les résultats seront pertinents. De plus, Lilee offre la possibilité d'être notifié par email lorsqu'une nouvelle annonce est publiée. Pensez donc à vous abonner à la newsletter. 🙂",
   },
   {
     id: "item-3",
     question: "Que faire si on est intéressé par une annonce particulière ?",
     answer:
-      "Assurez-vous de bien comprendre toutes les informations (description, état, localisation, conditions, etc.) pour éviter les surprises. Vous pourrez aussi contacter le propriétaire de l&apos;annonce. Dans ce cas, des options s&apos;offrent à vous dont le téléphone, l&apos;email ou encore la messagerie de la plateforme pour exprimer votre intérêt et poser des questions supplémentaires si besoin. 🙂",
+      "Assurez-vous de bien comprendre toutes les informations (description, état, localisation, conditions, etc.) pour éviter les surprises. Vous pourrez aussi contacter le propriétaire de l'annonce. Dans ce cas, la messagerie de la plateforme vous permettra d'exprimer votre intérêt et poser des questions supplémentaires si besoin. 🙂",
   },
   {
     id: "item-4",
@@ -66,18 +59,6 @@ const faqItems = [
           <span className="mr-2 text-xl">•</span>
           Signalez tout problème ou comportement inapproprié à
           l&apos;administrateur afin qu&apos;il prenne les mesures nécessaires.
-        </li>
-        <li className="flex items-start">
-          <span className="mr-2 text-xl">•</span>
-          Ne partagez que les informations nécessaires et évitez de divulguer
-          des données sensibles. D&apos;autre part, respectez la confidentialité
-          des autres utilisateurs.
-        </li>
-        <li className="flex items-start">
-          <span className="mr-2 text-xl">•</span>
-          Détaillez clairement et sans fausses informations les annonces,
-          services ou aides proposés afin que chacun puisse bien comprendre
-          l&apos;offre et éviter les malentendus.
         </li>
       </ul>
     ),
@@ -102,25 +83,27 @@ const faqItems = [
   },
 ];
 
-const itemVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0 },
-};
-
-export default function QuestionList() {
-  const [ref, inView] = useInView({
+const QuestionList = () => {
+  const [openItems, setOpenItems] = useState([]);
+  const { ref, inView } = useInView({
     triggerOnce: false,
-    threshold: 0.1,
+    threshold: 0.2,
   });
 
-  const [openItems, setOpenItems] = useState([]);
+  // Définir des variants pour le stagger effect
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2, // Décalage entre chaque enfant
+      },
+    },
+  };
 
-  const handleToggle = (value) => {
-    setOpenItems((prev) =>
-      prev.includes(value)
-        ? prev.filter((item) => item !== value)
-        : [...prev, value]
-    );
+  const itemVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 },
   };
 
   return (
@@ -128,42 +111,30 @@ export default function QuestionList() {
       ref={ref}
       initial="hidden"
       animate={inView ? "visible" : "hidden"}
-      variants={{
-        hidden: { opacity: 0 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.3 } },
-      }}
+      variants={containerVariants}
       className="w-full"
     >
       <Accordion type="multiple" value={openItems} onValueChange={setOpenItems}>
         {faqItems.map((item) => (
           <motion.div
             key={item.id}
+            className="bg-slate-50 border border-gray-200 rounded-lg shadow-md p-4 mb-4"
             variants={itemVariants}
             transition={{ duration: 0.5 }}
-            className="bg-slate-50 px-4 shadow w-full"
           >
             <AccordionItem value={item.id}>
-              <AccordionTrigger onClick={() => handleToggle(item.id)}>
+              <AccordionTrigger className="font-medium text-lg">
                 {item.question}
               </AccordionTrigger>
-              <AnimatePresence>
-                {openItems.includes(item.id) && (
-                  <AccordionContent forceMount>
-                    <motion.div
-                      initial={{ opacity: 0, height: 0 }}
-                      animate={{ opacity: 1, height: "auto" }}
-                      exit={{ opacity: 0, height: 0 }}
-                      transition={{ duration: 0.3 }}
-                    >
-                      {item.answer}
-                    </motion.div>
-                  </AccordionContent>
-                )}
-              </AnimatePresence>
+              <AccordionContent className="text-gray-700">
+                {item.answer}
+              </AccordionContent>
             </AccordionItem>
           </motion.div>
         ))}
       </Accordion>
     </motion.div>
   );
-}
+};
+
+export default QuestionList;

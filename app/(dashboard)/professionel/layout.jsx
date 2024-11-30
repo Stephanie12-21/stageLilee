@@ -268,7 +268,7 @@ export default function LayoutAdmin({ children }) {
               <DropdownMenuItem>
                 {session?.user?.id ? (
                   <Link href={`/professionel/security/${session.user.id}`}>
-                    Sécurité
+                    Modifier le mot de passe
                   </Link>
                 ) : null}
               </DropdownMenuItem>

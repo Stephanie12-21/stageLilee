@@ -11,7 +11,7 @@ const links = [
 export default function NavMob() {
   const path = usePathname();
   return (
-    <div className="z-40 left-0 absolute top-0 right-0 w-full min-h-screen h-full bg-red-600 transform -translate-y-full ">
+    <div className="z-40 left-0 absolute top-0 right-0 w-full min-h-screen h-full bg-green-600 transform -translate-y-full ">
       <div className="flex flex-col items-center gap-24 container p-4 md:px-8">
         <nav className="flex flex-col mt-32 items-center gap-16">
           {links.map((link) => (

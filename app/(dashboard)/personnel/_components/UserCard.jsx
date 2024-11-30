@@ -1,20 +1,18 @@
-import Image from "next/image"; // Utiliser Image de Next.js
+import Image from "next/image";
 import React from "react";
 
 function UserCard({ name, avatarUrl, latestMessageText, time, type }) {
   return (
     <div className="flex items-center p-4 border-b relative hover:cursor-pointer">
-      {/* Avatar on the left */}
       <div className="flex-shrink-0 mr-4 relative">
         <div className="w-12 h-12 rounded-full overflow-hidden border-4">
           {" "}
-          {/* Bordure rouge autour de l'image */}
           <Image
-            src={avatarUrl} // L'URL de l'avatar
+            src={avatarUrl}
             alt="User Avatar"
-            width={40} // Largeur de l'image
-            height={40} // Hauteur de l'image
-            className="w-full h-full object-cover" // Pour ajuster l'image
+            width={40}
+            height={40}
+            className="w-full h-full object-cover"
           />
         </div>
       </div>

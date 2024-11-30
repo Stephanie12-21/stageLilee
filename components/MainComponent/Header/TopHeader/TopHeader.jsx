@@ -42,7 +42,7 @@ export const ListButton = () => {
   // Ensure the role path only generates if session data is available
   const getRolePath = () => {
     const role = session?.user?.role;
-    if (role === "PERSO") return "/personnel";
+    if (role === "PERSO") return "/personnel/";
     if (role === "PRO") return "/professionel";
     if (role === "ADMIN") return "/admin";
     return ""; // Default to home if no role
@@ -184,8 +184,14 @@ export function ListContacts() {
           href={i.url}
           className="inline-flex space-x-2 items-center"
         >
-          <Image src={i.img} width={24} height={24} alt="img" />
-          <span className="text-[16px] text-white font-extralight visible max-md:hidden">
+          <Image
+            src={i.img}
+            width={24}
+            height={24}
+            alt="img"
+            className="hover:scale-110 transition-transform duration-200"
+          />
+          <span className="text-[16px] text-white font-semibold visible max-md:hidden">
             {i.name}
           </span>
         </Link>
@@ -199,32 +205,41 @@ export const ListIcons = () => {
     {
       url: "https://www.facebook.com/lileelogementspmr?locale=fr_FR",
       img: "/icons/icons(6).svg",
+      name: "Facebook",
     },
     {
       url: "https://www.youtube.com/@lileepmr",
       img: "/icons/icons(3).svg",
+      name: "YouTube",
     },
     {
       url: "https://www.linkedin.com/company/86267153/admin/",
       img: "/icons/icons(2).svg",
+      name: "LinkedIn",
     },
     {
       url: "https://www.instagram.com/lilee.fr/",
       img: "/icons/icons(4).svg",
+      name: "Instagram",
     },
   ];
+
   return (
-    <div className="flex justify-between items-center gap-x-10">
-      {dataIcons.map((i, index) => (
-        <Link key={index} href={i.url}>
-          <Image
-            src={i.img}
-            width={22}
-            alt="img"
-            height={22}
-            className="size-5"
-          />
-        </Link>
+    <div className="flex justify-center items-center gap-x-10">
+      {dataIcons.map((icon, index) => (
+        <div key={index} className="flex flex-col items-center">
+          <Link href={icon.url} target="_blank" rel="noopener noreferrer">
+            <Image
+              src={icon.img}
+              width={32}
+              height={32}
+              alt={icon.name}
+              className="hover:scale-110 transition-transform duration-200"
+            />
+          </Link>
+
+          {/* <p className="text-sm text-gray-500 mt-2">{icon.name}</p> */}
+        </div>
       ))}
     </div>
   );

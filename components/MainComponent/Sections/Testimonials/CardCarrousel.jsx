@@ -106,7 +106,7 @@ export function CardCarrousel() {
                         </div>
 
                         <div className="flex items-center">
-                          <Avatar className="flex-shrink-0">
+                          <Avatar className="flex-shrink-0 w-16 h-16">
                             <AvatarImage
                               src={
                                 testimony.user.profileImages?.[0]?.path ||
@@ -118,12 +118,16 @@ export function CardCarrousel() {
                               {testimony.user.nom?.[0]}
                             </AvatarFallback>
                           </Avatar>
-                          <div className="flex pl-10 flex-col gap-y-2 min-w-0">
-                            <p className="text-[#304659] truncate">
+                          <div className="flex pl-5 flex-col  min-w-[200px]">
+                            {/* <p className="text-[#304659] truncate font-semibold text-base">
                               {testimony.user.nom} {testimony.user.prenom}
+                            </p> */}
+                            <p className="text-[#304659] truncate font-semibold text-[17px]">
+                              {testimony.user.prenom}
                             </p>
                             <p className="text-[#304659] truncate">
-                              {testimony.user.email}
+                              {/* {testimony.user.email} */}
+                              De Ville, Pays
                             </p>
                           </div>
                         </div>

@@ -8,45 +8,38 @@ const Description = () => {
   const router = useRouter();
   const { ref, inView } = useInView({
     triggerOnce: false,
-    threshold: 1,
+    threshold: 0.2,
   });
 
-  const variants = {
-    hidden: { opacity: 0, x: -100 },
-    visible: { opacity: 1, x: 0 },
-    exit: { opacity: 0, x: -100 },
-  };
-  const handleConctactAdmin = () => {
+  const handleContactAdmin = () => {
     router.push("/Contact");
   };
+
   return (
     <motion.div
       ref={ref}
-      initial="hidden"
-      animate={inView ? "visible" : "hidden"}
-      exit="exit"
-      variants={variants}
+      initial={{ opacity: 0, x: -100 }}
+      animate={inView ? { opacity: 1, x: 0 } : { opacity: 0, x: -100 }}
       transition={{ duration: 0.5 }}
-      className="w-full flex items-center gap-10 py-20"
+      className="w-full flex flex-col md:flex-row md:items-center md:justify-between gap-6 md:gap-10 py-10"
     >
-      <div className="w-full flex flex-col md:items-center md:justify-between md:flex-row gap-4">
-        <div className="w-full">
-          <h1 className="text-[48px] font-semibold">Comment ça marche?</h1>
-          <p>
-            Vous trouverez ci-jointes les questions et les réponses qui vous
-            aideront à mieux utiliser la plateforme.
-            <br />
-            Si vous avez d&apos;autres questions, vous êtes invité à contacter
-            l&apos;administrateur
-          </p>
-        </div>
-        <Button
-          onClick={handleConctactAdmin}
-          className="font-semibold text-base md:flex-1"
-        >
-          Contacter l&apos;administrateur
-        </Button>
+      <div className="w-full md:w-3/5">
+        <h1 className="text-3xl md:text-5xl font-semibold">
+          Comment ça marche?
+        </h1>
+        <p className="mt-4 text-base md:text-lg">
+          Vous trouverez ci-jointes les questions et les réponses qui vous
+          aideront à mieux utiliser la plateforme. <br />
+          Si vous avez d&apos;autres questions, vous êtes invité à contacter
+          l&apos;administrateur.
+        </p>
       </div>
+      <Button
+        onClick={handleContactAdmin}
+        className="w-full md:w-auto text-base font-semibold"
+      >
+        Contacter l&apos;administrateur
+      </Button>
     </motion.div>
   );
 };
