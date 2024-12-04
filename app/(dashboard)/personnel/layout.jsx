@@ -34,6 +34,7 @@ import { Label } from "@/components/ui/label";
 import {
   FaBullhorn,
   FaChartLine,
+  FaEllipsisV,
   FaEnvelope,
   FaHeart,
   FaHome,
@@ -134,7 +135,7 @@ export default function LayoutAdmin({ children }) {
         </div>
       </div>
       <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4  bg-primary px-8 lg:h-[60px] lg:px-6">
+        <header className="flex h-[70px] items-center gap-4  bg-primary px-8 lg:h-[70px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
               <div>
@@ -187,82 +188,66 @@ export default function LayoutAdmin({ children }) {
           </Sheet>
           <div className="w-full flex-1 ">
             <form>
-              <div className="relative">
-                {/* <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search products..."
-                  className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-                /> */}
-              </div>
+              <div className="relative"></div>
             </form>
           </div>
-          <DropdownMenu className="w-full h-fit p-4">
-            <DropdownMenuTrigger asChild>
-              <div className="flex space-x-3">
-                <Button
-                  variant="secondary"
-                  size="icon"
-                  className="rounded-full border-2 border-gray-300"
-                >
-                  {session?.user?.image ? (
-                    <Image
-                      src={session.user.image}
-                      alt="User profile"
-                      width={50}
-                      height={50}
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
-                  ) : (
-                    <span className="sr-only">User profile</span>
-                  )}
-                </Button>
-              </div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-64">
-              {" "}
-              <DropdownMenuLabel>
-                {session?.user?.nom && session?.user?.prenom ? (
-                  <Label className="text-orange-500 font-bold text-xl">
-                    {session.user.nom} {session.user.prenom}
-                  </Label>
-                ) : null}
 
-                {session?.user?.id ? (
-                  <p className="text-gray-600 text-sm">{session.user.email}</p>
-                ) : null}
+          <DropdownMenu className="w-full h-fit p-4">
+            <div className="flex items-center space-x-3 bg-dark rounded-full p-2">
+              <Image
+                src={session.user.image || "/default-avatar.png"}
+                alt="User profile"
+                width={50}
+                height={50}
+                className="w-[50px] h-[50px] rounded-full object-cover"
+              />
+              <div className="flex flex-col">
+                <span className="text-orange-500 font-bold text-[16px]">
+                  {session.user.nom} {session.user.prenom}
+                </span>
+              </div>
+
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="p-2 rounded-full">
+                  <FaEllipsisV className="text-gray-400" />
+                </Button>
+              </DropdownMenuTrigger>
+            </div>
+
+            <DropdownMenuContent align="end" className="w-64 mt-2">
+              <DropdownMenuLabel>
+                <p className="text-orange-500 font-bold text-xl">
+                  {session.user.nom} {session.user.prenom}
+                </p>
+                <p className="text-gray-600 text-sm">{session.user.email}</p>
               </DropdownMenuLabel>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem>
-                {session?.user?.id ? (
-                  <Link href={`/personnel/profile/${session.user.id}`}>
-                    Votre profil
-                  </Link>
-                ) : null}
+                <Link href={`/admin/profile/${session.user.id}`}>
+                  Votre profil
+                </Link>
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
+
               <DropdownMenuItem>
-                {session?.user?.id ? (
-                  <Link href={`/personnel/security/${session.user.id}`}>
-                    Sécurité
-                  </Link>
-                ) : null}
+                <Link href={`/admin/security/${session.user.id}`}>
+                  Sécurité
+                </Link>
               </DropdownMenuItem>
+
+              <DropdownMenuSeparator />
+
               <DropdownMenuItem
                 onClick={() => handleOpenDialog(session.user.id)}
               >
                 Noter la plateforme LILEE
               </DropdownMenuItem>
+
               <DropdownMenuSeparator />
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                {session?.user?.id ? (
-                  <Link href={"/personnel/contact/"}>
-                    Contacter l&apos; administrateur
-                  </Link>
-                ) : null}
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
+
               <DropdownMenuItem>
                 <Button variant="outline" onClick={handleSignOut}>
                   Se déconnecter

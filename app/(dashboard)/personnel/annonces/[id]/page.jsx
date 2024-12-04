@@ -23,6 +23,7 @@ const InfoAnnonces = ({ params }) => {
   const [annonceId, setAnnonceId] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [subcategory, setSubCategory] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [localisation, setLocalisation] = useState("");
@@ -51,6 +52,7 @@ const InfoAnnonces = ({ params }) => {
           setAnnonceId(data.id);
           setTitle(data.titre);
           setCategory(data.categorieAnnonce);
+          setSubCategory(data.sousCategorie);
           setDescription(data.description);
           setAdresse(data.adresse);
           setLocalisation(data.localisation);
@@ -192,6 +194,12 @@ const InfoAnnonces = ({ params }) => {
                 <TagIcon className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>Catégorie:</strong> {category}
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <TagIcon className="text-blue-500 h-6 w-6" />
+                <p className="font-semibold text-gray-700">
+                  <strong>Sous-catégorie:</strong> {subcategory}
                 </p>
               </div>
 

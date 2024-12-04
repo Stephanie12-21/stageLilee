@@ -119,46 +119,46 @@ const Administrator = () => {
     }
 
     //si on est à la troisième étape, on envoie le code au numéro de téléphone saisi
-    // else if (step === 3) {
-    //   const generatedCodes = generateVerificationCodes();
-    //   const Phone = `+${phone}`;
-    //   try {
-    //     const response = await fetch("/api/user/verifPhone/", {
-    //       method: "POST",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //       },
-    //       body: JSON.stringify({
-    //         Phone,
-    //         prenom,
-    //         verificationCode: generatedCodes.phoneVerificationCode,
-    //       }),
-    //     });
+    else if (step === 3) {
+      const generatedCodes = generateVerificationCodes();
+      const Phone = `+${phone}`;
+      try {
+        const response = await fetch("/api/user/verifPhone/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Phone,
+            prenom,
+            verificationCode: generatedCodes.phoneVerificationCode,
+          }),
+        });
 
-    //     if (!response.ok) {
-    //       throw new Error("Erreur lors de l'envoi du SMS");
-    //     }
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'envoi du SMS");
+        }
 
-    //     console.log("SMS envoyé avec succès");
-    //     console.log(
-    //       "Code de vérification envoyé par SMS:",
-    //       generatedCodes.phoneVerificationCode
-    //     );
-    //     setPhoneVerificationCode(generatedCodes.phoneVerificationCode);
-    //   } catch (error) {
-    //     console.error(error);
-    //     alert(error.message);
-    //     return;
-    //   }
-    // }
-    // //si on est à la troisième étape, on vérifie le code envoyé
-    // else if (step === 4) {
-    //   if (verificationCodePhone !== phoneVerificationCode) {
-    //     alert("Le code de vérification est incorrect.");
-    //     return;
-    //   }
-    //   console.log("Code de vérification correct.");
-    // }
+        console.log("SMS envoyé avec succès");
+        console.log(
+          "Code de vérification envoyé par SMS:",
+          generatedCodes.phoneVerificationCode
+        );
+        setPhoneVerificationCode(generatedCodes.phoneVerificationCode);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+        return;
+      }
+    }
+    //si on est à la troisième étape, on vérifie le code envoyé
+    else if (step === 4) {
+      if (verificationCodePhone !== phoneVerificationCode) {
+        alert("Le code de vérification est incorrect.");
+        return;
+      }
+      console.log("Code de vérification correct.");
+    }
     if (step < 6) {
       setStep(step + 1);
       console.log(`Vous allez passer à l'étape ${step + 1}`);

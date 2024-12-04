@@ -436,7 +436,7 @@ export default function Component() {
       );
       return;
     }
-    const statut = "DESACTIVEE";
+    const statut = "EN_ATTENTE_DE_VALIDATION";
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", JSON.stringify(description));
@@ -480,76 +480,6 @@ export default function Component() {
   const handlePrevious = () => {
     setStep((prev) => prev - 1);
   };
-
-  // const handlePayRedirect = async () => {
-  //   try {
-  //     // Appel à l'API pour créer une session de paiement
-  //     const response = await fetch("/api/paiement/suscription", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         userId: session.user.id,
-  //         email: session.user.email,
-  //         additionalPhotos: images.length > 10 ? images.length - 10 : 0,
-  //       }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error(
-  //         "Erreur lors de la création de la session de paiement."
-  //       );
-  //     }
-
-  //     const { url } = await response.json();
-
-  //     if (url) {
-  //       // Redirection vers la page de checkout
-  //       window.location.href = url;
-  //     } else {
-  //       throw new Error("URL de session Stripe manquante.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Erreur :", error.message);
-  //     alert(
-  //       "Une erreur est survenue lors de la redirection. Veuillez réessayer."
-  //     );
-  //   }
-  // };
-
-  // const handleSubscription = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     // Appel à l'API pour créer une session de paiement Stripe
-  //     const response = await fetch("/api/paiement/packphoto", {
-  //       method: "POST",
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: JSON.stringify({
-  //         additionalPhotos: images.length > 10 ? images.length - 10 : 0, // Calcul des photos payantes
-  //       }),
-  //     });
-
-  //     if (!response.ok) {
-  //       throw new Error("Erreur lors de la souscription.");
-  //     }
-
-  //     const data = await response.json();
-
-  //     if (data?.url) {
-  //       // Redirection vers Stripe Checkout
-  //       window.location.assign(data.url);
-  //     } else {
-  //       throw new Error("URL de redirection manquante.");
-  //     }
-  //   } catch (error) {
-  //     console.error("Erreur :", error.message);
-  //     alert("Une erreur est survenue. Veuillez réessayer.");
-  //   }
-  // };
 
   const hasPredefinedSousCategories =
     sousCategoriesMap[formData.categorie] !== undefined;
@@ -772,49 +702,6 @@ export default function Component() {
                 step === 4 ? "opacity-100" : "opacity-0 hidden"
               }`}
             >
-              {/* <div className="space-y-4">
-                <Label htmlFor="images" className="text-sm font-medium">
-                  Images
-                </Label>
-                <div className="border-2 border-dashed border-gray-200 rounded-lg p-8 text-center">
-                  <Input
-                    type="file"
-                    id="images"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    multiple
-                  />
-                  <div className="flex space-x-4 mt-4">
-                    {images.map((image, index) => (
-                      <div key={index} className="relative">
-                        <Image
-                          src={URL.createObjectURL(image)}
-                          alt={`preview-${index}`}
-                          width={200}
-                          height={200}
-                          className="w-32 h-32 object-cover rounded"
-                        />
-                        <button
-                          type="button"
-                          className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                          onClick={() => handleRemoveImage(index)}
-                        >
-                          <X size={16} />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-                  <Label htmlFor="images" className="cursor-pointer">
-                    <ImagePlus className="mx-auto h-12 w-12 text-gray-400" />
-                    <span className="mt-2 block text-sm font-medium text-gray-600">
-                      Cliquez pour ajouter des images
-                    </span>
-                    <span className="mt-1 block text-xs text-gray-500">
-                      PNG, JPG jusqu&apos;à 10MB
-                    </span>
-                  </Label>
-                </div>
-              </div> */}
               <div className="space-y-6">
                 <Label
                   htmlFor="images"
@@ -895,43 +782,6 @@ export default function Component() {
         autoClose={5000}
         hideProgressBar={false}
       />
-
-      {/* <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Limite d&apos;images dépassée</AlertDialogTitle>
-            <AlertDialogDescription>
-              Vous avez sélectionné {images.length} image(s). La limite est de
-              10 images. Voulez-vous payer pour ajouter plus d&apos;images ?
-              <div className="space-y-2">
-                <p>
-                  <strong>
-                    Nombre total de photos :{" "}
-                    <span className="text-orange-500">{images.length}</span>
-                  </strong>
-                </p>
-                <p>Photos gratuites : 10</p>
-                <p>
-                  Photos payantes :{" "}
-                  <span className="text-orange-500">
-                    {images.length > 10 ? images.length - 10 : 0}
-                  </span>
-                </p>
-              </div>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <div className="flex flex-col space-y-2 w-full pt-8">
-              <Button onClick={() => setIsAlertOpen(false)} variant="outline">
-                Annuler
-              </Button>
-              <Button onClick={handleSubscription} className="ml-2">
-                Souscire au pack photos supplémentaires
-              </Button>
-            </div>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog> */}
     </div>
   );
 }

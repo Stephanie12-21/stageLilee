@@ -1,17 +1,24 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { ImagePlus } from "lucide-react";
+import { ImagePlus, Loader2, Pencil, Save, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getSession, useSession } from "next-auth/react";
-
+import { Button } from "@/components/ui/button";
+import { motion } from "framer-motion";
 
 const UserProfilePreview = () => {
   const router = useRouter();
@@ -37,7 +44,6 @@ const UserProfilePreview = () => {
   });
   console.log("usesession hook session object", session);
 
-  // Utilisation de useCallback pour mémoriser fetchUserData
   const fetchUserData = useCallback(async () => {
     try {
       const response = await fetch(`/api/user/${userId}`);
@@ -75,7 +81,7 @@ const UserProfilePreview = () => {
 
       // Send email verification
       try {
-        const response = await fetch("/api/user/verifEmail/", {
+        const response = await fetch("/api/user/emailVerif/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -99,34 +105,34 @@ const UserProfilePreview = () => {
       }
 
       // Send SMS verification
-      // const phone = `+${editedUser.phone}`;
-      // try {
-      //   const response = await fetch("/api/user/verifPhone/", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       Phone: phone,
-      //       prenom: editedUser.prenom,
-      //       verificationCode: generatedCodes.phone,
-      //     }),
-      //   });
+      const phone = `+${editedUser.phone}`;
+      try {
+        const response = await fetch("/api/user/verifPhone/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Phone: phone,
+            prenom: editedUser.prenom,
+            verificationCode: generatedCodes.phone,
+          }),
+        });
 
-      //   if (!response.ok) {
-      //     throw new Error("Erreur lors de l'envoi du SMS");
-      //   }
-      //   console.log("SMS envoyé avec succès");
-      //   console.log(
-      //     "Code de vérification envoyé par SMS:",
-      //     generatedCodes.phone
-      //   );
-      //   setShowVerifInfo(true);
-      // } catch (error) {
-      //   console.error(error);
-      //   alert(error.message);
-      //   return;
-      // }
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'envoi du SMS");
+        }
+        console.log("SMS envoyé avec succès");
+        console.log(
+          "Code de vérification envoyé par SMS:",
+          generatedCodes.phone
+        );
+        setShowVerifInfo(true);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+        return;
+      }
     } else {
       setIsEditing(true);
     }
@@ -136,26 +142,25 @@ const UserProfilePreview = () => {
     const emailVerificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    // const phoneVerificationCode = Math.floor(
-    //   100000 + Math.random() * 900000
-    // ).toString();
-    // return { email: emailVerificationCode, phone: phoneVerificationCode };
+    const phoneVerificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    return { email: emailVerificationCode, phone: phoneVerificationCode };
     return { email: emailVerificationCode };
   };
 
-  const handleVerifyCodes = (enteredEmailCode) => {
+  const handleVerifyCodes = (enteredEmailCode, enteredPhoneCode) => {
     if (
-      enteredEmailCode === verificationCodes.email
-      // &&
-      // enteredPhoneCode === verificationCodes.phone
+      enteredEmailCode === verificationCodes.email &&
+      enteredPhoneCode === verificationCodes.phone
     ) {
-      handleConfirmEdit(); // Appel à la fonction de mise à jour des données
+      handleConfirmEdit();
     } else {
       alert(
         "Les codes de vérification ne correspondent pas. Veuillez réessayer."
       );
     }
-    setShowVerifInfo(false); // Fermer le dialogue
+    setShowVerifInfo(false);
   };
 
   const handleConfirmEdit = async () => {
@@ -188,7 +193,6 @@ const UserProfilePreview = () => {
     }
   };
 
-  // pour gérer les valeurs des champs
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setEditedUser((prevState) => ({
@@ -197,12 +201,10 @@ const UserProfilePreview = () => {
     }));
   };
 
-  //abandonner les modifications
   const handleCancelEdit = () => {
-    setShowVerifInfo(false); // Fermer le dialogue sans enregistrer
+    setShowVerifInfo(false);
   };
 
-  //pour les images
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -230,7 +232,6 @@ const UserProfilePreview = () => {
     return <p>Utilisateur introuvable</p>;
   }
 
-  //pour la suppression des données
   const handleDeleteClick = async () => {
     const confirmed = window.confirm(
       `Voulez-vous vraiment supprimer l'article avec l'ID : ${userId}?`
@@ -258,22 +259,22 @@ const UserProfilePreview = () => {
         <Card className="max-w-6xl mx-auto bg-white shadow-lg">
           <CardContent className="p-0">
             <div className="flex flex-col md:flex-row">
-              <div className="md:w-1/2 border flex items-center justify-center p-8">
-                <Avatar className="w-52 h-52">
-                  <AvatarImage
-                    src={profileImage}
-                    alt={`${user.nom} ${user.prenom}`}
-                    className="object-cover rounded-full"
-                  />
-                  <AvatarFallback className="bg-blue-200 text-blue-700 text-6xl w-full h-full">
-                    {user.nom[0]}
-                    {user.prenom[0]}
-                  </AvatarFallback>
-                </Avatar>
-                {isEditing && (
-                  <div className="mt-4">
-                    <label className="cursor-pointer">
-                      <ImagePlus className="text-8xl text-blue-500" />
+              <div className="w-full md:w-2/3 bg-primary flex flex-col items-center justify-center p-8 relative">
+                <div className="relative group">
+                  <Avatar className="w-52 h-52 border-4 border-white shadow-lg transition-all duration-300 ease-in-out group-hover:scale-105">
+                    <AvatarImage
+                      src={profileImage}
+                      alt={`${user.nom} ${user.prenom}`}
+                      className="object-cover"
+                    />
+                    <AvatarFallback className="bg-blue-200 text-blue-700 text-4xl">
+                      {user.nom[0]}
+                      {user.prenom[0]}
+                    </AvatarFallback>
+                  </Avatar>
+                  {isEditing && (
+                    <label className="absolute bottom-0 right-0 bg-white rounded-full p-2 shadow-lg cursor-pointer transition-all duration-300 ease-in-out hover:bg-blue-100">
+                      <ImagePlus className="w-6 h-6 text-blue-500" />
                       <input
                         type="file"
                         accept="image/*"
@@ -281,30 +282,34 @@ const UserProfilePreview = () => {
                         className="hidden"
                       />
                     </label>
-                  </div>
-                )}
+                  )}
+                </div>
+                <h2 className="mt-6 text-2xl font-bold text-white text-center">
+                  {user.prenom} {user.nom}
+                </h2>
+                <p className="mt-2 text-blue-100 text-center">{user.email}</p>
               </div>
 
-              <div className="md:w-1/2 p-8 space-y-6">
+              <div className="md:w-1/2 lg:w-full p-8 space-y-10">
                 <h2 className="text-3xl font-bold text-gray-800 mb-6">
                   Profil Utilisateur
                 </h2>
 
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-4 mb-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-y-0">
                     <div className="space-y-2">
                       <Label
                         htmlFor="prenom"
-                        className="text-sm font-medium text-gray-600"
+                        className="text-base font-semibold text-gray-600"
                       >
-                        Prénom
+                        Prénoms
                       </Label>
                       <Input
                         id="prenom"
                         value={isEditing ? editedUser.prenom : user.prenom}
                         readOnly={!isEditing}
                         onChange={handleInputChange}
-                        className={`bg-gray-50 ${
+                        className={`bg-gray-50 text-base ${
                           isEditing ? "" : "cursor-not-allowed"
                         }`}
                       />
@@ -312,7 +317,7 @@ const UserProfilePreview = () => {
                     <div className="space-y-2">
                       <Label
                         htmlFor="nom"
-                        className="text-sm font-medium text-gray-600"
+                        className="text-base font-semibold text-gray-600"
                       >
                         Nom
                       </Label>
@@ -327,55 +332,63 @@ const UserProfilePreview = () => {
                       />
                     </div>
                   </div>
+                </div>
 
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="email"
-                      className="text-sm font-medium text-gray-600"
-                    >
-                      Email
-                    </Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={isEditing ? editedUser.email : user.email}
-                      readOnly={!isEditing}
-                      onChange={handleInputChange}
-                      className={`bg-gray-50 ${
-                        isEditing ? "" : "cursor-not-allowed"
-                      }`}
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label
-                      htmlFor="phone"
-                      className="text-sm font-medium text-gray-600"
-                    >
-                      Numéro de téléphone
-                    </Label>
-                    <PhoneInput
-                      country={"fr"}
-                      value={isEditing ? editedUser.phone : user.phone}
-                      onChange={(phone) => {
-                        setEditedUser((prevState) => ({
-                          ...prevState,
-                          phone: `+${phone}`,
-                        }));
-                      }}
-                      readOnly={!isEditing}
-                      inputClass={`bg-gray-50 ${
-                        isEditing ? "" : "cursor-not-allowed"
-                      }`}
-                      disabled={!isEditing}
-                    />
+                <div className="space-y-4 mb-10">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-y-0">
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="email"
+                        className="text-base font-semibold text-gray-600"
+                      >
+                        Email
+                      </Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={isEditing ? editedUser.email : user.email}
+                        readOnly={!isEditing}
+                        onChange={handleInputChange}
+                        className={`bg-gray-50 ${
+                          isEditing ? "" : "cursor-not-allowed"
+                        }`}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label
+                        htmlFor="phone"
+                        className="text-base font-semibold text-gray-600"
+                      >
+                        Numéro de téléphone
+                      </Label>
+                      <div className="relative w-full">
+                        <PhoneInput
+                          country={"fr"}
+                          value={isEditing ? editedUser.phone : user.phone}
+                          onChange={(phone) => {
+                            setEditedUser((prevState) => ({
+                              ...prevState,
+                              phone: `+${phone}`,
+                            }));
+                          }}
+                          inputProps={{
+                            id: "phone",
+                            readOnly: !isEditing,
+                          }}
+                          inputClass={`!w-full bg-gray-50 ${
+                            isEditing ? "" : "cursor-not-allowed"
+                          }`}
+                          disabled={!isEditing}
+                        />
+                      </div>
+                    </div>
                   </div>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-10 space-y-2">
                   <button
                     onClick={handleEditClick}
-                    className="mr-4 bg-blue-500 text-white px-4 py-2 rounded"
+                    className="mr-4 bg-primary w-full text-white px-4 py-2 rounded"
                   >
                     {isEditing
                       ? "Enregistrer les modifications"
@@ -384,7 +397,7 @@ const UserProfilePreview = () => {
                   {!isEditing && (
                     <button
                       onClick={handleDeleteClick}
-                      className="bg-red-500 text-white px-4 py-2 rounded"
+                      className="bg-red-500 text-white text-base font-semibold w-full px-4 py-2 rounded"
                     >
                       Supprimer le profil
                     </button>
@@ -392,7 +405,7 @@ const UserProfilePreview = () => {
                   {isEditing && (
                     <button
                       onClick={() => setIsEditing(false)}
-                      className="ml-4 bg-gray-400 text-white px-4 py-2 rounded"
+                      className=" bg-gray-400 text-white text-base font-semibold w-full px-4 py-2 rounded"
                     >
                       Annuler
                     </button>
@@ -414,53 +427,75 @@ const UserProfilePreview = () => {
 };
 
 export default UserProfilePreview;
+
 const CodeVerificationDialog = ({ onVerify, onCancel }) => {
   const [emailCodeInput, setEmailCodeInput] = useState("");
   const [phoneCodeInput, setPhoneCodeInput] = useState("");
 
+  const handleVerify = () => {
+    onVerify(emailCodeInput, phoneCodeInput);
+    setEmailCodeInput("");
+    setPhoneCodeInput("");
+  };
+
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50">
-      <div className="bg-white p-6 rounded shadow-lg">
-        <h2 className="text-lg font-bold">Vérification des codes</h2>
-        <div className="mt-4">
-          <Label htmlFor="emailCode" className="text-sm font-medium">
-            Code email
-          </Label>
-          <Input
-            id="emailCode"
-            value={emailCodeInput}
-            onChange={(e) => setEmailCodeInput(e.target.value)}
-          />
-        </div>
-        <div className="mt-4">
-          <Label htmlFor="phoneCode" className="text-sm font-medium">
-            Code téléphone
-          </Label>
-          <Input
-            id="phoneCode"
-            value={phoneCodeInput}
-            onChange={(e) => setPhoneCodeInput(e.target.value)}
-          />
-        </div>
-        <div className="mt-4 flex justify-between">
-          <button
-            onClick={() => {
-              onVerify(emailCodeInput, phoneCodeInput);
-              setEmailCodeInput("");
-              setPhoneCodeInput("");
-            }}
-            className="bg-green-500 text-white px-4 py-2 rounded"
-          >
-            Vérifier
-          </button>
-          <button
-            onClick={onCancel}
-            className="bg-gray-300 text-black px-4 py-2 rounded"
-          >
-            Annuler
-          </button>
-        </div>
-      </div>
-    </div>
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+    >
+      <motion.div
+        initial={{ scale: 0.9, y: 20 }}
+        animate={{ scale: 1, y: 0 }}
+        exit={{ scale: 0.9, y: 20 }}
+        className="w-full max-w-md px-4"
+      >
+        <Card className="relative p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl font-bold text-center">
+              Vérification des codes
+            </CardTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4"
+              onClick={onCancel}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Fermer</span>
+            </Button>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="emailCode">Code email</Label>
+              <Input
+                id="emailCode"
+                value={emailCodeInput}
+                onChange={(e) => setEmailCodeInput(e.target.value)}
+                placeholder="Entrez le code reçu par email"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="phoneCode">Code téléphone</Label>
+              <Input
+                id="phoneCode"
+                value={phoneCodeInput}
+                onChange={(e) => setPhoneCodeInput(e.target.value)}
+                placeholder="Entrez le code reçu par SMS"
+              />
+            </div>
+          </CardContent>
+          <CardFooter className=" w-full flex flex-col justify-between space-y-4">
+            <Button className="w-full" onClick={handleVerify}>
+              Vérifier
+            </Button>
+            <Button variant="secondary" className="w-full" onClick={onCancel}>
+              Annuler
+            </Button>
+          </CardFooter>
+        </Card>
+      </motion.div>
+    </motion.div>
   );
 };

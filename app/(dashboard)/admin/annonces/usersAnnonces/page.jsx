@@ -31,6 +31,9 @@ import {
   AlertDialogAction,
   AlertDialogCancel,
   AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -51,15 +54,14 @@ import { Calendar } from "@/components/ui/calendar";
 import { CalendarIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 const UserPage = () => {
   const [raison, setRaison] = useState("");
   const [date, setDate] = useState("");
   const [email, setEmail] = useState("");
-  const [messageAlert, setMessageAlert] = useState("");
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [isAlertOpen, setIsAlertOpen] = useState(false);
   const [isSuspendAlertOpen, setIsSuspendAlertOpen] = useState(false);
   const [isActivationAlertOpen, setIsActivationAlertOpen] = useState(false);
   const [annonceID, setAnnonceId] = useState(null);
@@ -74,43 +76,28 @@ const UserPage = () => {
     try {
       const response = await fetch("/api/annonce/getAll");
       const data = await response.json();
-      console.log(data);
 
       const updatedData = data.map((annonce) => {
-        console.log("Annonce:", annonce);
-        console.log(
-          "Utilisateur associé:",
-          `${annonce.user.nom}  ${annonce.user.prenom} `
-        );
-        console.log("ID Utilisateur associé:", `${annonce.user.id} `);
         const userAnnonces = annonce.user.id;
-        console.log("ID Utilisateur 2.0 associé:", userAnnonces);
         setUserId(userAnnonces);
 
-        // Récupérer toutes les notes associées à cette annonce
         const notes = annonce.commentaire
           .map((c) => c.note)
-          .filter((note) => note !== null); // Exclure les notes nulles
-
-        console.log("Notes associées :", notes);
+          .filter((note) => note !== null);
 
         if (notes.length > 0) {
-          // Calculer la moyenne des notes
           const total = notes.reduce((acc, note) => acc + note, 0);
           const average = total / notes.length;
-          console.log("Moyenne des notes :", average.toFixed(2));
 
-          // Ajouter la moyenne à l'annonce sans la formater à l'avance
           annonce.averageNote = average;
         } else {
-          console.log("Aucune note trouvée pour cette annonce.");
           annonce.averageNote = 0;
         }
 
-        return annonce; // Retourner l'annonce avec la moyenne mise à jour
+        return annonce;
       });
 
-      setUsers(updatedData); // Mettre à jour les utilisateurs avec les annonces et les moyennes
+      setUsers(updatedData);
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     } finally {
@@ -153,7 +140,6 @@ const UserPage = () => {
 
   const handleSeeAnnonceInfo = useCallback(
     (annonceId) => {
-      console.log("ID de l'annonce sélectionné :", annonceId);
       router.push(`/admin/annonces/usersAnnonces/id=${annonceId}`);
     },
     [router]
@@ -231,14 +217,12 @@ const UserPage = () => {
         }
       );
 
-      // Vérifiez que la réponse est OK avant de tenter de la convertir en JSON
       if (!response.ok) {
-        const textResponse = await response.text(); // Obtenez la réponse en texte brut
-        console.error("Erreur du serveur:", textResponse); // Affichez la réponse pour déboguer
+        const textResponse = await response.text();
+        console.error("Erreur du serveur:", textResponse);
         throw new Error(textResponse || "Une erreur s'est produite");
       }
 
-      // Si la réponse est OK, essayez de parser le JSON
       const data = await response.json();
 
       if (data.error) {
@@ -297,12 +281,41 @@ const UserPage = () => {
       },
     },
 
-    { accessorKey: "statut", header: "Statut" },
     {
-      header: "Actions",
+      accessorKey: "statut",
+      header: "Statut",
       cell: ({ row }) => {
         const statut = row.original.statut;
 
+        const statusText = {
+          PUBLIEE: "publiée",
+          DESACTIVEE: "suspendue",
+          EN_ATTENTE_DE_VALIDATION: "en cours de validation",
+        };
+
+        const statusColor = {
+          PUBLIEE: "bg-primary text-white hover:bg-primary hover:text-white",
+          DESACTIVEE:
+            "bg-red-100 text-red-800 hover:bg-red-100 hover:text-red-800",
+          EN_ATTENTE_DE_VALIDATION:
+            "bg-orange-100 text-orange-500 hover:bg-orange-100 hover:text-orange-500",
+        };
+
+        return (
+          <Badge
+            className={`px-3 py-[5px] rounded-full ${
+              statusColor[statut] || "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {statusText[statut] || "Inconnu"}
+          </Badge>
+        );
+      },
+    },
+
+    {
+      header: "Actions",
+      cell: ({ row }) => {
         return (
           <div className="flex justify-left">
             <DropdownMenu>
@@ -328,6 +341,10 @@ const UserPage = () => {
                     onClick={() => {
                       if (row.original.statut === "PUBLIEE") {
                         openSuspendAlert(row.original);
+                      } else if (
+                        row.original.statut === "EN_ATTENTE_DE_VALIDATION"
+                      ) {
+                        openActivationAlert(row.original);
                       } else if (row.original.statut === "DESACTIVEE") {
                         openActivationAlert(row.original);
                       }
@@ -335,7 +352,11 @@ const UserPage = () => {
                   >
                     {row.original.statut === "PUBLIEE"
                       ? "Suspendre l'annonce"
-                      : "Activer l'annonce"}{" "}
+                      : row.original.statut === "EN_ATTENTE_DE_VALIDATION"
+                      ? "Valider l'annonce"
+                      : row.original.statut === "DESACTIVEE"
+                      ? "Activer l'annonce"
+                      : ""}
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>

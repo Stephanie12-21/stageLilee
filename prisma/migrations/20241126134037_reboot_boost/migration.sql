@@ -31,3 +31,6 @@ ALTER TABLE "boost" DROP COLUMN "typeBoost";
 
 -- DropEnum
 DROP TYPE "typeBoost";
+
+-- AlterEnum
+ALTER TYPE "statut" ADD VALUE 'EN_ATTENTE_DE_VALIDATION';

@@ -22,23 +22,12 @@ import {
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
-// Schéma de validation Zod
-const annonceSchema = z.object({
-  title: z.string().min(5, "Le titre doit contenir au moins 5 caractères"),
-  description: z
-    .string()
-    .min(10, "La description doit contenir au moins 10 caractères"),
-  images: z.array(z.instanceof(File)).optional(),
-  category: z.string().min(1, "La catégorie d'activité est requis."),
-  localisation: z.string().min(1, "La localisation est requise."),
-  adresse: z.string().min(1, "L'adresse est requise."),
-});
-
 const AddAnnonce = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [subCategory, setSubCategory] = useState("");
   const [description, setDescription] = useState({});
   const [images, setImages] = useState([]);
   const [errors, setErrors] = useState({});
@@ -56,6 +45,7 @@ const AddAnnonce = () => {
     setTitle("");
     setDescription("");
     setCategory("");
+    setSubCategory("");
     setLocalisation("");
     setAdresse("");
     setImages([]);
@@ -97,6 +87,7 @@ const AddAnnonce = () => {
       !title ||
       !description ||
       !category ||
+      !subCategory ||
       !localisation ||
       !adresse ||
       images.length === 0
@@ -111,6 +102,7 @@ const AddAnnonce = () => {
     formData.append("title", title);
     formData.append("description", JSON.stringify(description));
     formData.append("category", category);
+    formData.append("subcategory", subCategory);
     formData.append("adresse", adresse);
     formData.append("localisation", localisation);
     formData.append("statut", statut);
@@ -133,9 +125,13 @@ const AddAnnonce = () => {
       }
 
       const result = await response.json();
-      toast.success("Annonce ajoutée avec succès !");
-      router.push(`/admin/annonces/`);
-      resetForm();
+
+      toast.success("Annonce ajoutée avec succès !", {
+        onClose: () => {
+          router.push(`/admin/annonces/`);
+          resetForm();
+        },
+      });
     } catch (error) {
       console.error("Erreur :", error);
       toast.error("Une erreur est survenue lors de l'ajout de l'annonce.");
@@ -146,15 +142,27 @@ const AddAnnonce = () => {
     return <div>Chargement...</div>;
   }
 
+  const categoriesWithSubcategories = {
+    IMMOBILIER: [
+      "location pmr",
+      "appartement pmr",
+      "camping pmr",
+      "chambre d'hôtes pmr",
+      "hotel pmr",
+    ],
+    VOITURE: ["conduite accompagnée", " équipée d'une rampe"],
+    VETEMENT: ["femme", "homme", "enfant"],
+  };
+
   return (
     <div className="container mx-auto p-8">
       <h1 className="font-bold text-3xl">
-        Ajouter une Annonce par l&apos;utilisateur:{""} {session?.user.nom}{" "}
+        Ajouter une Annonce par l&apos;utilisateur: {session?.user.nom}
         <br />
-        avec l&apos;ID:{""} {session?.user.id}
+        avec l&apos;ID: {session?.user.id}
       </h1>
-      <div className="flex flex-col space-y-4  w-full">
-        {/* titre */}
+      <div className="flex flex-col space-y-4 w-full">
+        {/* Titre */}
         <div className="space-y-3">
           <Label htmlFor="title">Titre:</Label>
           <Input
@@ -168,16 +176,19 @@ const AddAnnonce = () => {
           {errors.title && <Alert variant="error">{errors.title}</Alert>}
         </div>
 
-        {/* catégorie */}
+        {/* Catégorie */}
         <div className="space-y-3">
           <Label htmlFor="category">Catégorie:</Label>
           <Select
             className="w-full"
-            onValueChange={(value) => setCategory(value)}
+            onValueChange={(value) => {
+              setCategory(value);
+              setSubCategory(""); // Réinitialiser la sous-catégorie
+            }}
           >
             <SelectTrigger className="w-full px-4">
               <SelectValue
-                placeholder=" Sélectionner une catégorie"
+                placeholder="Sélectionner une catégorie"
                 className="flex items-start"
               />
             </SelectTrigger>
@@ -199,28 +210,57 @@ const AddAnnonce = () => {
           {errors.category && <Alert variant="error">{errors.category}</Alert>}
         </div>
 
-        {/* description */}
+        {/* Sous-catégorie */}
+        <div className="space-y-3">
+          <Label htmlFor="subCategory">Sous-catégorie:</Label>
+          {categoriesWithSubcategories[category] ? (
+            <Select
+              className="w-full"
+              onValueChange={(value) => setSubCategory(value)}
+            >
+              <SelectTrigger className="w-full px-4">
+                <SelectValue
+                  placeholder="Sélectionner une sous-catégorie"
+                  className="flex items-start"
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  {categoriesWithSubcategories[category].map((sub, index) => (
+                    <SelectItem key={index} value={sub}>
+                      {sub}
+                    </SelectItem>
+                  ))}
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          ) : (
+            <Input
+              type="text"
+              id="subCategory"
+              value={subCategory}
+              onChange={(e) => setSubCategory(e.target.value)}
+              placeholder="Entrez une sous-catégorie"
+            />
+          )}
+          {errors.subCategory && (
+            <Alert variant="error">{errors.subCategory}</Alert>
+          )}
+        </div>
+
+        {/* Description */}
         <div className="space-y-3">
           <Label htmlFor="description">Description:</Label>
-          {/* <Textarea
-            id="description"
-            placeholder="Décrivez ici toutes les informations pertinentes concerant l'objet de votre annonce.
-            Par exemple: règlements à respecter, les dates de disponibilités, le prix, s'il s'agit de location."
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-            error={errors.description}
-          /> */}
           <RichTextEditor
             content={description}
-            onChange={(json) => setDescription(json)} // L'éditeur retourne maintenant un objet JSON
+            onChange={(json) => setDescription(json)}
           />
           {errors.description && (
             <Alert variant="error">{errors.description}</Alert>
           )}
         </div>
 
-        {/*ADRESSE*/}
+        {/* Adresse */}
         <div className="space-y-3">
           <Label htmlFor="adresse">Adresse exacte:</Label>
           <Input
@@ -234,10 +274,10 @@ const AddAnnonce = () => {
           {errors.adresse && <Alert variant="error">{errors.adresse}</Alert>}
         </div>
 
-        {/*  Localisation  */}
+        {/* Localisation */}
         <div className="space-y-3">
           <Label htmlFor="localisation">
-            Localisation ( prendre uniquement la source de l&apos;iframe Google
+            Localisation (prendre uniquement la source de l&apos;iframe Google
             Maps):
           </Label>
           <Input
@@ -251,7 +291,6 @@ const AddAnnonce = () => {
           {errors.localisation && (
             <Alert variant="error">{errors.localisation}</Alert>
           )}
-          {/* Affichage de l'iframe Google Maps */}
           {iframeSrc && (
             <iframe
               src={iframeSrc}
@@ -266,7 +305,7 @@ const AddAnnonce = () => {
           )}
         </div>
 
-        {/* image */}
+        {/* Image */}
         <div className="space-y-3">
           <Label htmlFor="images">Images:</Label>
           <Input
@@ -297,6 +336,7 @@ const AddAnnonce = () => {
             ))}
           </div>
         </div>
+
         <Button onClick={handleSubmit}>Ajouter l&apos;annonce</Button>
       </div>
 

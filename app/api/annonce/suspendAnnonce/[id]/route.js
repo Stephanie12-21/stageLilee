@@ -35,7 +35,7 @@ export async function PUT(request, { params }) {
     const body = await request.json();
     const { raison, statut, email, annonceTitre } = body;
 
-    const validStatut = ["PUBLIEE", "DESACTIVEE"];
+    const validStatut = ["PUBLIEE", "DESACTIVEE", "EN_ATTENTE_DE_VALIDATION"];
     if (!validStatut.includes(statut)) {
       return NextResponse.json(
         { error: "Statut utilisateur invalide." },

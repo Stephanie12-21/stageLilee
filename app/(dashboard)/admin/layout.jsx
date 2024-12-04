@@ -5,10 +5,15 @@ import { signOut, useSession } from "next-auth/react";
 import {
   ChevronDown,
   ChevronUp,
+  EllipsisVertical,
+  Heart,
+  Home,
+  Mail,
   Megaphone,
-  Menu,
-  Search,
+  MenuIcon,
+  Newspaper,
   Star,
+  UsersRound,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,19 +24,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
-import { Logo, LogoSite } from "@/public/assets";
+import { Logo } from "@/public/assets";
 import NavigationDesk from "../admin/_components/NavigationDesk";
 
-import {
-  FaChartLine,
-  FaEllipsisV,
-  FaEnvelope,
-  FaHeart,
-  FaHome,
-} from "react-icons/fa";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import {
@@ -52,7 +49,6 @@ export default function LayoutAdmin({ children }) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [testimony, setTestimony] = useState("");
-  const [isEditing, setIsEditing] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -120,90 +116,75 @@ export default function LayoutAdmin({ children }) {
 
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
-      <div className="hidden border-r bg-muted/40 md:block">
+      <div className="hidden  md:block bg-primary">
         <div className="flex h-full max-h-screen flex-col gap-2">
-          <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
-            <Link href="/" className="flex items-center gap-2 font-semibold">
-              <Image
-                src={Logo}
-                alt="logo"
-                width={180}
-                height={80}
-                className="size-40"
-              />
+          <div className="flex h-14 items-center py-10 px-4 lg:h-[60px] lg:px-6 ">
+            <Link href="/" className="flex items-center gap-2  font-semibold">
+              <Image src={Logo} alt="logo" width={200} height={100} />
             </Link>
           </div>
-          <div className="flex-1">
+          <div className="flex-1 bg-primary">
             <NavigationDesk />
           </div>
         </div>
       </div>
       <div className="flex flex-col">
-        <header className="flex h-14 items-center gap-4 border-b bg-muted/40 px-8 lg:h-[60px] lg:px-6">
+        <header className="flex h-[70px] items-center gap-4 bg-primary px-8 lg:h-[70px] lg:px-6">
           <Sheet>
             <SheetTrigger asChild>
-              <Button
-                variant="outline"
-                size="icon"
-                className="shrink-0 md:hidden"
-              >
-                <Menu className="h-5 w-5" />
-                <span className="sr-only">Toggle navigation menu</span>
-              </Button>
+              <div>
+                <MenuIcon className="h-7 w-7 shrink-0 md:hidden text-white cursor-pointer" />
+                <span className="sr-only">Icône du menu</span>
+              </div>
             </SheetTrigger>
 
-            <SheetContent side="left" className="flex flex-col">
-              <nav className="grid gap-2 text-lg font-medium">
+            <SheetContent side="left" className="flex flex-col bg-primary">
+              <div className="grid gap-2 text-lg font-medium">
                 <Link
-                  href="#"
-                  className="flex items-center gap-2 text-lg font-semibold"
+                  href="/"
+                  className="flex items-center gap-2 font-semibold"
                 >
-                  <Image
-                    src={LogoSite}
-                    alt="Logo mobile"
-                    width={40}
-                    height={40}
-                    className="size-40"
-                  />
+                  <Image src={Logo} alt="logo" width={200} height={100} />
                 </Link>
 
                 <Link
                   href={session ? `/admin/` : "#"}
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
                 >
-                  <FaHome className="h-5 w-5" />
+                  <Home className="h-5 w-5" />
                   Tableau de bord
                 </Link>
 
                 <div className="relative">
-                  <button
+                  <div
                     onClick={() => setIsSubmenuOpen(!isSubmenuOpen)}
-                    className="mx-[-0.65rem] w-full flex items-center justify-between gap-4 rounded-xl px-3 py-2 text-foreground hover:bg-muted transition-colors"
+                    className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
                   >
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-4 text-lg">
                       <Megaphone className="h-5 w-5" />
                       Annonces
                     </div>
-                    {isSubmenuOpen ? (
-                      <ChevronDown className="h-4 w-4" />
-                    ) : (
-                      <ChevronUp className="h-4 w-4" />
-                    )}
-                  </button>
+
+                    <div className="ml-auto">
+                      {isSubmenuOpen ? (
+                        <ChevronDown className="h-5 w-5" />
+                      ) : (
+                        <ChevronUp className="h-5 w-5" />
+                      )}
+                    </div>
+                  </div>
 
                   {isSubmenuOpen && (
-                    <div className="ml-8 mt-2 flex flex-col space-y-2">
+                    <div className="ml-8 mt-2 flex flex-col text-[17px] space-y-2">
                       <a
-                        href={
-                          session ? `/admin/${session.user.id}/annonces` : "#"
-                        }
-                        className="flex items-center gap-4 rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                        href={session ? `/admin/annonces` : "#"}
+                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
                       >
                         Vos annonces
                       </a>
                       <a
                         href="/admin/annonces/usersAnnonces"
-                        className="flex items-center gap-4 rounded-lg px-3 py-1 text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                        className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
                       >
                         Les annonces des utilisateurs
                       </a>
@@ -212,41 +193,42 @@ export default function LayoutAdmin({ children }) {
                 </div>
 
                 <Link
-                  href={session ? `/admin/favoris` : "#"}
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  href={session ? `/admin/blog` : "#"}
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
                 >
-                  <FaHeart className="h-5 w-5" />
+                  <Newspaper className="h-5 w-5" />
+                  Blog & presse
+                </Link>
+
+                <Link
+                  href={session ? `/admin/favoris` : "#"}
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
+                >
+                  <Heart className="h-5 w-5" />
                   Favoris
                 </Link>
 
                 <Link
-                  href={session ? `/admin/messages` : "#"}
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  href={session ? `/admin/messages/${session.user.id}` : "#"}
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
                 >
-                  <FaEnvelope className="h-5 w-5" />
+                  <Mail className="h-5 w-5" />
                   Messages
                 </Link>
 
                 <Link
-                  href={session ? `/admin/transactions` : "#"}
-                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-foreground"
+                  href={session ? `/admin/users` : "#"}
+                  className="mx-[-0.65rem] flex items-center gap-4 rounded-xl px-3 py-2 text-muted-foreground hover:text-white"
                 >
-                  <FaChartLine className="h-5 w-5" />
-                  Transactions
+                  <UsersRound className="h-[24px] w-[24px]" />
+                  Comptes utilisateurs
                 </Link>
-              </nav>
+              </div>
             </SheetContent>
           </Sheet>
           <div className="w-full flex-1">
             <form>
-              <div className="relative">
-                <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="search"
-                  placeholder="Search products..."
-                  className="w-full appearance-none bg-background pl-8 shadow-none md:w-2/3 lg:w-1/3"
-                />
-              </div>
+              <div className="relative"></div>
             </form>
           </div>
 
@@ -267,7 +249,7 @@ export default function LayoutAdmin({ children }) {
 
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="p-2 rounded-full">
-                  <FaEllipsisV className="text-gray-400" />
+                  <EllipsisVertical className="text-gray-400" />
                 </Button>
               </DropdownMenuTrigger>
             </div>

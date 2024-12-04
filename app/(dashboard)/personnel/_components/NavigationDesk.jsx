@@ -10,7 +10,7 @@ const Navigation = () => {
   const { data: session } = useSession();
 
   const DataLinkNav = [
-    { icon: FaBullhorn, name: "Annonces", href: "/personnel/" },
+    { icon: FaBullhorn, name: "Annonces", href: "/personnel/annonces" },
     { icon: Heart, name: "Favoris", href: "/personnel/favoris" },
     {
       icon: Mail,
@@ -22,11 +22,6 @@ const Navigation = () => {
       name: "Transactions",
       href: "/personnel/transactions",
     },
-    // {
-    //   icon: Box,
-    //   name: "Abonnement",
-    //   href: "/personnel/souscription",
-    // },
   ];
 
   return (

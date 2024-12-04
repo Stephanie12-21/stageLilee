@@ -118,9 +118,10 @@ model annonces {
   id                Int          @id @default(autoincrement())
   titre             String       @unique
   description       String
+  prix              Decimal?
   localisation      String?
   adresse           String
-  statut            statut?      @default(DESACTIVEE)
+  statut            statut?      @default(EN_ATTENTE_DE_VALIDATION)
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
   imageAnnonces     imageAnnonce[]
@@ -131,15 +132,12 @@ model annonces {
   commentaire       commentaire[] 
   favoris           favoris[]  
   messages          message[] 
-  boost             boost? 
-  customerId        String?
-  plan              plan?
- // boostAnnonce      boostAnnonce?  
 }
 
 enum statut {
   PUBLIEE       
-  DESACTIVEE        
+  DESACTIVEE  
+  EN_ATTENTE_DE_VALIDATION      
 }
 
 model imageAnnonce {
@@ -214,49 +212,28 @@ model newsletter {
   email             String  @unique
   unsubscribeToken  String? // Optionnel
 }
-//pour la newsletter
 
-//pour les souscriptions
-// model boostAnnonce {
-//   id                Int                  @id @default(autoincrement())
-//   nom              String               
-//   prix             Float                
-//   startDate         DateTime             
-//   endDate           DateTime             
-//   statutBoost            statutBoost   @default(ACTIVE) 
-//   createdAt         DateTime             @default(now())
-//   updatedAt         DateTime             @updatedAt
-//   annonceId         Int                  @unique 
-//   annonces          annonces             @relation(fields: [annonceId], references: [id], onDelete: Cascade)
+// enum plan {
+//  UNE
+//  RECOMMANDATION
+//  URGENT
 // }
 
-// enum statutBoost {
-//   ACTIVE
-//   DESACTIVE
+// enum periode {
+//   SEMAINE
+//   MOIS
 // }
 
+// model boost {
+//   id            Int          @id @default(autoincrement())
+//   plan          plan                 
+//   periode       periode      
+//   createdAt     DateTime     @default(now())  
+//   updatedAt     DateTime     @updatedAt       
+//   debutDate     DateTime     @default(now())  
+//   finDate       DateTime    
+//   annonceId     Int          @unique          
+//   annonce       annonces     @relation(fields: [annonceId], references: [id], onDelete: Cascade) // Relation un-à-un avec l'annonce
+// }
 
-enum plan {
- UNE
- RECOMMANDATION
- URGENT
-}
-
-enum periode {
-  SEMAINE
-  MOIS
-}
-
-model boost {
-  id            Int          @id @default(autoincrement())
-  plan          plan                 
-  periode       periode      
-  createdAt     DateTime     @default(now())  
-  updatedAt     DateTime     @updatedAt       
-  debutDate     DateTime     @default(now())  
-  finDate       DateTime    
-  annonceId     Int          @unique          
-  annonce       annonces     @relation(fields: [annonceId], references: [id], onDelete: Cascade) // Relation un-à-un avec l'annonce
-}
-//pour les souscriptions
 

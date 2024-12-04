@@ -73,7 +73,7 @@ const UserProfilePreview = () => {
 
       // Send email verification
       try {
-        const response = await fetch("/api/user/verifEmail/", {
+        const response = await fetch("/api/user/emailVerif/", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -97,34 +97,34 @@ const UserProfilePreview = () => {
       }
 
       // Send SMS verification
-      // const phone = `+${editedUser.phone}`;
-      // try {
-      //   const response = await fetch("/api/user/verifPhone/", {
-      //     method: "POST",
-      //     headers: {
-      //       "Content-Type": "application/json",
-      //     },
-      //     body: JSON.stringify({
-      //       Phone: phone,
-      //       prenom: editedUser.prenom,
-      //       verificationCode: generatedCodes.phone,
-      //     }),
-      //   });
+      const phone = `+${editedUser.phone}`;
+      try {
+        const response = await fetch("/api/user/verifPhone/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Phone: phone,
+            prenom: editedUser.prenom,
+            verificationCode: generatedCodes.phone,
+          }),
+        });
 
-      //   if (!response.ok) {
-      //     throw new Error("Erreur lors de l'envoi du SMS");
-      //   }
-      //   console.log("SMS envoyé avec succès");
-      //   console.log(
-      //     "Code de vérification envoyé par SMS:",
-      //     generatedCodes.phone
-      //   );
-      //   setShowVerifInfo(true);
-      // } catch (error) {
-      //   console.error(error);
-      //   alert(error.message);
-      //   return;
-      // }
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'envoi du SMS");
+        }
+        console.log("SMS envoyé avec succès");
+        console.log(
+          "Code de vérification envoyé par SMS:",
+          generatedCodes.phone
+        );
+        setShowVerifInfo(true);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+        return;
+      }
     } else {
       setIsEditing(true);
     }
@@ -135,18 +135,17 @@ const UserProfilePreview = () => {
       100000 + Math.random() * 900000
     ).toString();
     console.log(emailVerificationCode);
-    // const phoneVerificationCode = Math.floor(
-    //   100000 + Math.random() * 900000
-    // ).toString();
-    // return { email: emailVerificationCode, phone: phoneVerificationCode };
-    return { email: emailVerificationCode };
+    const phoneVerificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    return { email: emailVerificationCode, phone: phoneVerificationCode };
+    // return { email: emailVerificationCode };
   };
 
-  const handleVerifyCodes = (enteredEmailCode) => {
+  const handleVerifyCodes = (enteredEmailCode, enteredPhoneCode) => {
     if (
-      enteredEmailCode === verificationCodes.email
-      // &&
-      // enteredPhoneCode === verificationCodes.phone
+      enteredEmailCode === verificationCodes.email &&
+      enteredPhoneCode === verificationCodes.phone
     ) {
       handleConfirmEdit(); // Appel à la fonction de mise à jour des données
     } else {

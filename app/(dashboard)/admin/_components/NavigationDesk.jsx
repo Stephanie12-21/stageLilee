@@ -8,17 +8,16 @@ import {
   Newspaper,
   Heart,
   Mail,
-  Users,
-  TrendingUp,
   ChevronDown,
   ChevronUp,
+  UsersRound,
 } from "lucide-react";
 
 const Navigation = () => {
   const { data: session } = useSession();
 
   const pathname = usePathname();
-  const [isAnnoncesOpen, setIsAnnoncesOpen] = useState(false); // État pour gérer le sous-menu "Annonces"
+  const [isAnnoncesOpen, setIsAnnoncesOpen] = useState(false);
   const DataLinkNav = [
     {
       icon: Home,
@@ -56,19 +55,14 @@ const Navigation = () => {
       href: session ? `/admin/messages/${session.user.id}` : "#",
     },
     {
-      icon: Users,
+      icon: UsersRound,
       name: "Comptes utilisateurs",
       href: session ? `/admin/users` : "#",
-    },
-    {
-      icon: TrendingUp,
-      name: "Transactions",
-      href: session ? `/admin/transactions` : "#",
     },
   ];
 
   return (
-    <nav className="grid items-start px-2 text-[16px] font-medium lg:px-4">
+    <nav className="grid items-start px-2 text-lg font-medium lg:px-4">
       <Linknav
         pathname={pathname}
         DataLinkNav={DataLinkNav}
@@ -94,8 +88,8 @@ function Linknav({ pathname, DataLinkNav, isAnnoncesOpen, setIsAnnoncesOpen }) {
                 setIsAnnoncesOpen(!isAnnoncesOpen);
               }
             }}
-            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary focus:text-primary ${
-              pathname === i.href ? "text-primary" : ""
+            className={`flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-white focus:text-white ${
+              pathname === i.href ? "text-white" : ""
             }`}
           >
             <i.icon className="h-4 w-4" />
@@ -117,7 +111,7 @@ function Linknav({ pathname, DataLinkNav, isAnnoncesOpen, setIsAnnoncesOpen }) {
                 <Link
                   key={subItem.href}
                   href={subItem.href}
-                  className="text-[16px] text-muted-foreground hover:text-primary px-3 py-1"
+                  className="text-[17px] text-muted-foreground hover:text-white px-3 py-1"
                 >
                   {subItem.name}
                 </Link>

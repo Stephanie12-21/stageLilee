@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useEffect, useState, useRef } from "react";
 import { db } from "@/firebaseconfig";
 import { ref, push, update, onValue, serverTimestamp } from "firebase/database";
@@ -7,10 +8,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Send, ImageIcon, X } from "lucide-react";
+import { Send, ImageIcon, X, MoreVertical } from "lucide-react";
 
 const MessageCard = ({ message, me, other }) => {
   const isMessageFromMe = message.senderId === me.id;
+  const [selectedImage, setSelectedImage] = useState(null);
 
   const formattedTime = new Date(message.time).toLocaleString("fr-FR", {
     hour: "2-digit",
@@ -20,17 +22,31 @@ const MessageCard = ({ message, me, other }) => {
     year: "numeric",
   });
 
-  const [selectedImage, setSelectedImage] = useState(null);
-
   return (
     <>
       <div
         key={message.id}
-        className={`flex mb-4 ${
+        className={`flex mb-4 items-start ${
           isMessageFromMe ? "justify-end" : "justify-start"
         }`}
       >
-        <div className="flex items-start">
+        {!isMessageFromMe && (
+          <div className="w-10 h-10 mr-2">
+            <Image
+              src={other.profileImages?.[0]?.path || "/default-avatar.jpg"}
+              alt="Avatar"
+              height={40}
+              width={40}
+              className="w-full h-full rounded-full object-cover"
+            />
+          </div>
+        )}
+
+        <div
+          className={`flex flex-col ${
+            isMessageFromMe ? "items-end" : "items-start"
+          }`}
+        >
           <div
             className={`text-white p-2 rounded-md max-w-xs ${
               isMessageFromMe
@@ -61,28 +77,19 @@ const MessageCard = ({ message, me, other }) => {
 
             <div className="text-xs text-gray-300 mt-2">{formattedTime}</div>
           </div>
-
-          <div className={`w-10 h-10 ${isMessageFromMe ? "ml-2" : "mr-2"}`}>
-            {!isMessageFromMe && (
-              <Image
-                src={other.profileImages?.[0]?.path}
-                alt="Avatar"
-                height={40}
-                width={40}
-                className="w-full h-full rounded-full object-cover"
-              />
-            )}
-            {isMessageFromMe && (
-              <Image
-                src={me.image}
-                alt="Avatar"
-                height={40}
-                width={40}
-                className="w-full h-full rounded-full object-cover"
-              />
-            )}
-          </div>
         </div>
+
+        {isMessageFromMe && (
+          <div className="w-10 h-10 ml-2">
+            <Image
+              src={me.image || "/default-avatar.jpg"}
+              alt="Avatar"
+              height={40}
+              width={40}
+              className="w-full h-full rounded-full object-cover"
+            />
+          </div>
+        )}
       </div>
 
       {selectedImage && (
@@ -121,159 +128,6 @@ const MessageCard = ({ message, me, other }) => {
   );
 };
 
-// const MessageCard = ({ message, me, other }) => {
-//   const isMessageFromMe = message.senderId === me.id;
-
-//   const formattedTime = new Date(message.time).toLocaleString("fr-FR", {
-//     hour: "2-digit",
-//     minute: "2-digit",
-//     day: "2-digit",
-//     month: "2-digit",
-//     year: "numeric",
-//   });
-
-//   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
-
-//   const handleImageClick = (index) => {
-//     setSelectedImageIndex(index);
-//   };
-
-//   const goToNextImage = () => {
-//     if (selectedImageIndex < message.images.length - 1) {
-//       setSelectedImageIndex(selectedImageIndex + 1);
-//     }
-//   };
-
-//   const goToPreviousImage = () => {
-//     if (selectedImageIndex > 0) {
-//       setSelectedImageIndex(selectedImageIndex - 1);
-//     }
-//   };
-
-//   return (
-//     <>
-//       <div
-//         key={message.id}
-//         className={`flex mb-4 ${
-//           isMessageFromMe ? "justify-end" : "justify-start"
-//         }`}
-//       >
-//         <div className="flex items-start">
-//           <div
-//             className={`text-white p-2 rounded-md max-w-xs ${
-//               isMessageFromMe
-//                 ? "bg-amber-500 self-end"
-//                 : "bg-gray-700 self-start"
-//             }`}
-//           >
-//             {message.content && <p className="text-base">{message.content}</p>}
-
-//             {message.images && message.images.length > 0 && (
-//               <div className="flex flex-wrap gap-2 mt-2">
-//                 {message.images.length > 1 && (
-//                   <div className="relative w-[250px] h-[250px] bg-gray-100 rounded-lg overflow-hidden cursor-pointer">
-//                     <Image
-//                       src={message.images[0]}
-//                       alt={`Image 1`}
-//                       layout="fill"
-//                       className="object-cover"
-//                       onClick={() => handleImageClick(0)}
-//                     />
-//                     <div className="absolute top-0 left-0 bg-black bg-opacity-50 text-white p-2">
-//                       +{message.images.length - 1} photos
-//                     </div>
-//                   </div>
-//                 )}
-//                 {message.images.length === 1 && (
-//                   <div className="relative w-[250px] h-[250px] bg-gray-100 rounded-lg overflow-hidden cursor-pointer">
-//                     <Image
-//                       src={message.images[0]}
-//                       alt={`Image 1`}
-//                       layout="fill"
-//                       className="object-cover"
-//                       onClick={() => handleImageClick(0)}
-//                     />
-//                   </div>
-//                 )}
-//               </div>
-//             )}
-
-//             <div className="text-xs text-gray-300 mt-2">{formattedTime}</div>
-//           </div>
-
-//           <div className={`w-10 h-10 ${isMessageFromMe ? "ml-2" : "mr-2"}`}>
-//             {!isMessageFromMe && (
-//               <Image
-//                 src={other.profileImages?.[0]?.path}
-//                 alt="Avatar"
-//                 height={40}
-//                 width={40}
-//                 className="w-full h-full rounded-full object-cover"
-//               />
-//             )}
-//             {isMessageFromMe && (
-//               <Image
-//                 src={me.image}
-//                 alt="Avatar"
-//                 height={40}
-//                 width={40}
-//                 className="w-full h-full rounded-full object-cover"
-//               />
-//             )}
-//           </div>
-//         </div>
-//       </div>
-
-//       {selectedImageIndex !== null && (
-//         <div
-//           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50"
-//           style={{
-//             backdropFilter: "blur(10px)",
-//             margin: 0,
-//             padding: 0,
-//             top: 0,
-//             left: 0,
-//             right: 0,
-//             bottom: 0,
-//             boxSizing: "border-box",
-//           }}
-//         >
-//           <div className="relative w-full h-full flex items-center justify-center">
-//             <button
-//               className="absolute top-4 right-4 text-white hover:bg-[#9B9B9B] p-2 rounded-full"
-//               onClick={() => setSelectedImageIndex(null)}
-//             >
-//               <X className="w-6 h-6" />
-//             </button>
-
-//             <button
-//               className="absolute left-4 top-1/2 transform -translate-y-1/2 text-white text-4xl"
-//               onClick={goToPreviousImage}
-//             >
-//               &lt;
-//             </button>
-
-//             <Image
-//               src={message.images[selectedImageIndex]}
-//               alt={`Image ${selectedImageIndex + 1}`}
-//               width={800}
-//               height={800}
-//               className="max-w-full max-h-screen object-contain"
-//             />
-
-//             <button
-//               className="absolute right-4 top-1/2 transform -translate-y-1/2 text-white text-4xl"
-//               onClick={goToNextImage}
-//             >
-//               &gt;
-//             </button>
-//           </div>
-//         </div>
-//       )}
-//     </>
-//   );
-// };
-
 const MessageInput = ({
   sendMessage,
   message,
@@ -300,12 +154,9 @@ const MessageInput = ({
   };
 
   return (
-    <div className="space-y-2">
+    <div className="space-y-2 p-4 bg-background border-t">
       {imagePreviews.length > 0 && (
-        <ScrollArea
-          className="flex flex-nowrap gap-2 pb-2"
-          style={{ maxHeight: "100px" }}
-        >
+        <ScrollArea className="flex gap-2 pb-2" style={{ maxHeight: "100px" }}>
           {imagePreviews.map((preview, index) => (
             <div key={index} className="relative inline-block">
               <Image
@@ -313,7 +164,7 @@ const MessageInput = ({
                 alt="Preview"
                 width={50}
                 height={50}
-                className="rounded-md"
+                className="rounded-md object-cover"
               />
               <Button
                 size="icon"
@@ -352,18 +203,17 @@ const MessageInput = ({
           <ImageIcon className="h-4 w-4" />
         </Button>
         <Button onClick={sendMessage}>
-          <Send className="h-4 w-4 mr-2" />
+          <Send className="h-4 w-4" />
         </Button>
       </div>
     </div>
   );
 };
 
-export default function Component({ selectedChatroom }) {
+export default function ChatInterface({ selectedChatroom }) {
   const [message, setMessage] = useState("");
   const [messages, setMessages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
-  const [selectedImage, setSelectedImage] = useState(null);
   const messagesEndRef = useRef(null);
 
   const me = selectedChatroom?.myData;
@@ -462,7 +312,7 @@ export default function Component({ selectedChatroom }) {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background mb-7">
+    <div className="flex flex-col h-screen bg-background">
       <div className="bg-primary text-primary-foreground p-4 flex items-center justify-between shadow-md sticky top-0 z-10">
         <div className="flex items-center space-x-4">
           <Avatar className="h-10 w-10">
@@ -476,22 +326,24 @@ export default function Component({ selectedChatroom }) {
             </AvatarFallback>
           </Avatar>
           <div>
-            <h2 className="text-lg font-bold">
+            <h2 className="text-lg font-semibold">
               {other?.prenom} {other?.nom}
             </h2>
           </div>
         </div>
+        <Button variant="ghost" size="icon">
+          <MoreVertical className="h-5 w-5" />
+        </Button>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1 py-4">
+        <div className="space-y-4 max-w-2xl mx-auto">
           {messages?.map((message) => (
             <MessageCard
               key={message.id}
               message={message}
               me={me}
               other={other}
-              onImageClick={setSelectedImage}
             />
           ))}
           <div ref={messagesEndRef} />

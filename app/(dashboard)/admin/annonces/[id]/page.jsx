@@ -1,44 +1,587 @@
+// "use client";
+// import { Button } from "@/components/ui/button";
+// import { useSession } from "next-auth/react";
+// import Image from "next/image";
+// import React, { useEffect, useState } from "react";
+// import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+// import { DeleteIcon, EditIcon, MoreHorizontal, StarIcon } from "lucide-react";
+
+// import {
+//   DropdownMenu,
+//   DropdownMenuContent,
+//   DropdownMenuGroup,
+//   DropdownMenuItem,
+//   DropdownMenuPortal,
+//   DropdownMenuTrigger,
+// } from "@/components/ui/dropdown-menu";
+// import { Textarea } from "@/components/ui/textarea";
+// import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
+// import StarRatingDialog from "@/app/(dialog)/note/page";
+
+// const InfoAnnonces = ({ params }) => {
+//   const { id } = params;
+//   const { data: session } = useSession();
+//   const [annonceId, setAnnonceId] = useState("");
+//   const [userId, setUserId] = useState("");
+//   const [title, setTitle] = useState("");
+//   const [category, setCategory] = useState("");
+//   const [description, setDescription] = useState("");
+//   const [images, setImages] = useState([]);
+//   const [localisation, setLocalisation] = useState("");
+//   const [adresse, setAdresse] = useState("");
+//   const [iframeSrc, setIframeSrc] = useState("");
+//   const [comment, setComment] = useState("");
+//   const [commentId, setCommentId] = useState("");
+//   const [comments, setComments] = useState([]);
+//   const [editCommentId, setEditCommentId] = useState(null);
+//   const [editCommentText, setEditCommentText] = useState("");
+//   const [showDeleteModal, setShowDeleteModal] = useState(false);
+//   const [selectedCommentId, setSelectedCommentId] = useState(null);
+//   const [showModalRating, setShowModalRating] = useState(false);
+//   const [note, setNote] = useState("");
+
+//   useEffect(() => {
+//     async function fetchAnnonce() {
+//       try {
+//         const response = await fetch(`/api/annonce/${id}`);
+//         if (response.ok) {
+//           const data = await response.json();
+//           setAnnonceId(data.id);
+//           setTitle(data.titre);
+//           setCategory(data.categorieAnnonce);
+//           setDescription(data.description);
+//           setAdresse(data.adresse);
+//           setLocalisation(data.localisation);
+//           setImages(data.imageAnnonces);
+//           if (data.localisation) setIframeSrc(data.localisation);
+//         } else {
+//           console.error("Annonce non trouvée, avec l'id annonce :", id);
+//         }
+//       } catch (error) {
+//         console.error("Erreur lors de la récupération de l'annonce :", error);
+//       }
+//     }
+
+//     fetchAnnonce();
+//   }, [id]);
+
+//   useEffect(() => {
+//     if (annonceId) {
+//       async function fetchComments() {
+//         try {
+//           const response = await fetch(
+//             `/api/comments?annoncesId=${encodeURIComponent(annonceId)}`
+//           );
+//           if (response.ok) {
+//             const data = await response.json();
+//             const sortedComments = data.commentaires.sort(
+//               (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+//             );
+//             setComments(sortedComments);
+//           } else {
+//             console.error("Erreur lors de la récupération des commentaires");
+//           }
+//         } catch (error) {
+//           console.error(
+//             "Erreur lors de la récupération des commentaires :",
+//             error
+//           );
+//         }
+//       }
+
+//       fetchComments();
+//     }
+//   }, [annonceId]);
+
+//   const handlePublish = async (e) => {
+//     e.preventDefault();
+//     if (!comment) {
+//       alert("Vous n'avez écrit aucun commentaire");
+//       return;
+//     } else if (!session) {
+//       alert(
+//         "Vous devez vous connecter à votre compte pour pouvoir publier des commentaires"
+//       );
+//       return;
+//     }
+
+//     const formData = new FormData();
+//     formData.append("IdAnnonce", annonceId);
+//     formData.append("IdUser", session.user.id);
+//     formData.append("Commentaire", comment);
+
+//     try {
+//       const response = await fetch("/api/comments/", {
+//         method: "POST",
+//         body: formData,
+//       });
+//       if (response.ok) {
+//         const currentTime = new Date().toISOString();
+//         setComment("");
+//         setComments((prevComments) => [
+//           {
+//             user: session.user,
+//             commentaire: comment,
+//             createdAt: currentTime,
+//           },
+//           ...prevComments,
+//         ]);
+//       } else {
+//         console.log("Erreur lors de la publication du commentaire.");
+//       }
+//     } catch (error) {
+//       console.error("Erreur:", error);
+//     }
+//   };
+
+//   const handleEditComment = (commentItem) => {
+//     setEditCommentId(commentItem.id);
+//     setEditCommentText(commentItem.commentaire);
+//     // console.log("commentaire à mettre à jour :", editCommentText);
+//   };
+
+//   const handleUpdateComment = async () => {
+//     if (!editCommentText) {
+//       alert("Vous devez entrer un commentaire.");
+//       return;
+//     }
+
+//     if (!editCommentId) {
+//       alert("ID du commentaire manquant.");
+//       return;
+//     }
+
+//     const formData = new FormData();
+//     formData.append("IdCommentaire", editCommentId);
+//     formData.append("Commentaire", editCommentText);
+
+//     // console.log("commentaire à mettre à jour :", editCommentText);
+//     // console.log("ID commentaire à mettre à jour :", editCommentId);
+
+//     try {
+//       const response = await fetch(`/api/comments/${editCommentId}/`, {
+//         method: "PUT",
+//         body: formData,
+//       });
+
+//       if (response.ok) {
+//         setComments((prevComments) =>
+//           prevComments.map((comment) =>
+//             comment.id === parseInt(editCommentId, 10)
+//               ? {
+//                   ...comment,
+//                   commentaire: editCommentText,
+//                   updatedAt: new Date().toISOString(),
+//                 }
+//               : comment
+//           )
+//         );
+//         setEditCommentId(null);
+//         setEditCommentText("");
+//         alert("Commentaire mis à jour avec succès.");
+//       } else {
+//         const errorData = await response.json();
+//         alert(
+//           `Erreur lors de la mise à jour du commentaire: ${errorData.message}`
+//         );
+//       }
+//     } catch (error) {
+//       alert("Erreur:", error);
+//     }
+//   };
+
+//   const handleCancelEdit = () => {
+//     setEditCommentId(null);
+//     setEditCommentText("");
+//   };
+
+//   const handleDeleteClick = (commentItem) => {
+//     setSelectedCommentId(commentItem.id);
+//     setShowDeleteModal(true);
+//     // console.log(`ID du commentaire sélectionné : ${commentItem.id}`);
+//   };
+
+//   const handleCloseModal = () => {
+//     setShowDeleteModal(false);
+//     setSelectedCommentId(null);
+//   };
+
+//   const handleConfirmDelete = async () => {
+//     if (!selectedCommentId) {
+//       console.log("ID de commentaire manquant");
+//       return;
+//     }
+//     try {
+//       const response = await fetch(`/api/comments/${selectedCommentId}/`, {
+//         method: "DELETE",
+//       });
+
+//       if (response.ok) {
+//         setComments((prevComments) =>
+//           prevComments.filter((comment) => comment.id !== selectedCommentId)
+//         );
+//         alert("Commentaire supprimé avec succès.");
+//       } else {
+//         const errorData = await response.json();
+//         alert(
+//           `Erreur lors de la suppression du commentaire: ${errorData.message}`
+//         );
+//       }
+//     } catch (error) {
+//       alert("Erreur:", error);
+//     } finally {
+//       handleCloseModal(); // Close the modal after the operation
+//     }
+//   };
+
+//   const handleRating = (commentItem) => {
+//     setShowModalRating(true);
+//     setNote(commentItem.note);
+//     const note = commentItem.note || 0;
+//     setSelectedCommentId(commentItem.id);
+//     const commentId = `${commentItem.id}`;
+//     // console.log("commentaire sélectionné:", commentId);
+//     // console.log("note enregistrée à ce commentaire:", note);
+//   };
+
+//   const handleCloseRatingModal = () => {
+//     setShowModalRating(false);
+//   };
+
+//   const calculateAverageRating = (comments) => {
+//     if (comments.length === 0) return 0;
+//     const totalRating = comments.reduce((sum, comment) => {
+//       return sum + (comment.note || 0); // Prendre en compte les notes ou 0 si pas de note
+//     }, 0);
+//     return totalRating / comments.length; // Retourne la moyenne
+//   };
+
+//   const averageRating = calculateAverageRating(comments);
+
+//   const renderStars = (rating) => {
+//     const stars = [];
+//     const fullStars = Math.floor(rating);
+//     const hasHalfStar = rating % 1 !== 0;
+
+//     for (let i = 1; i <= 5; i++) {
+//       if (i <= fullStars) {
+//         stars.push(
+//           <StarIcon
+//             key={i}
+//             className="h-5 w-5 fill-yellow-400 text-yellow-400" // Étoile pleine en jaune
+//           />
+//         );
+//       } else if (i === fullStars + 1 && hasHalfStar) {
+//         stars.push(
+//           <div key={i} className="relative h-5 w-5">
+//             <StarIcon
+//               className="absolute h-full w-full fill-yellow-400 text-yellow-400"
+//               style={{ clipPath: "inset(0 0.5em 0 0)" }} // Partie jaune
+//             />
+//             <StarIcon
+//               className="absolute h-full w-full fill-gray-400  text-gray-400" // Partie grise
+//               style={{ clipPath: "inset(0 0 0 0.5em)" }} // Partie grise
+//             />
+//           </div>
+//         );
+//       } else {
+//         stars.push(
+//           <StarIcon
+//             key={i}
+//             className="h-5 w-5 text-gray-400" // Étoile vide en gris
+//           />
+//         );
+//       }
+//     }
+//     return stars;
+//   };
+
+//   return (
+//     <div className="container mx-auto flex">
+//       <div className="w-1/2 p-4">
+//         <h1 className="text-3xl">
+//           <strong>Titre:</strong> {title}
+//         </h1>
+//         <p>
+//           <strong>Catégorie:</strong> {category}
+//         </p>
+//         <div
+//           className="text-[#353945] font-medium text-[18px] pt-4"
+//           dangerouslySetInnerHTML={{
+//             __html:
+//               description.replace(/^"|"$/g, "") ||
+//               "<p>Contenu non disponible.</p>",
+//           }}
+//         />
+//         <p>
+//           <strong>Adresse:</strong> {adresse}
+//         </p>
+//         <p>
+//           <strong>ID de l&apos;annonce:</strong> {annonceId}
+//         </p>
+//         <div>
+//           <h3 className="text-xl">
+//             <strong>Moyenne des notes:</strong> {averageRating.toFixed(1)}/5
+//           </h3>
+//           <div className="flex space-x-1">{renderStars(averageRating)}</div>
+//         </div>
+//         <div>
+//           <h3>
+//             <strong>Images :</strong>
+//           </h3>
+//           {images.length > 0 ? (
+//             images.map((imageAnnonces, index) => (
+//               <Image
+//                 key={index}
+//                 src={imageAnnonces.path}
+//                 alt={`Image ${index + 1}`}
+//                 width={500}
+//                 height={500}
+//                 priority="true"
+//                 style={{ width: "500px", margin: "10px" }}
+//               />
+//             ))
+//           ) : (
+//             <p>Aucune image disponible</p>
+//           )}
+//         </div>
+
+//         <div>
+//           <h3>Localisation</h3>
+//           {iframeSrc ? (
+//             <iframe
+//               src={iframeSrc}
+//               width="600"
+//               height="450"
+//               style={{ border: "0" }}
+//               allowFullScreen={true}
+//               loading="lazy"
+//             ></iframe>
+//           ) : (
+//             <p>Localisation non disponible</p>
+//           )}
+//         </div>
+//       </div>
+
+//       <div className="w-1/2 p-4">
+//         <h3 className="text-3xl underline">Commentaires</h3>
+//         <div className="mb-6 pt-5 pr-7 flex justify-between items-center space-x-3">
+//           <input
+//             type="text"
+//             placeholder="Exprimez-vous..."
+//             className="border border-gray-300 p-2 w-full rounded-lg"
+//             value={comment}
+//             onChange={(e) => setComment(e.target.value)}
+//           />
+//           <Button
+//             className="py-4 px-5 text-[17px] rounded-[10px]"
+//             onClick={handlePublish}
+//           >
+//             Publier
+//           </Button>
+//         </div>
+
+//         {comments.map((commentItem, index) => (
+//           <div key={index} className="flex justify-between pt-8 pr-7">
+//             <div className="flex space-x-5 border border-grey w-full p-2 rounded-lg">
+//               <div>
+//                 <Avatar>
+//                   <AvatarImage
+//                     src={
+//                       commentItem.user.profileImage ||
+//                       "https://github.com/shadcn.png"
+//                     }
+//                     alt={commentItem.user.nom}
+//                   />
+//                   <AvatarFallback>Photo</AvatarFallback>
+//                 </Avatar>
+//               </div>
+//               <div className="space-y-3 flex-grow">
+//                 <div className="flex justify-between items-center">
+//                   {" "}
+//                   {/* Conteneur flex pour le nom/prénom et le dropdown */}
+//                   <p className="text-[#182135] font-bold text-[18px] hover:underline hover:cursor-default">
+//                     {commentItem.user.nom} {commentItem.user.prenom}
+//                   </p>
+//                   <DropdownMenu>
+//                     <DropdownMenuTrigger>
+//                       <Button variant="link" className="text-xs">
+//                         <MoreHorizontal className="w-4 h-4" />
+//                       </Button>
+//                     </DropdownMenuTrigger>
+//                     <DropdownMenuPortal>
+//                       <DropdownMenuContent>
+//                         <DropdownMenuGroup>
+//                           <DropdownMenuItem>
+//                             <Button
+//                               variant="link"
+//                               className="flex items-center"
+//                               onClick={() => handleEditComment(commentItem)}
+//                             >
+//                               <EditIcon className="mr-2 h-4 w-4" />
+//                               Modifier
+//                             </Button>
+//                           </DropdownMenuItem>
+//                           <DropdownMenuItem>
+//                             <Button
+//                               variant="link"
+//                               className="flex items-center"
+//                               onClick={() => handleDeleteClick(commentItem)}
+//                             >
+//                               <DeleteIcon className="mr-2 h-4 w-4" />
+//                               Supprimer
+//                             </Button>
+//                           </DropdownMenuItem>
+//                           <DropdownMenuItem>
+//                             <Button
+//                               variant="link"
+//                               className="flex items-center"
+//                               // onClick={handleRating}
+//                               onClick={() => handleRating(commentItem)}
+//                             >
+//                               <StarIcon className="mr-2 h-4 w-4" />
+//                               Notes
+//                             </Button>
+//                           </DropdownMenuItem>
+//                         </DropdownMenuGroup>
+//                       </DropdownMenuContent>
+//                     </DropdownMenuPortal>
+//                   </DropdownMenu>
+//                 </div>
+//                 {editCommentId === commentItem.id ? (
+//                   <Textarea
+//                     type="text"
+//                     value={editCommentText}
+//                     onChange={(e) => setEditCommentText(e.target.value)}
+//                     className="border border-gray-300 p-2 w-full rounded-lg"
+//                   />
+//                 ) : (
+//                   <p>{commentItem.commentaire}</p>
+//                 )}
+
+//                 <div className="flex justify-between items-center pt-4">
+//                   {!editCommentId && (
+//                     <>
+//                       {commentItem.updatedAt &&
+//                       commentItem.updatedAt === commentItem.createdAt ? (
+//                         <span className="text-sm text-gray-500">
+//                           Publié le :{" "}
+//                           {new Date(commentItem.createdAt).toLocaleDateString()}{" "}
+//                           à{" "}
+//                           {new Date(commentItem.createdAt).toLocaleTimeString(
+//                             undefined,
+//                             {
+//                               hour: "2-digit",
+//                               minute: "2-digit",
+//                             }
+//                           )}
+//                         </span>
+//                       ) : (
+//                         commentItem.updatedAt && (
+//                           <span className="text-sm text-gray-500">
+//                             Modifié le :{" "}
+//                             {new Date(
+//                               commentItem.updatedAt
+//                             ).toLocaleDateString()}{" "}
+//                             à{" "}
+//                             {new Date(commentItem.updatedAt).toLocaleTimeString(
+//                               undefined,
+//                               {
+//                                 hour: "2-digit",
+//                                 minute: "2-digit",
+//                               }
+//                             )}
+//                           </span>
+//                         )
+//                       )}
+//                     </>
+//                   )}
+//                   <div>
+//                     {commentItem.note ? (
+//                       <div className="flex space-x-1">
+//                         {renderStars(commentItem.note)}
+//                       </div>
+//                     ) : null}
+//                   </div>
+//                 </div>
+
+//                 {editCommentId === commentItem.id && (
+//                   <div className="flex space-x-4">
+//                     <Button onClick={handleUpdateComment}>Mettre à jour</Button>
+//                     <Button variant="outline" onClick={handleCancelEdit}>
+//                       Annuler
+//                     </Button>
+//                   </div>
+//                 )}
+//               </div>
+//             </div>
+//           </div>
+//         ))}
+//       </div>
+
+//       <ConfirmDeleteModal
+//         isOpen={showDeleteModal}
+//         onClose={handleCloseModal}
+//         onConfirm={handleConfirmDelete}
+//       />
+
+//       <StarRatingDialog
+//         isOpen={showModalRating}
+//         annonceId={annonceId} // Pass the annonceId
+//         // userId={userId} // Pass the userId
+//         onClose={handleCloseRatingModal}
+//         commentId={selectedCommentId}
+//         currentRating={note}
+//       />
+//     </div>
+//   );
+// };
+
+// export default InfoAnnonces;
+
 "use client";
-import { Button } from "@/components/ui/button";
 import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { DeleteIcon, EditIcon, MoreHorizontal, StarIcon } from "lucide-react";
-
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Textarea } from "@/components/ui/textarea";
+  StarIcon,
+  MapPinIcon,
+  TagIcon,
+  ImageIcon,
+  MapPinned,
+  X,
+} from "lucide-react";
 import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
-import StarRatingDialog from "@/app/(dialog)/note/page";
+
+import { Swiper, SwiperSlide } from "swiper/react";
+import "swiper/swiper-bundle.css";
 
 const InfoAnnonces = ({ params }) => {
   const { id } = params;
   const { data: session } = useSession();
+  const router = useRouter();
   const [annonceId, setAnnonceId] = useState("");
-  const [userId, setUserId] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [localisation, setLocalisation] = useState("");
   const [adresse, setAdresse] = useState("");
-  const [iframeSrc, setIframeSrc] = useState("");
-  const [comment, setComment] = useState("");
-  const [commentId, setCommentId] = useState("");
   const [comments, setComments] = useState([]);
-  const [editCommentId, setEditCommentId] = useState(null);
-  const [editCommentText, setEditCommentText] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedCommentId, setSelectedCommentId] = useState(null);
-  const [showModalRating, setShowModalRating] = useState(false);
-  const [note, setNote] = useState("");
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [isLightboxOpen, setLightboxOpen] = useState(false);
+
+  const remainingImages = images.slice(1);
+  const remainingCount = remainingImages.length;
+
+  useEffect(() => {
+    if (!session) {
+      router.push("/login");
+    }
+  }, [session, router]);
 
   useEffect(() => {
     async function fetchAnnonce() {
@@ -53,7 +596,6 @@ const InfoAnnonces = ({ params }) => {
           setAdresse(data.adresse);
           setLocalisation(data.localisation);
           setImages(data.imageAnnonces);
-          if (data.localisation) setIframeSrc(data.localisation);
         } else {
           console.error("Annonce non trouvée, avec l'id annonce :", id);
         }
@@ -93,114 +635,6 @@ const InfoAnnonces = ({ params }) => {
     }
   }, [annonceId]);
 
-  const handlePublish = async (e) => {
-    e.preventDefault();
-    if (!comment) {
-      alert("Vous n'avez écrit aucun commentaire");
-      return;
-    } else if (!session) {
-      alert(
-        "Vous devez vous connecter à votre compte pour pouvoir publier des commentaires"
-      );
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("IdAnnonce", annonceId);
-    formData.append("IdUser", session.user.id);
-    formData.append("Commentaire", comment);
-
-    try {
-      const response = await fetch("/api/comments/", {
-        method: "POST",
-        body: formData,
-      });
-      if (response.ok) {
-        const currentTime = new Date().toISOString();
-        setComment("");
-        setComments((prevComments) => [
-          {
-            user: session.user,
-            commentaire: comment,
-            createdAt: currentTime,
-          },
-          ...prevComments,
-        ]);
-      } else {
-        console.log("Erreur lors de la publication du commentaire.");
-      }
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
-
-  const handleEditComment = (commentItem) => {
-    setEditCommentId(commentItem.id);
-    setEditCommentText(commentItem.commentaire);
-    // console.log("commentaire à mettre à jour :", editCommentText);
-  };
-
-  const handleUpdateComment = async () => {
-    if (!editCommentText) {
-      alert("Vous devez entrer un commentaire.");
-      return;
-    }
-
-    if (!editCommentId) {
-      alert("ID du commentaire manquant.");
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append("IdCommentaire", editCommentId);
-    formData.append("Commentaire", editCommentText);
-
-    // console.log("commentaire à mettre à jour :", editCommentText);
-    // console.log("ID commentaire à mettre à jour :", editCommentId);
-
-    try {
-      const response = await fetch(`/api/comments/${editCommentId}/`, {
-        method: "PUT",
-        body: formData,
-      });
-
-      if (response.ok) {
-        setComments((prevComments) =>
-          prevComments.map((comment) =>
-            comment.id === parseInt(editCommentId, 10)
-              ? {
-                  ...comment,
-                  commentaire: editCommentText,
-                  updatedAt: new Date().toISOString(),
-                }
-              : comment
-          )
-        );
-        setEditCommentId(null);
-        setEditCommentText("");
-        alert("Commentaire mis à jour avec succès.");
-      } else {
-        const errorData = await response.json();
-        alert(
-          `Erreur lors de la mise à jour du commentaire: ${errorData.message}`
-        );
-      }
-    } catch (error) {
-      alert("Erreur:", error);
-    }
-  };
-
-  const handleCancelEdit = () => {
-    setEditCommentId(null);
-    setEditCommentText("");
-  };
-
-  const handleDeleteClick = (commentItem) => {
-    setSelectedCommentId(commentItem.id);
-    setShowDeleteModal(true);
-    // console.log(`ID du commentaire sélectionné : ${commentItem.id}`);
-  };
-
   const handleCloseModal = () => {
     setShowDeleteModal(false);
     setSelectedCommentId(null);
@@ -230,30 +664,16 @@ const InfoAnnonces = ({ params }) => {
     } catch (error) {
       alert("Erreur:", error);
     } finally {
-      handleCloseModal(); // Close the modal after the operation
+      handleCloseModal();
     }
-  };
-
-  const handleRating = (commentItem) => {
-    setShowModalRating(true);
-    setNote(commentItem.note);
-    const note = commentItem.note || 0;
-    setSelectedCommentId(commentItem.id);
-    const commentId = `${commentItem.id}`;
-    // console.log("commentaire sélectionné:", commentId);
-    // console.log("note enregistrée à ce commentaire:", note);
-  };
-
-  const handleCloseRatingModal = () => {
-    setShowModalRating(false);
   };
 
   const calculateAverageRating = (comments) => {
     if (comments.length === 0) return 0;
     const totalRating = comments.reduce((sum, comment) => {
-      return sum + (comment.note || 0); // Prendre en compte les notes ou 0 si pas de note
+      return sum + (comment.note || 0);
     }, 0);
-    return totalRating / comments.length; // Retourne la moyenne
+    return totalRating / comments.length;
   };
 
   const averageRating = calculateAverageRating(comments);
@@ -268,7 +688,7 @@ const InfoAnnonces = ({ params }) => {
         stars.push(
           <StarIcon
             key={i}
-            className="h-5 w-5 fill-yellow-400 text-yellow-400" // Étoile pleine en jaune
+            className="h-5 w-5 fill-yellow-400 text-yellow-400"
           />
         );
       } else if (i === fullStars + 1 && hasHalfStar) {
@@ -276,262 +696,184 @@ const InfoAnnonces = ({ params }) => {
           <div key={i} className="relative h-5 w-5">
             <StarIcon
               className="absolute h-full w-full fill-yellow-400 text-yellow-400"
-              style={{ clipPath: "inset(0 0.5em 0 0)" }} // Partie jaune
+              style={{ clipPath: "inset(0 0.5em 0 0)" }}
             />
             <StarIcon
-              className="absolute h-full w-full fill-gray-400  text-gray-400" // Partie grise
-              style={{ clipPath: "inset(0 0 0 0.5em)" }} // Partie grise
+              className="absolute h-full w-full fill-gray-400  text-gray-400"
+              style={{ clipPath: "inset(0 0 0 0.5em)" }}
             />
           </div>
         );
       } else {
-        stars.push(
-          <StarIcon
-            key={i}
-            className="h-5 w-5 text-gray-400" // Étoile vide en gris
-          />
-        );
+        stars.push(<StarIcon key={i} className="h-5 w-5 text-gray-400" />);
       }
     }
     return stars;
   };
 
+  const openLightbox = (index) => {
+    setCurrentIndex(index);
+    setLightboxOpen(true);
+  };
+
   return (
-    <div className="container mx-auto flex">
-      <div className="w-1/2 p-4">
-        <h1 className="text-3xl">
-          <strong>Titre:</strong> {title}
-        </h1>
-        <p>
-          <strong>Catégorie:</strong> {category}
-        </p>
-        <div
-          className="text-[#353945] font-medium text-[18px] pt-4"
-          dangerouslySetInnerHTML={{
-            __html:
-              description.replace(/^"|"$/g, "") ||
-              "<p>Contenu non disponible.</p>",
-          }}
-        />
-        <p>
-          <strong>Adresse:</strong> {adresse}
-        </p>
-        <p>
-          <strong>ID de l&apos;annonce:</strong> {annonceId}
-        </p>
-        <div>
-          <h3 className="text-xl">
-            <strong>Moyenne des notes:</strong> {averageRating.toFixed(1)}/5
-          </h3>
-          <div className="flex space-x-1">{renderStars(averageRating)}</div>
-        </div>
-        <div>
-          <h3>
-            <strong>Images :</strong>
-          </h3>
-          {images.length > 0 ? (
-            images.map((imageAnnonces, index) => (
-              <Image
-                key={index}
-                src={imageAnnonces.path}
-                alt={`Image ${index + 1}`}
-                width={500}
-                height={500}
-                priority="true"
-                style={{ width: "500px", margin: "10px" }}
-              />
-            ))
-          ) : (
-            <p>Aucune image disponible</p>
-          )}
+    <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
+        <div className="flex justify-between items-center bg-primary p-6">
+          <h1 className="text-3xl font-bold text-white">{title}</h1>
+          <div className="flex items-center space-x-4">
+            {renderStars(averageRating)}
+          </div>
         </div>
 
-        <div>
-          <h3>Localisation</h3>
-          {iframeSrc ? (
-            <iframe
-              src={iframeSrc}
-              width="600"
-              height="450"
-              style={{ border: "0" }}
-              allowFullScreen={true}
-              loading="lazy"
-            ></iframe>
-          ) : (
-            <p>Localisation non disponible</p>
-          )}
-        </div>
-      </div>
-
-      <div className="w-1/2 p-4">
-        <h3 className="text-3xl underline">Commentaires</h3>
-        <div className="mb-6 pt-5 pr-7 flex justify-between items-center space-x-3">
-          <input
-            type="text"
-            placeholder="Exprimez-vous..."
-            className="border border-gray-300 p-2 w-full rounded-lg"
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          />
-          <Button
-            className="py-4 px-5 text-[17px] rounded-[10px]"
-            onClick={handlePublish}
-          >
-            Publier
-          </Button>
-        </div>
-
-        {comments.map((commentItem, index) => (
-          <div key={index} className="flex justify-between pt-8 pr-7">
-            <div className="flex space-x-5 border border-grey w-full p-2 rounded-lg">
-              <div>
-                <Avatar>
-                  <AvatarImage
-                    src={
-                      commentItem.user.profileImage ||
-                      "https://github.com/shadcn.png"
-                    }
-                    alt={commentItem.user.nom}
-                  />
-                  <AvatarFallback>Photo</AvatarFallback>
-                </Avatar>
+        <div className="grid md:grid-cols-2 gap-8 p-6">
+          <div>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <TagIcon className="text-blue-500 h-6 w-6" />
+                <p className="font-semibold text-gray-700">
+                  <strong>Catégorie:</strong> {category}
+                </p>
               </div>
-              <div className="space-y-3 flex-grow">
-                <div className="flex justify-between items-center">
-                  {" "}
-                  {/* Conteneur flex pour le nom/prénom et le dropdown */}
-                  <p className="text-[#182135] font-bold text-[18px] hover:underline hover:cursor-default">
-                    {commentItem.user.nom} {commentItem.user.prenom}
-                  </p>
-                  <DropdownMenu>
-                    <DropdownMenuTrigger>
-                      <Button variant="link" className="text-xs">
-                        <MoreHorizontal className="w-4 h-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuPortal>
-                      <DropdownMenuContent>
-                        <DropdownMenuGroup>
-                          <DropdownMenuItem>
-                            <Button
-                              variant="link"
-                              className="flex items-center"
-                              onClick={() => handleEditComment(commentItem)}
-                            >
-                              <EditIcon className="mr-2 h-4 w-4" />
-                              Modifier
-                            </Button>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Button
-                              variant="link"
-                              className="flex items-center"
-                              onClick={() => handleDeleteClick(commentItem)}
-                            >
-                              <DeleteIcon className="mr-2 h-4 w-4" />
-                              Supprimer
-                            </Button>
-                          </DropdownMenuItem>
-                          <DropdownMenuItem>
-                            <Button
-                              variant="link"
-                              className="flex items-center"
-                              // onClick={handleRating}
-                              onClick={() => handleRating(commentItem)}
-                            >
-                              <StarIcon className="mr-2 h-4 w-4" />
-                              Notes
-                            </Button>
-                          </DropdownMenuItem>
-                        </DropdownMenuGroup>
-                      </DropdownMenuContent>
-                    </DropdownMenuPortal>
-                  </DropdownMenu>
-                </div>
-                {editCommentId === commentItem.id ? (
-                  <Textarea
-                    type="text"
-                    value={editCommentText}
-                    onChange={(e) => setEditCommentText(e.target.value)}
-                    className="border border-gray-300 p-2 w-full rounded-lg"
-                  />
-                ) : (
-                  <p>{commentItem.commentaire}</p>
-                )}
 
-                <div className="flex justify-between items-center pt-4">
-                  {!editCommentId && (
-                    <>
-                      {commentItem.updatedAt &&
-                      commentItem.updatedAt === commentItem.createdAt ? (
-                        <span className="text-sm text-gray-500">
-                          Publié le :{" "}
-                          {new Date(commentItem.createdAt).toLocaleDateString()}{" "}
-                          à{" "}
-                          {new Date(commentItem.createdAt).toLocaleTimeString(
-                            undefined,
-                            {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            }
-                          )}
-                        </span>
-                      ) : (
-                        commentItem.updatedAt && (
-                          <span className="text-sm text-gray-500">
-                            Modifié le :{" "}
-                            {new Date(
-                              commentItem.updatedAt
-                            ).toLocaleDateString()}{" "}
-                            à{" "}
-                            {new Date(commentItem.updatedAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </span>
-                        )
-                      )}
-                    </>
-                  )}
-                  <div>
-                    {commentItem.note ? (
-                      <div className="flex space-x-1">
-                        {renderStars(commentItem.note)}
-                      </div>
-                    ) : null}
-                  </div>
-                </div>
+              <div className="flex items-center space-x-3">
+                <MapPinIcon className="text-green-500 h-6 w-6" />
+                <p className="text-gray-700">
+                  <strong>Adresse:</strong> {adresse}
+                </p>
+              </div>
 
-                {editCommentId === commentItem.id && (
-                  <div className="flex space-x-4">
-                    <Button onClick={handleUpdateComment}>Mettre à jour</Button>
-                    <Button variant="outline" onClick={handleCancelEdit}>
-                      Annuler
-                    </Button>
-                  </div>
-                )}
+              <div className="bg-gray-100 p-4 rounded-lg">
+                <div
+                  className="text-gray-800"
+                  dangerouslySetInnerHTML={{
+                    __html:
+                      description.replace(/^"|"$/g, "") ||
+                      "<p>Contenu non disponible.</p>",
+                  }}
+                />
               </div>
             </div>
           </div>
-        ))}
+
+          <div className="space-y-6">
+            <div>
+              <div className="flex items-center space-x-2 mb-4">
+                <ImageIcon className="text-purple-500 h-6 w-6" />
+                <h3 className="text-xl font-semibold">Images</h3>
+              </div>
+              {images.length > 0 ? (
+                <div className="grid grid-cols-2 gap-4">
+                  {images[0]?.path && (
+                    <div onClick={() => openLightbox(0)}>
+                      <Image
+                        src={images[0].path}
+                        alt="First Image"
+                        width={800}
+                        height={600}
+                        style={{
+                          maxWidth: "100%",
+                          maxHeight: "400px",
+                          objectFit: "cover",
+                          cursor: "pointer",
+                          borderRadius: "10px",
+                        }}
+                      />
+                    </div>
+                  )}
+
+                  {remainingCount > 0 && (
+                    <div
+                      className="flex items-center justify-center p-4 bg-gray-200 cursor-pointer rounded-lg"
+                      onClick={() => openLightbox(0)}
+                    >
+                      <p className="text-gray-700">
+                        +{remainingCount}{" "}
+                        {remainingCount > 1 ? "autres photos" : "autre photo"}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="text-gray-500">Aucune image disponible</p>
+              )}
+            </div>
+
+            {isLightboxOpen && (
+              <div
+                className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-80 z-50"
+                style={{
+                  backdropFilter: "blur(10px)",
+                  margin: 0,
+                  padding: 0,
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  boxSizing: "border-box",
+                }}
+              >
+                <Swiper
+                  spaceBetween={20}
+                  slidesPerView={1}
+                  className="w-full max-w-3xl"
+                  initialSlide={currentIndex}
+                  onSlideChange={(swiper) =>
+                    setCurrentIndex(swiper.activeIndex)
+                  }
+                >
+                  {images.map((image, index) => (
+                    <SwiperSlide key={index}>
+                      <Image
+                        src={image.path}
+                        alt={`Image ${index + 1}`}
+                        width={1200}
+                        height={900}
+                        style={{
+                          maxWidth: "90%",
+                          maxHeight: "90vh",
+                          objectFit: "contain",
+                          borderRadius: "10px",
+                          margin: "auto",
+                        }}
+                      />
+                    </SwiperSlide>
+                  ))}
+                </Swiper>
+
+                <button
+                  className="absolute top-4 right-4 hover:bg-[#9B9B9B] text-white p-2 rounded-full"
+                  onClick={() => setLightboxOpen(false)}
+                >
+                  <X />
+                </button>
+              </div>
+            )}
+            {localisation && (
+              <div>
+                <div className="flex items-center space-x-2 mb-4">
+                  <MapPinned className="text-green-500 h-6 w-6" />
+                  <h3 className="text-xl font-semibold">Itinéraire à suivre</h3>
+                </div>
+                <iframe
+                  src={localisation}
+                  width="100%"
+                  height="300"
+                  className="rounded-lg shadow-md"
+                  style={{ border: "0" }}
+                  allowFullScreen={true}
+                  loading="lazy"
+                ></iframe>
+              </div>
+            )}
+          </div>
+        </div>
       </div>
 
       <ConfirmDeleteModal
         isOpen={showDeleteModal}
-        onClose={handleCloseModal}
+        onClose={() => setShowDeleteModal(false)}
         onConfirm={handleConfirmDelete}
-      />
-
-      <StarRatingDialog
-        isOpen={showModalRating}
-        annonceId={annonceId} // Pass the annonceId
-        // userId={userId} // Pass the userId
-        onClose={handleCloseRatingModal}
-        commentId={selectedCommentId}
-        currentRating={note}
       />
     </div>
   );
