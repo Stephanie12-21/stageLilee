@@ -27,9 +27,7 @@ const SignUpPage = () => {
             </div>
           </div>
 
-          {/* ============= */}
           <div className="grid gap-4 h-fit">
-            {/* ===== button ===== */}
             <div className="flex items-center flex-col gap-4">
               <Button asChild className="w-full text-[16px]">
                 <Link href={"/signup/personnel"}>Personnel</Link>
@@ -37,13 +35,11 @@ const SignUpPage = () => {
               <Button asChild className="w-full text-[16px]">
                 <Link href={"/signup/professionnel"}>Professionel</Link>
               </Button>
-              <Button asChild className="w-full text-[16px]">
+              {/* <Button asChild className="w-full text-[16px]">
                 <Link href={"/signup/admin"}>Administrateur</Link>
-              </Button>
+              </Button> */}
             </div>
-            {/* ===== button ===== */}
           </div>
-          {/* ============= */}
 
           <div className="mt-2 text-center text-[16px]">
             Vous êtes déjà membre?

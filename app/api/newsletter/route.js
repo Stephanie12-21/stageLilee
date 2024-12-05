@@ -1,6 +1,6 @@
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
-import { db } from "@/lib/db"; // Assurez-vous que l'importation fonctionne correctement
+import { db } from "@/lib/db";
 
 import jwt from "jsonwebtoken";
 
@@ -20,7 +20,7 @@ async function sendNewsletterEmail(email) {
   const unsubscribeUrl = `${process.env.FRONTEND_URL}/Unsubscribe?token=${unsubscribeToken}`;
 
   const mailOptions = {
-    from: `"Lilee" <${process.env.SMTP_USER}>`, // Ceci définit le nom d'affichage
+    from: `"Lilee" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Bienvenue à la newsletter Lilee",
     html: `

@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import Image from "next/image";
@@ -11,6 +12,10 @@ import {
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Badge } from "@/components/ui/badge";
+import { CalendarIcon, MapPinIcon } from "lucide-react";
 
 const FavorisPage = () => {
   const [favoris, setFavoris] = useState([]);
@@ -35,9 +40,8 @@ const FavorisPage = () => {
       }
     };
 
-    if (session && session.user && session.user.id) {
-      const userId = session.user.id;
-      fetchFavoris(userId);
+    if (session?.user?.id) {
+      fetchFavoris(session.user.id);
     } else {
       setLoading(false);
       toast.info("Erreur : Impossible de récupérer l'ID de l'utilisateur.");
@@ -46,69 +50,87 @@ const FavorisPage = () => {
 
   return (
     <div className="container mx-auto p-6">
-      <h1 className="text-3xl font-semibold mb-6">Liste des favoris</h1>
+      <h1 className="text-4xl font-bold mb-8 text-center">Mes Favoris</h1>
       {loading ? (
-        <p>Chargement des favoris...</p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, index) => (
+            <Card key={index} className="overflow-hidden">
+              <CardHeader className="p-0">
+                <Skeleton className="h-48 w-full" />
+              </CardHeader>
+              <CardContent className="mt-4">
+                <Skeleton className="h-4 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-full mb-2" />
+                <Skeleton className="h-4 w-2/3" />
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {favoris.map((favori) => (
             <Card
               key={favori.annonce.id}
-              className="max-w-sm rounded-[16px] shadow-lg bg-white"
+              className="overflow-hidden hover:shadow-lg transition-shadow duration-300"
             >
-              <CardHeader>
+              <CardHeader className="p-0">
                 {favori.annonce.imageAnnonces.length > 0 ? (
-                  <Image
-                    src={favori.annonce.imageAnnonces[0].path}
-                    alt="Annonce image"
-                    width={400}
-                    height={250}
-                    className="object-cover w-full h-48 rounded-lg"
-                  />
+                  <div className="relative h-48">
+                    <Image
+                      src={favori.annonce.imageAnnonces[0].path}
+                      alt="Annonce image"
+                      layout="fill"
+                      objectFit="cover"
+                      className="transition-transform duration-300 ease-in-out hover:scale-105"
+                    />
+                  </div>
                 ) : (
-                  <div className="w-full h-48 bg-gray-300 flex items-center justify-center text-white rounded-[24px]">
+                  <div className="w-full h-48 bg-gray-300 flex items-center justify-center text-gray-500">
                     Aucune image disponible
                   </div>
                 )}
               </CardHeader>
-
-              <CardContent className="p-2">
-                <h2 className="text-2xl font-semibold mb-2">
-                  {favori.annonce.titre}
-                </h2>
-                <p className="text-gray-700 text-sm mb-4">
-                  {favori.annonce.description.substring(0, 100)}...
-                </p>
-                <p className="text-sm text-gray-600 mb-2">
-                  <strong>Adresse:</strong> {favori.annonce.adresse}
-                </p>
-                <div className="text-sm text-gray-600 mb-2">
-                  <strong>Catégorie:</strong> {favori.annonce.categorieAnnonce}
+              <CardContent className="p-4">
+                <div className="flex items-center justify-between mb-2">
+                  <h2 className="text-2xl font-semibold mb-2 line-clamp-1">
+                    {favori.annonce.titre}
+                  </h2>
+                  <Badge
+                    variant="secondary"
+                    className="text-base text-muted-foreground mb-1"
+                  >
+                    {favori.annonce.categorieAnnonce}
+                  </Badge>
                 </div>
-                <p className="text-sm text-gray-600 mb-2">
-                  <strong>Date d&apos;enregistrement: </strong>
-                  {new Date(favori.saveDate).toLocaleDateString()}{" "}
+
+                <div className="flex items-center font-semibold text-base text-gray-800 mb-2">
+                  <MapPinIcon className="w-5 h-5 font-bold mr-2 text-gray-800" />
+                  {favori.annonce.adresse}
+                </div>
+                <div className="flex items-center text-base font-semibold text-gray-800">
+                  <CalendarIcon className="w-5 h-5 mr-2 font-bold text-gray-800" />
+                  Enregistré le {new Date(favori.saveDate).toLocaleDateString()}{" "}
+                  à{" "}
                   {new Date(favori.saveDate).toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
-                </p>
+                </div>
               </CardContent>
-
-              <CardFooter className="pb-2 pl-5">
+              <CardFooter className="p-4 pt-0">
                 <Link href={`/Annonces/id=${favori.annonce.id}`} passHref>
-                  <button className="flex items-center text-blue-600 hover:underline">
+                  <Button variant="outline" className="w-full ">
                     Voir plus en détails
-                  </button>
+                  </Button>
                 </Link>
               </CardFooter>
             </Card>
           ))}
         </div>
       )}
-
       <ToastContainer
-        position="top-right"
+        position="bottom-right"
         autoClose={5000}
         hideProgressBar={false}
         closeOnClick

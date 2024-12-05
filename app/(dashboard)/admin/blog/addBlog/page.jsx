@@ -7,13 +7,14 @@ import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import Image from "next/image";
 import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
+import { useRouter } from "next/navigation";
 
 const ArticleForm = () => {
   const [titre, setTitre] = useState("");
   const [contenu, setContenu] = useState({});
   const [categorieArticle, setCategorieArticle] = useState("");
   const [imageFiles, setImageFiles] = useState([]);
-
+  const router = useRouter();
   const handleImageUpload = (e) => {
     const newFiles = Array.from(e.target.files);
     setImageFiles((prevFiles) => [...prevFiles, ...newFiles]);
@@ -26,10 +27,8 @@ const ArticleForm = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!titre || !contenu || !categorieArticle || imageFiles.length === 0) {
-      alert(
-        "Tous les champs doivent être remplis et au moins une image doit être uploadée."
-      );
+    if (!titre || !contenu || !categorieArticle) {
+      alert("Tous les champs doivent être remplis ");
       return;
     }
 
@@ -51,11 +50,12 @@ const ArticleForm = () => {
 
       if (response.ok) {
         alert("Article publié avec succès !");
-        // Réinitialiser le formulaire après le succès
+
         setTitre("");
         setContenu({});
         setCategorieArticle("");
         setImageFiles([]);
+        router.push("/admin/blog");
       } else {
         alert(result.message || "Erreur lors de la publication de l'article.");
       }

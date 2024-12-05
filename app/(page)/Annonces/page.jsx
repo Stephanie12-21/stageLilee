@@ -176,7 +176,16 @@ export default function Annonces() {
       annonce.adresse.toLowerCase().includes(searchLower)
     );
   });
-
+  const tabItems = [
+    { value: "IMMOBILIER", label: "Logement" },
+    { value: "EMPLOI_SERVICE", label: "Emploi & Service" },
+    { value: "VOITURE", label: "Voiture" },
+    { value: "LOISIR", label: "Loisir" },
+    { value: "MATERIEL", label: "Matériel" },
+    { value: "DONS", label: "Donations" },
+    { value: "VETEMENT", label: "Vêtement" },
+    { value: "MOBILIER", label: "Mobilier" },
+  ];
   return (
     <div className="w-full py-9 px-6">
       <div className="mb-6 container mx-auto flex justify-between items-center space-x-3">
@@ -192,39 +201,23 @@ export default function Annonces() {
         </Button>
       </div>
 
-      <Tabs defaultValue="logement" className="container mx-auto">
+      {/* <Tabs defaultValue="IMMOBILIER" className="container mx-auto">
         <TabsList className="grid w-full grid-cols-8 space-x-10 h-[70px] text-black">
-          <TabsTrigger value="logement" className="text-[16px] font-semibold">
-            Logement
-          </TabsTrigger>
-          <TabsTrigger value="emploi" className="text-[16px] font-semibold">
-            Emploi
-          </TabsTrigger>
-          <TabsTrigger value="voiture" className="text-[16px] font-semibold">
-            Voiture
-          </TabsTrigger>
-          <TabsTrigger value="loisir" className="text-[16px] font-semibold">
-            Loisir
-          </TabsTrigger>
-          <TabsTrigger value="materiel" className="text-[16px] font-semibold">
-            Matériel
-          </TabsTrigger>
-          <TabsTrigger value="don" className="text-[16px] font-semibold">
-            Donations
-          </TabsTrigger>
-          <TabsTrigger value="vetement" className="text-[16px] font-semibold">
-            Vêtement
-          </TabsTrigger>
-          <TabsTrigger value="mobilier" className="text-[16px] font-semibold">
-            Mobilier
-          </TabsTrigger>
+          {tabItems.map((item) => (
+            <TabsTrigger
+              key={item.value}
+              value={item.value}
+              className="text-[16px] font-semibold"
+            >
+              {item.label}
+            </TabsTrigger>
+          ))}
         </TabsList>
-
-        <TabsContent value="logement" className="mx-auto">
+        <TabsContent value="IMMOBILIER" className="mx-auto">
           <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
             {filteredAnnonces.length === 0 && annonces.length === 0 ? (
               <Label>Aucune annonce disponible.</Label>
-            ) : filteredAnnonces.length > 0 ? (
+            ) : (
               filteredAnnonces
                 .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
                 .map((annonce, index) => (
@@ -249,7 +242,7 @@ export default function Annonces() {
 
                         <div
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)} // Appeler la fonction toggleHeart
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
                         >
                           {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
@@ -310,7 +303,7 @@ export default function Annonces() {
                               htmlFor="statut"
                               className="bg-slate-300 p-2 rounded-[4px]"
                             >
-                              Créée le :
+                              Créée le :{" "}
                               {new Date(annonce.createdAt).toLocaleDateString()}{" "}
                               à{" "}
                               {new Date(annonce.createdAt).toLocaleTimeString(
@@ -333,132 +326,16 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
+                              // Calculate if the star should be filled or empty
                               const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
 
                               return (
                                 <svg
                                   key={index}
                                   xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                      </CardContent>
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          {annonce.updatedAt !== annonce.createdAt ? (
-                            <Label
-                              htmlFor="updatedAt"
-                              className="bg-slate-300 p-[4px] rounded-[4px]"
-                            >
-                              Modifiée le :{" "}
-                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.updatedAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          ) : (
-                            <Label
-                              htmlFor="statut"
-                              className="bg-slate-300 p-2 rounded-[4px]"
-                            >
-                              Créée le :
-                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.createdAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24 ">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
                                   viewBox="0 0 24 24"
                                   strokeWidth="1.5"
                                   className="w-6 h-6"
@@ -481,11 +358,11 @@ export default function Annonces() {
           </div>
         </TabsContent>
 
-        <TabsContent value="loisir" className="mx-auto">
+        <TabsContent value="LOISIR" className="mx-auto">
           <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
             {filteredAnnonces.length === 0 && annonces.length === 0 ? (
-              <p>Aucune annonce disponible.</p>
-            ) : filteredAnnonces.length > 0 ? (
+              <Label>Aucune annonce disponible.</Label>
+            ) : (
               filteredAnnonces
                 .filter((annonce) => annonce.categorieAnnonce === "LOISIR")
                 .map((annonce, index) => (
@@ -510,7 +387,7 @@ export default function Annonces() {
 
                         <div
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
                         >
                           {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
@@ -571,7 +448,7 @@ export default function Annonces() {
                               htmlFor="statut"
                               className="bg-slate-300 p-2 rounded-[4px]"
                             >
-                              Créée le :
+                              Créée le :{" "}
                               {new Date(annonce.createdAt).toLocaleDateString()}{" "}
                               à{" "}
                               {new Date(annonce.createdAt).toLocaleTimeString(
@@ -594,153 +471,16 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
+                              // Calculate if the star should be filled or empty
                               const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
 
                               return (
                                 <svg
                                   key={index}
                                   xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                        <div
-                          className="relative mx-auto p-2 left-40 top-[-110px] rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer"
-                          onClick={() => toggleHeart(annonce.id)}
-                        >
-                          {isLiked ? (
-                            <AiFillHeart size={28} color="#FC1111" />
-                          ) : (
-                            <AiOutlineHeart size={28} color="#FC1111" />
-                          )}
-                        </div>
-                      </CardContent>
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        draggable
-                        pauseOnFocusLoss
-                        theme="light"
-                      />
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
                                   viewBox="0 0 24 24"
                                   strokeWidth="1.5"
                                   className="w-6 h-6"
@@ -762,12 +502,11 @@ export default function Annonces() {
             )}
           </div>
         </TabsContent>
-
-        <TabsContent value="mobilier" className="mx-auto">
+        <TabsContent value="MOBILIER" className="mx-auto">
           <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
             {filteredAnnonces.length === 0 && annonces.length === 0 ? (
-              <p>Aucune annonce disponible.</p>
-            ) : filteredAnnonces.length > 0 ? (
+              <Label>Aucune annonce disponible.</Label>
+            ) : (
               filteredAnnonces
                 .filter((annonce) => annonce.categorieAnnonce === "MOBILIER")
                 .map((annonce, index) => (
@@ -789,9 +528,10 @@ export default function Annonces() {
                             className="w-full h-full object-cover rounded-[16px]"
                           />
                         )}
+
                         <div
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
                         >
                           {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
@@ -810,6 +550,7 @@ export default function Annonces() {
                         pauseOnFocusLoss
                         theme="light"
                       />
+
                       <CardFooter className="flex justify-between p-4">
                         <div className="flex flex-col space-y-3">
                           <Label
@@ -851,7 +592,7 @@ export default function Annonces() {
                               htmlFor="statut"
                               className="bg-slate-300 p-2 rounded-[4px]"
                             >
-                              Créée le :
+                              Créée le :{" "}
                               {new Date(annonce.createdAt).toLocaleDateString()}{" "}
                               à{" "}
                               {new Date(annonce.createdAt).toLocaleTimeString(
@@ -874,134 +615,16 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
+                              // Calculate if the star should be filled or empty
                               const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
 
                               return (
                                 <svg
                                   key={index}
                                   xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                      </CardContent>
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
                                   viewBox="0 0 24 24"
                                   strokeWidth="1.5"
                                   className="w-6 h-6"
@@ -1023,12 +646,11 @@ export default function Annonces() {
             )}
           </div>
         </TabsContent>
-
-        <TabsContent value="don" className="mx-auto">
+        <TabsContent value="DONS" className="mx-auto">
           <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
             {filteredAnnonces.length === 0 && annonces.length === 0 ? (
-              <p>Aucune annonce disponible.</p>
-            ) : filteredAnnonces.length > 0 ? (
+              <Label>Aucune annonce disponible.</Label>
+            ) : (
               filteredAnnonces
                 .filter((annonce) => annonce.categorieAnnonce === "DONS")
                 .map((annonce, index) => (
@@ -1053,1079 +675,7 @@ export default function Annonces() {
 
                         <div
                           className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
-                        >
-                          {isLiked ? (
-                            <AiFillHeart size={28} color="#FC1111" />
-                          ) : (
-                            <AiOutlineHeart size={28} color="#FC1111" />
-                          )}
-                        </div>
-                      </CardContent>
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        draggable
-                        pauseOnFocusLoss
-                        theme="light"
-                      />
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          {annonce.updatedAt !== annonce.createdAt ? (
-                            <Label
-                              htmlFor="updatedAt"
-                              className="bg-slate-300 p-[4px] rounded-[4px]"
-                            >
-                              Modifiée le :{" "}
-                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.updatedAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          ) : (
-                            <Label
-                              htmlFor="statut"
-                              className="bg-slate-300 p-2 rounded-[4px]"
-                            >
-                              Créée le :
-                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.createdAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                      </CardContent>
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="emploi" className="mx-auto">
-          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
-            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
-              <p>Aucune annonce disponible.</p>
-            ) : filteredAnnonces.length > 0 ? (
-              filteredAnnonces
-                .filter(
-                  (annonce) =>
-                    annonce.categorieAnnonce === "EMPLOI" ||
-                    annonce.categorieAnnonce === "SERVICE"
-                )
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-
-                        <div
-                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
-                        >
-                          {isLiked ? (
-                            <AiFillHeart size={28} color="#FC1111" />
-                          ) : (
-                            <AiOutlineHeart size={28} color="#FC1111" />
-                          )}
-                        </div>
-                      </CardContent>
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        draggable
-                        pauseOnFocusLoss
-                        theme="light"
-                      />
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          {annonce.updatedAt !== annonce.createdAt ? (
-                            <Label
-                              htmlFor="updatedAt"
-                              className="bg-slate-300 p-[4px] rounded-[4px]"
-                            >
-                              Modifiée le :{" "}
-                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.updatedAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          ) : (
-                            <Label
-                              htmlFor="statut"
-                              className="bg-slate-300 p-2 rounded-[4px]"
-                            >
-                              Créée le :
-                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.createdAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                      </CardContent>
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        draggable
-                        pauseOnFocusLoss
-                        theme="light"
-                      />
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="vetement" className="mx-auto">
-          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
-            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
-              <p>Aucune annonce disponible.</p>
-            ) : filteredAnnonces.length > 0 ? (
-              filteredAnnonces
-                .filter((annonce) => annonce.categorieAnnonce === "VETEMENT")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-
-                        <div
-                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
-                        >
-                          {isLiked ? (
-                            <AiFillHeart size={28} color="#FC1111" />
-                          ) : (
-                            <AiOutlineHeart size={28} color="#FC1111" />
-                          )}
-                        </div>
-                      </CardContent>
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        draggable
-                        pauseOnFocusLoss
-                        theme="light"
-                      />
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          {annonce.updatedAt !== annonce.createdAt ? (
-                            <Label
-                              htmlFor="updatedAt"
-                              className="bg-slate-300 p-[4px] rounded-[4px]"
-                            >
-                              Modifiée le :{" "}
-                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.updatedAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          ) : (
-                            <Label
-                              htmlFor="statut"
-                              className="bg-slate-300 p-2 rounded-[4px]"
-                            >
-                              Créée le :
-                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.createdAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                      </CardContent>
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        draggable
-                        pauseOnFocusLoss
-                        theme="light"
-                      />
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              // Calculer si l'étoile doit être pleine ou vide
-                              const isFilled =
-                                index < Math.round(annonce.averageNote); // Arrondir la moyenne à l'entier le plus proche
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="voiture" className="mx-auto">
-          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
-            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
-              <p>Aucune annonce disponible.</p>
-            ) : filteredAnnonces.length > 0 ? (
-              filteredAnnonces
-                .filter((annonce) => annonce.categorieAnnonce === "VOITURE")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-
-                        <div
-                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
-                        >
-                          {isLiked ? (
-                            <AiFillHeart size={28} color="#FC1111" />
-                          ) : (
-                            <AiOutlineHeart size={28} color="#FC1111" />
-                          )}
-                        </div>
-                      </CardContent>
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          {annonce.updatedAt !== annonce.createdAt ? (
-                            <Label
-                              htmlFor="updatedAt"
-                              className="bg-slate-300 p-[4px] rounded-[4px]"
-                            >
-                              Modifiée le :{" "}
-                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.updatedAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          ) : (
-                            <Label
-                              htmlFor="statut"
-                              className="bg-slate-300 p-2 rounded-[4px]"
-                            >
-                              Créée le :
-                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
-                              à{" "}
-                              {new Date(annonce.createdAt).toLocaleTimeString(
-                                undefined,
-                                {
-                                  hour: "2-digit",
-                                  minute: "2-digit",
-                                }
-                              )}
-                            </Label>
-                          )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              const isFilled =
-                                index < Math.round(annonce.averageNote);
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"}
-                                  stroke={isFilled ? "none" : "gold"}
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                      </CardContent>
-                      <ToastContainer
-                        position="top-right"
-                        autoClose={5000}
-                        hideProgressBar={false}
-                        closeOnClick
-                        pauseOnHover
-                        draggable
-                        pauseOnFocusLoss
-                        theme="light"
-                      />
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              const isFilled =
-                                index < Math.round(annonce.averageNote);
-
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"}
-                                  stroke={isFilled ? "none" : "gold"}
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="materiel" className="mx-auto">
-          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
-            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
-              <p>Aucune annonce disponible.</p>
-            ) : filteredAnnonces.length > 0 ? (
-              filteredAnnonces
-                .filter((annonce) => annonce.categorieAnnonce === "MATERIEL")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                        <div
-                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
-                          onClick={() => toggleHeart(annonce.id)}
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
                         >
                           {likedAnnonces.includes(annonce.id) ? (
                             <AiFillHeart size={28} color="#FC1111" />
@@ -2186,7 +736,7 @@ export default function Annonces() {
                               htmlFor="statut"
                               className="bg-slate-300 p-2 rounded-[4px]"
                             >
-                              Créée le :
+                              Créée le :{" "}
                               {new Date(annonce.createdAt).toLocaleDateString()}{" "}
                               à{" "}
                               {new Date(annonce.createdAt).toLocaleTimeString(
@@ -2209,131 +759,16 @@ export default function Annonces() {
                           </Link>
                           <div className="flex space-x-1">
                             {[...Array(5)].map((_, index) => {
+                              // Calculate if the star should be filled or empty
                               const isFilled =
-                                index < Math.round(annonce.averageNote);
-                              return (
-                                <svg
-                                  key={index}
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"}
-                                  stroke={isFilled ? "none" : "gold"}
-                                  viewBox="0 0 24 24"
-                                  strokeWidth="1.5"
-                                  className="w-6 h-6"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
-                                  />
-                                </svg>
-                              );
-                            })}
-                          </div>
-                        </div>
-                      </CardFooter>
-                    </Card>
-                  </motion.div>
-                ))
-            ) : (
-              annonces
-                .filter((annonce) => annonce.categorieAnnonce === "IMMOBILIER")
-                .map((annonce, index) => (
-                  <motion.div
-                    key={annonce.id}
-                    custom={index}
-                    initial="hidden"
-                    animate="visible"
-                    variants={cardVariants}
-                  >
-                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
-                      <CardContent className="w-[390px] h-[300px] flex flex-col items-center justify-center mt-1 mx-auto rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
-                        {annonce.imageAnnonces.length > 0 && (
-                          <Image
-                            src={annonce.imageAnnonces[0].path}
-                            alt={annonce.titre}
-                            width={900}
-                            height={900}
-                            className="w-full h-full object-cover rounded-[16px]"
-                          />
-                        )}
-                      </CardContent>
-
-                      <CardFooter className="flex justify-between p-4">
-                        <div className="flex flex-col space-y-3">
-                          <Label
-                            htmlFor="categorie"
-                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Label>
-                          <Label
-                            htmlFor="titre"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.titre}
-                          </Label>
-                          <Label
-                            htmlFor="adresse"
-                            className="text-xl items-center justify-center"
-                          >
-                            {annonce.adresse}
-                          </Label>
-                          <Label
-                            htmlFor="statut"
-                            className="bg-slate-300 p-2 rounded-[4px]"
-                          >
-                            {annonce.statut} le :{" "}
-                            {new Date(annonce.createdAt).toLocaleDateString()} à{" "}
-                            {new Date(annonce.createdAt).toLocaleTimeString(
-                              undefined,
-                              {
-                                hour: "2-digit",
-                                minute: "2-digit",
-                              }
-                            )}
-                          </Label>
-
-                          {annonce.updatedAt &&
-                            annonce.updatedAt !== annonce.createdAt && (
-                              <Label
-                                htmlFor="updatedAt"
-                                className="bg-slate-300 p-2 rounded-[4px]"
-                              >
-                                Modifiée le :{" "}
-                                {new Date(
-                                  annonce.updatedAt
-                                ).toLocaleDateString()}{" "}
-                                à{" "}
-                                {new Date(annonce.updatedAt).toLocaleTimeString(
-                                  undefined,
-                                  {
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                  }
-                                )}
-                              </Label>
-                            )}
-                        </div>
-
-                        <div className="flex flex-col items-end gap-24 ">
-                          <Link href={`/Annonces/id=${annonce.id}`}>
-                            <AiOutlineEye
-                              className="text-[#15213D] cursor-pointer text-[30px]"
-                              title="Voir"
-                            />
-                          </Link>
-                          <div className="flex space-x-1">
-                            {[...Array(5)].map((_, index) => {
-                              const isFilled =
-                                index < Math.round(annonce.averageNote);
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
 
                               return (
                                 <svg
                                   key={index}
                                   xmlns="http://www.w3.org/2000/svg"
-                                  fill={isFilled ? "gold" : "none"} // Remplir l'étoile en or si elle est pleine, sinon vide
-                                  stroke={isFilled ? "none" : "gold"} // Afficher une bordure en or si l'étoile est vide
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
                                   viewBox="0 0 24 24"
                                   strokeWidth="1.5"
                                   className="w-6 h-6"
@@ -2355,6 +790,739 @@ export default function Annonces() {
             )}
           </div>
         </TabsContent>
+        <TabsContent value="EMPLOI" className="mx-auto">
+          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
+            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
+              <Label>Aucune annonce disponible.</Label>
+            ) : (
+              filteredAnnonces
+                .filter((annonce) => annonce.categorieAnnonce === "EMPLOI")
+                .map((annonce, index) => (
+                  <motion.div
+                    key={annonce.id}
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={cardVariants}
+                  >
+                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
+                      <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+                        {annonce.imageAnnonces.length > 0 && (
+                          <Image
+                            src={annonce.imageAnnonces[0].path}
+                            alt={annonce.titre}
+                            width={900}
+                            height={900}
+                            className="w-full h-full object-cover rounded-[16px]"
+                          />
+                        )}
+
+                        <div
+                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
+                        >
+                          {likedAnnonces.includes(annonce.id) ? (
+                            <AiFillHeart size={28} color="#FC1111" />
+                          ) : (
+                            <AiOutlineHeart size={28} color="#FC1111" />
+                          )}
+                        </div>
+                      </CardContent>
+                      <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        closeOnClick
+                        pauseOnHover
+                        draggable
+                        pauseOnFocusLoss
+                        theme="light"
+                      />
+
+                      <CardFooter className="flex justify-between p-4">
+                        <div className="flex flex-col space-y-3">
+                          <Label
+                            htmlFor="categorie"
+                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
+                          >
+                            {annonce.categorieAnnonce}
+                          </Label>
+                          <Label
+                            htmlFor="titre"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.titre}
+                          </Label>
+                          <Label
+                            htmlFor="adresse"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.adresse}
+                          </Label>
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :{" "}
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col items-end gap-24">
+                          <Link href={`/Annonces/id=${annonce.id}`}>
+                            <AiOutlineEye
+                              className="text-[#15213D] cursor-pointer text-[30px]"
+                              title="Voir"
+                            />
+                          </Link>
+                          <div className="flex space-x-1">
+                            {[...Array(5)].map((_, index) => {
+                              // Calculate if the star should be filled or empty
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ))
+            )}
+          </div>
+        </TabsContent>
+        <TabsContent value="VETEMENT" className="mx-auto">
+          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
+            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
+              <Label>Aucune annonce disponible.</Label>
+            ) : (
+              filteredAnnonces
+                .filter((annonce) => annonce.categorieAnnonce === "VETEMENT")
+                .map((annonce, index) => (
+                  <motion.div
+                    key={annonce.id}
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={cardVariants}
+                  >
+                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
+                      <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+                        {annonce.imageAnnonces.length > 0 && (
+                          <Image
+                            src={annonce.imageAnnonces[0].path}
+                            alt={annonce.titre}
+                            width={900}
+                            height={900}
+                            className="w-full h-full object-cover rounded-[16px]"
+                          />
+                        )}
+
+                        <div
+                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
+                        >
+                          {likedAnnonces.includes(annonce.id) ? (
+                            <AiFillHeart size={28} color="#FC1111" />
+                          ) : (
+                            <AiOutlineHeart size={28} color="#FC1111" />
+                          )}
+                        </div>
+                      </CardContent>
+                      <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        closeOnClick
+                        pauseOnHover
+                        draggable
+                        pauseOnFocusLoss
+                        theme="light"
+                      />
+
+                      <CardFooter className="flex justify-between p-4">
+                        <div className="flex flex-col space-y-3">
+                          <Label
+                            htmlFor="categorie"
+                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
+                          >
+                            {annonce.categorieAnnonce}
+                          </Label>
+                          <Label
+                            htmlFor="titre"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.titre}
+                          </Label>
+                          <Label
+                            htmlFor="adresse"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.adresse}
+                          </Label>
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :{" "}
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col items-end gap-24">
+                          <Link href={`/Annonces/id=${annonce.id}`}>
+                            <AiOutlineEye
+                              className="text-[#15213D] cursor-pointer text-[30px]"
+                              title="Voir"
+                            />
+                          </Link>
+                          <div className="flex space-x-1">
+                            {[...Array(5)].map((_, index) => {
+                              // Calculate if the star should be filled or empty
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ))
+            )}
+          </div>
+        </TabsContent>
+        <TabsContent value="VOITURE" className="mx-auto">
+          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
+            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
+              <Label>Aucune annonce disponible.</Label>
+            ) : (
+              filteredAnnonces
+                .filter((annonce) => annonce.categorieAnnonce === "VOITURE")
+                .map((annonce, index) => (
+                  <motion.div
+                    key={annonce.id}
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={cardVariants}
+                  >
+                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
+                      <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+                        {annonce.imageAnnonces.length > 0 && (
+                          <Image
+                            src={annonce.imageAnnonces[0].path}
+                            alt={annonce.titre}
+                            width={900}
+                            height={900}
+                            className="w-full h-full object-cover rounded-[16px]"
+                          />
+                        )}
+
+                        <div
+                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
+                        >
+                          {likedAnnonces.includes(annonce.id) ? (
+                            <AiFillHeart size={28} color="#FC1111" />
+                          ) : (
+                            <AiOutlineHeart size={28} color="#FC1111" />
+                          )}
+                        </div>
+                      </CardContent>
+                      <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        closeOnClick
+                        pauseOnHover
+                        draggable
+                        pauseOnFocusLoss
+                        theme="light"
+                      />
+
+                      <CardFooter className="flex justify-between p-4">
+                        <div className="flex flex-col space-y-3">
+                          <Label
+                            htmlFor="categorie"
+                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
+                          >
+                            {annonce.categorieAnnonce}
+                          </Label>
+                          <Label
+                            htmlFor="titre"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.titre}
+                          </Label>
+                          <Label
+                            htmlFor="adresse"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.adresse}
+                          </Label>
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :{" "}
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col items-end gap-24">
+                          <Link href={`/Annonces/id=${annonce.id}`}>
+                            <AiOutlineEye
+                              className="text-[#15213D] cursor-pointer text-[30px]"
+                              title="Voir"
+                            />
+                          </Link>
+                          <div className="flex space-x-1">
+                            {[...Array(5)].map((_, index) => {
+                              // Calculate if the star should be filled or empty
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ))
+            )}
+          </div>
+        </TabsContent>
+        <TabsContent value="MATERIEL" className="mx-auto">
+          <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
+            {filteredAnnonces.length === 0 && annonces.length === 0 ? (
+              <Label>Aucune annonce disponible.</Label>
+            ) : (
+              filteredAnnonces
+                .filter((annonce) => annonce.categorieAnnonce === "MATERIEL")
+                .map((annonce, index) => (
+                  <motion.div
+                    key={annonce.id}
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={cardVariants}
+                  >
+                    <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
+                      <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+                        {annonce.imageAnnonces.length > 0 && (
+                          <Image
+                            src={annonce.imageAnnonces[0].path}
+                            alt={annonce.titre}
+                            width={900}
+                            height={900}
+                            className="w-full h-full object-cover rounded-[16px]"
+                          />
+                        )}
+
+                        <div
+                          className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
+                          onClick={() => toggleHeart(annonce.id)} // Call the toggleHeart function
+                        >
+                          {likedAnnonces.includes(annonce.id) ? (
+                            <AiFillHeart size={28} color="#FC1111" />
+                          ) : (
+                            <AiOutlineHeart size={28} color="#FC1111" />
+                          )}
+                        </div>
+                      </CardContent>
+                      <ToastContainer
+                        position="top-right"
+                        autoClose={5000}
+                        hideProgressBar={false}
+                        closeOnClick
+                        pauseOnHover
+                        draggable
+                        pauseOnFocusLoss
+                        theme="light"
+                      />
+
+                      <CardFooter className="flex justify-between p-4">
+                        <div className="flex flex-col space-y-3">
+                          <Label
+                            htmlFor="categorie"
+                            className="bg-slate-300 p-2 w-fit rounded-[4px]"
+                          >
+                            {annonce.categorieAnnonce}
+                          </Label>
+                          <Label
+                            htmlFor="titre"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.titre}
+                          </Label>
+                          <Label
+                            htmlFor="adresse"
+                            className="text-xl items-center justify-center"
+                          >
+                            {annonce.adresse}
+                          </Label>
+                          {annonce.updatedAt !== annonce.createdAt ? (
+                            <Label
+                              htmlFor="updatedAt"
+                              className="bg-slate-300 p-[4px] rounded-[4px]"
+                            >
+                              Modifiée le :{" "}
+                              {new Date(annonce.updatedAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.updatedAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          ) : (
+                            <Label
+                              htmlFor="statut"
+                              className="bg-slate-300 p-2 rounded-[4px]"
+                            >
+                              Créée le :{" "}
+                              {new Date(annonce.createdAt).toLocaleDateString()}{" "}
+                              à{" "}
+                              {new Date(annonce.createdAt).toLocaleTimeString(
+                                undefined,
+                                {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                }
+                              )}
+                            </Label>
+                          )}
+                        </div>
+
+                        <div className="flex flex-col items-end gap-24">
+                          <Link href={`/Annonces/id=${annonce.id}`}>
+                            <AiOutlineEye
+                              className="text-[#15213D] cursor-pointer text-[30px]"
+                              title="Voir"
+                            />
+                          </Link>
+                          <div className="flex space-x-1">
+                            {[...Array(5)].map((_, index) => {
+                              // Calculate if the star should be filled or empty
+                              const isFilled =
+                                index < Math.round(annonce.averageNote); // Round the average to the nearest integer
+
+                              return (
+                                <svg
+                                  key={index}
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  fill={isFilled ? "gold" : "none"} // Fill the star with gold if full, otherwise empty
+                                  stroke={isFilled ? "none" : "gold"} // Show a gold border if the star is empty
+                                  viewBox="0 0 24 24"
+                                  strokeWidth="1.5"
+                                  className="w-6 h-6"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                  />
+                                </svg>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      </CardFooter>
+                    </Card>
+                  </motion.div>
+                ))
+            )}
+          </div>
+        </TabsContent>
+      </Tabs> */}
+      <Tabs defaultValue="IMMOBILIER" className="container mx-auto">
+        <TabsList className="grid w-full grid-cols-8 space-x-10 h-[70px] text-black">
+          {tabItems.map((item) => (
+            <TabsTrigger
+              key={item.value}
+              value={item.value}
+              className="text-[16px] font-semibold"
+            >
+              {item.label}
+            </TabsTrigger>
+          ))}
+        </TabsList>
+
+        {tabItems.map((item) => (
+          <TabsContent key={item.value} value={item.value} className="mx-auto">
+            <div className="grid grid-cols-3 gap-2 pt-10 mx-10">
+              {filteredAnnonces.length === 0 && annonces.length === 0 ? (
+                <Label>Aucune annonce disponible.</Label>
+              ) : (
+                filteredAnnonces
+                  .filter((annonce) => annonce.categorieAnnonce === item.value)
+                  .map((annonce, index) => (
+                    <motion.div
+                      key={annonce.id}
+                      custom={index}
+                      initial="hidden"
+                      animate="visible"
+                      variants={cardVariants}
+                    >
+                      <Card className="w-[400px] h-[500px] rounded-[24px] shadow-md">
+                        <CardContent className="relative w-[390px] h-[300px] rounded-[16px] border-[1px] border-[#e39a2d] bg-[#15213d]">
+                          {annonce.imageAnnonces.length > 0 && (
+                            <Image
+                              src={annonce.imageAnnonces[0].path}
+                              alt={annonce.titre}
+                              width={900}
+                              height={900}
+                              className="w-full h-full object-cover rounded-[16px]"
+                            />
+                          )}
+
+                          <div
+                            className="absolute top-2 right-2 rounded-[20px] hover:bg-[#FFEBEC] cursor-pointer p-1"
+                            onClick={() => toggleHeart(annonce.id)}
+                          >
+                            {likedAnnonces.includes(annonce.id) ? (
+                              <AiFillHeart size={28} color="#FC1111" />
+                            ) : (
+                              <AiOutlineHeart size={28} color="#FC1111" />
+                            )}
+                          </div>
+                        </CardContent>
+
+                        <ToastContainer
+                          position="top-right"
+                          autoClose={5000}
+                          hideProgressBar={false}
+                          closeOnClick
+                          pauseOnHover
+                          draggable
+                          pauseOnFocusLoss
+                          theme="light"
+                        />
+
+                        <CardFooter className="flex justify-between p-4">
+                          <div className="flex flex-col space-y-3">
+                            <Label
+                              htmlFor="categorie"
+                              className="bg-slate-300 p-2 w-fit rounded-[4px]"
+                            >
+                              {annonce.categorieAnnonce}
+                            </Label>
+                            <Label
+                              htmlFor="titre"
+                              className="text-xl items-center justify-center"
+                            >
+                              {annonce.titre}
+                            </Label>
+                            <Label
+                              htmlFor="adresse"
+                              className="text-xl items-center justify-center"
+                            >
+                              {annonce.adresse}
+                            </Label>
+                            {annonce.updatedAt !== annonce.createdAt ? (
+                              <Label
+                                htmlFor="updatedAt"
+                                className="bg-slate-300 p-[4px] rounded-[4px]"
+                              >
+                                Modifiée le :{" "}
+                                {new Date(
+                                  annonce.updatedAt
+                                ).toLocaleDateString()}{" "}
+                                à{" "}
+                                {new Date(annonce.updatedAt).toLocaleTimeString(
+                                  undefined,
+                                  { hour: "2-digit", minute: "2-digit" }
+                                )}
+                              </Label>
+                            ) : (
+                              <Label
+                                htmlFor="statut"
+                                className="bg-slate-300 p-2 rounded-[4px]"
+                              >
+                                Créée le :{" "}
+                                {new Date(
+                                  annonce.createdAt
+                                ).toLocaleDateString()}{" "}
+                                à{" "}
+                                {new Date(annonce.createdAt).toLocaleTimeString(
+                                  undefined,
+                                  { hour: "2-digit", minute: "2-digit" }
+                                )}
+                              </Label>
+                            )}
+                          </div>
+
+                          <div className="flex flex-col items-end gap-24">
+                            <Link href={`/Annonces/id=${annonce.id}`}>
+                              <AiOutlineEye
+                                className="text-[#15213D] cursor-pointer text-[30px]"
+                                title="Voir"
+                              />
+                            </Link>
+                            <div className="flex space-x-1">
+                              {[...Array(5)].map((_, index) => {
+                                const isFilled =
+                                  index < Math.round(annonce.averageNote);
+                                return (
+                                  <svg
+                                    key={index}
+                                    xmlns="http://www.w3.org/2000/svg"
+                                    fill={isFilled ? "gold" : "none"}
+                                    stroke={isFilled ? "none" : "gold"}
+                                    viewBox="0 0 24 24"
+                                    strokeWidth="1.5"
+                                    className="w-6 h-6"
+                                  >
+                                    <path
+                                      strokeLinecap="round"
+                                      strokeLinejoin="round"
+                                      d="M12 17.27l6.18 3.73-1.64-7.03L21 9.24l-7.19-.61L12 2 10.19 8.63 3 9.24l5.46 4.73L6.82 21z"
+                                    />
+                                  </svg>
+                                );
+                              })}
+                            </div>
+                          </div>
+                        </CardFooter>
+                      </Card>
+                    </motion.div>
+                  ))
+              )}
+            </div>
+          </TabsContent>
+        ))}
       </Tabs>
 
       <div className="container mx-auto flex items-center w-full pt-10 place-content-center">

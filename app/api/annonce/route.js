@@ -2,7 +2,6 @@ import nodemailer from "nodemailer";
 import { db } from "@/lib/db";
 import { NextResponse } from "next/server";
 
-// Fonction pour envoyer un email à l'expéditeur (lui-même)
 async function sendSuspensionEmail() {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -29,11 +28,12 @@ async function sendSuspensionEmail() {
   }
 }
 
-// Gestion des requêtes POST pour créer une annonce
 export async function POST(request) {
   try {
     const body = await request.formData();
     const titre = body.get("title");
+    const prix = body.get("prix");
+    const typeTarif = body.get("tarifType");
     const description = body.get("description");
     const categorieAnnonce = body.get("category");
     const sousCategorie = body.get("subcategory");
@@ -42,8 +42,7 @@ export async function POST(request) {
     const statut = body.get("statut");
     const imageFiles = body.getAll("images");
     const userId = parseInt(body.get("userId"), 10);
-
-    // Validation des champs requis
+    console.log("prix et tarif :", prix, typeTarif);
     if (
       !titre ||
       !description ||
@@ -52,6 +51,8 @@ export async function POST(request) {
       !localisation ||
       !adresse ||
       !userId ||
+      !prix ||
+      !typeTarif ||
       imageFiles.length === 0
     ) {
       return NextResponse.json(
@@ -63,10 +64,8 @@ export async function POST(request) {
       );
     }
 
-    // Téléchargement des images
     const imageUrls = [];
     for (const image of imageFiles) {
-      // Validation de la taille de l'image (limite : 10MB)
       if (image.size > 10 * 1024 * 1024) {
         return NextResponse.json(
           { message: "Chaque image doit être inférieure à 10MB." },
@@ -103,6 +102,8 @@ export async function POST(request) {
         sousCategorie,
         localisation,
         adresse,
+        prix,
+        typeTarif,
         statut,
         userId,
       },
@@ -145,7 +146,6 @@ export async function POST(request) {
   }
 }
 
-// Gestion des requêtes GET pour récupérer les annonces d'un utilisateur
 export async function GET(request) {
   try {
     const { searchParams } = new URL(request.url);

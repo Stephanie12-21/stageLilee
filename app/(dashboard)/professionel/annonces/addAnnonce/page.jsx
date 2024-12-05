@@ -319,6 +319,7 @@ import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue,
@@ -574,18 +575,20 @@ export default function Component() {
                     <SelectValue placeholder="Sélectionnez une catégorie" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="IMMOBILIER">Immobilier</SelectItem>
-                    <SelectItem value="VETEMENT">Vêtements</SelectItem>
-                    <SelectItem value="EMPLOI">
-                      Emplois / Recrutement
-                    </SelectItem>
-                    <SelectItem value="SERVICE">Services</SelectItem>
-                    <SelectItem value="VOITURE">Voitures</SelectItem>
-                    <SelectItem value="LOISIR">Loisir</SelectItem>
-                    <SelectItem value="MATERIEL">
-                      Matériels / Equipements
-                    </SelectItem>
-                    <SelectItem value="MOBILIER">Mobilier</SelectItem>
+                    <SelectGroup>
+                      <SelectItem value="IMMOBILIER">Immobilier</SelectItem>
+                      <SelectItem value="VETEMENT">Vêtements</SelectItem>
+                      <SelectItem value="EMPLOI_SERVICE">
+                        Emplois / Recrutement / Services
+                      </SelectItem>
+                      <SelectItem value="VOITURE">Voitures</SelectItem>
+                      <SelectItem value="LOISIR">Loisir</SelectItem>
+                      <SelectItem value="MATERIEL">
+                        Matériels / Equipements
+                      </SelectItem>
+                      <SelectItem value="MOBILIER">Mobilier</SelectItem>
+                      <SelectItem value="DONS">Dons</SelectItem>
+                    </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>

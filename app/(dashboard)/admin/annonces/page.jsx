@@ -14,7 +14,6 @@ import {
   Edit,
   Trash2,
   Rocket,
-  Plus,
   Loader,
   BadgeCheck,
   Search,

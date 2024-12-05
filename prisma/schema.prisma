@@ -8,7 +8,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Pour le blog
+
 
 model article {
   id              Int       @id @default(autoincrement())
@@ -27,7 +27,8 @@ model image {
   article   article  @relation(fields: [articleId], references: [id])
 }
 
-// Pour les comptes
+
+
 model user {
   id                 Int            @id @default(autoincrement())
   nom                String
@@ -98,10 +99,12 @@ model profileImage {
   userId    Int      // ID de l'utilisateur auquel l'image est associée
   user      user     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
-// Pour les comptes
 
 
-//pour les favoris 
+
+
+
+
 model favoris {
   id                Int         @id @default(autoincrement())
   saveDate          DateTime    @default(now())
@@ -111,14 +114,21 @@ model favoris {
   annonce           annonces    @relation(fields: [annonceId], references: [id], onDelete: Cascade)
   
 }
-//pour les favoris 
 
-// Pour les annonces
+
+
+
+
+
+
+
+
 model annonces {
   id                Int          @id @default(autoincrement())
   titre             String       @unique
   description       String
   prix              Decimal?
+  typeTarif         typeTarif?  
   localisation      String?
   adresse           String
   statut            statut?      @default(EN_ATTENTE_DE_VALIDATION)
@@ -140,6 +150,14 @@ enum statut {
   EN_ATTENTE_DE_VALIDATION      
 }
 
+enum typeTarif {
+  JOURNALIER
+  NUITEE
+  FIXE
+  MENSUEL
+}
+
+
 model imageAnnonce {
   id            Int      @id @default(autoincrement())
   path          String   
@@ -150,14 +168,20 @@ model imageAnnonce {
 enum categorieAnnonce {
   IMMOBILIER
   VETEMENT
-  EMPLOI
-  SERVICE
+  EMPLOI_SERVICE
   VOITURE
   LOISIR
   MATERIEL
-  MOBILIER 
-  DONS    
+  MOBILIER
+  DONS
 }
+
+
+
+
+
+
+
 
 model commentaire { 
   id                Int       @id @default(autoincrement())
@@ -170,9 +194,11 @@ model commentaire {
   userId            Int
   user              user      @relation(fields: [userId], references: [id])
 }
-// Pour les annonces
 
-//pour LILEE
+
+
+
+
 model temoignages{
   id                Int @id @default(autoincrement())
   temoignage        String
@@ -180,10 +206,12 @@ model temoignages{
   userId            Int
   user              user      @relation(fields: [userId], references: [id])
 }
-//pour LILEE
 
 
-//pour les messages
+
+
+
+
 model message {
   id              Int             @id @default(autoincrement())
   content         String?
@@ -204,9 +232,12 @@ model imageMessages {
   messages      message?  @relation(fields: [messageId], references: [id], onDelete: Cascade)
 }
 
-//pour les messages
 
-//pour la newsletter
+
+
+
+
+
 model newsletter {
   id                Int     @id @default(autoincrement())
   email             String  @unique

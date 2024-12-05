@@ -1,167 +1,7 @@
-// import { db } from "@/lib/db";
-// import nodemailer from "nodemailer";
-// import { NextResponse } from "next/server";
-
-// async function sendNewsletterNotification(titre) {
-//   const transporter = nodemailer.createTransport({
-//     host: process.env.SMTP_HOST,
-//     port: process.env.SMTP_PORT,
-//     secure: process.env.SMTP_PORT === "465",
-//     auth: {
-//       user: process.env.SMTP_USER,
-//       pass: process.env.SMTP_PASS,
-//     },
-//   });
-
-//   try {
-//     // Récupérer tous les abonnés
-//     const abonnés = await db.newsletter.findMany({ select: { email: true } });
-
-//     if (!abonnés || abonnés.length === 0) {
-//       console.log("Aucun abonné trouvé.");
-//       return;
-//     }
-
-//     // Envoyer un email à chaque abonné
-//     for (const { email } of abonnés) {
-//       const mailOptions = {
-//         from: `"Lilee" <${process.env.SMTP_USER}>`,
-//         to: email,
-//         subject: "Nouvelle annonce publiée sur LILEE",
-//         text: `Bonjour,\n\nUne nouvelle article intitulée "${titre}" vient d'être publiée sur notre plateforme.\n\nDécouvrez-la dès maintenant !\n\nMerci de nous suivre.\n\nL'équipe de LILEE.`,
-//       };
-
-//       await transporter.sendMail(mailOptions);
-//       console.log(`Notification envoyée à : ${email}`);
-//     }
-//   } catch (error) {
-//     console.error("Erreur lors de l'envoi des notifications :", error);
-//     throw new Error("Erreur lors de l'envoi des notifications aux abonnés.");
-//   }
-// }
-
-// export async function POST(request) {
-//   try {
-//     // Extraire le corps de la requête
-//     const body = await request.formData(); // Utilisez `formData` pour récupérer les fichiers
-
-//     const titre = body.get("titre");
-//     const contenu = body.get("contenu");
-//     const categorieArticle = body.get("categorieArticle");
-//     const imageFiles = body.getAll("images"); // Récupère les fichiers d'images
-
-//     // Validation des données
-//     if (!titre || !contenu || !categorieArticle || imageFiles.length === 0) {
-//       return new NextResponse(
-//         JSON.stringify({
-//           message:
-//             "Tous les champs sont requis et au moins une image doit être fournie.",
-//         }),
-//         { status: 400 }
-//       );
-//     }
-
-//     // Si des images sont uploadées via Cloudinary
-//     const imageUrls = [];
-//     for (const image of imageFiles) {
-//       const formData = new FormData();
-//       formData.append("file", image);
-//       formData.append("upload_preset", "ko4bjtic"); // Remplace par ton preset Cloudinary
-
-//       // Envoi de l'image à Cloudinary
-//       const uploadResponse = await fetch(
-//         "https://api.cloudinary.com/v1_1/dtryutlkz/image/upload",
-//         {
-//           method: "POST",
-//           body: formData,
-//         }
-//       );
-
-//       const uploadResult = await uploadResponse.json();
-//       if (uploadResponse.ok && uploadResult.secure_url) {
-//         imageUrls.push(uploadResult.secure_url); // Récupère l'URL de l'image uploadée
-//       } else {
-//         throw new Error("Image upload failed");
-//       }
-//     }
-
-//     // Création de l'article avec les données reçues
-//     const newArticle = await db.article.create({
-//       data: {
-//         titre,
-//         contenu,
-//         categorieArticle,
-//       },
-//     });
-
-//     const articleId = newArticle.id;
-
-//     const imageInsertions = imageUrls.map((imageUrl) => {
-//       return db.image.create({
-//         data: {
-//           path: imageUrl,
-//           articleId: articleId,
-//         },
-//       });
-//     });
-
-//     await Promise.all(imageInsertions); // Associer les images à l'article
-//     await sendNewsletterNotification();
-//     return new NextResponse(
-//       JSON.stringify({
-//         message: "Article et images créés avec succès",
-//         article: newArticle,
-//       }),
-//       { status: 200 }
-//     );
-//   } catch (error) {
-//     console.error(
-//       "Erreur lors de la création de l'article et des images :",
-//       error
-//     );
-//     return new NextResponse(
-//       JSON.stringify({ message: "Erreur interne du serveur" }),
-//       { status: 500 }
-//     );
-//   }
-// }
-
-// export async function GET() {
-//   try {
-//     const articles = await db.article.findMany({
-//       include: {
-//         images: true, // Assurez-vous d'inclure les images associées
-//       },
-//       orderBy: {
-//         createdAt: "desc", // Ordre décroissant selon la date de création
-//       },
-//     });
-
-//     // Formater les articles et leurs images
-//     const formattedArticles = articles.map((article) => ({
-//       ...article,
-//       imageUrl: article.images.length > 0 ? article.images[0].path : null, // Utilisez la première image associée
-//     }));
-
-//     return new NextResponse(JSON.stringify(formattedArticles), {
-//       status: 200,
-//     });
-//   } catch (error) {
-//     console.error("Erreur lors de la récupération des articles :", error);
-//     return new NextResponse(
-//       JSON.stringify({ message: "Erreur interne du serveur" }),
-//       {
-//         status: 500,
-//       }
-//     );
-//   }
-// }
-
 import { db } from "@/lib/db";
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 
-// Fonction pour envoyer des notifications aux abonnés de la newsletter
 async function sendNewsletterNotification(titre) {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -174,7 +14,6 @@ async function sendNewsletterNotification(titre) {
   });
 
   try {
-    // Récupérer tous les abonnés
     const abonnés = await db.newsletter.findMany({ select: { email: true } });
 
     if (!abonnés.length) {
@@ -182,13 +21,37 @@ async function sendNewsletterNotification(titre) {
       return;
     }
 
-    // Envoyer un email à chaque abonné
     for (const { email } of abonnés) {
       const mailOptions = {
         from: `"Lilee" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: "Nouvelle annonce publiée sur LILEE",
-        text: `Bonjour,\n\nUn nouvel article intitulé "${titre}" vient d'être publié sur notre plateforme.\n\nDécouvrez-le dès maintenant !\n\nMerci de nous suivre.\n\nL'équipe de LILEE.`,
+        subject: "Nouvel article publié sur LILEE",
+        html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+      
+
+      <div style="background-color: #FCA311; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Du nouveau chez Lilee!</h1>
+      </div>
+
+      <div style="padding: 20px; line-height: 1.5; color: #333333;">
+        <p style="font-size: 16px; margin-bottom: 15px;">Bonjour,</p>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">
+          Lilee a publié un nouvel article. Nous vous invitons à y jeter un coup d'oeil, au cas ça vous aidera.
+        </p>
+
+        
+
+        <p style="font-size: 16px; margin-bottom: 15px;">À bientôt,</p>
+        <p style="font-size: 16px; font-weight: bold;">L'équipe de Lilee</p>
+      </div>
+
+      <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
+        <p>© 2024 Lilee. Tous droits réservés.</p>
+      </div>
+    </div>
+  `,
       };
 
       await transporter.sendMail(mailOptions);
@@ -202,30 +65,26 @@ async function sendNewsletterNotification(titre) {
 
 export async function POST(request) {
   try {
-    // Lire les données envoyées via FormData
     const body = await request.formData();
     const titre = body.get("titre");
     const contenu = body.get("contenu");
     const categorieArticle = body.get("categorieArticle");
     const images = body.getAll("images");
 
-    // Validation des champs
-    if (!titre || !contenu || !categorieArticle || images.length === 0) {
+    if (!titre || !contenu || !categorieArticle) {
       return new NextResponse(
         JSON.stringify({
-          message:
-            "Tous les champs sont requis et au moins une image doit être fournie.",
+          message: "Tous les champs sont requis.",
         }),
         { status: 400 }
       );
     }
 
-    // Upload des images sur Cloudinary
     const imageUrls = [];
     for (const image of images) {
       const formData = new FormData();
       formData.append("file", image);
-      formData.append("upload_preset", "ko4bjtic"); // Remplacez par votre preset Cloudinary
+      formData.append("upload_preset", "ko4bjtic");
 
       const uploadResponse = await fetch(
         "https://api.cloudinary.com/v1_1/dtryutlkz/image/upload",
@@ -243,12 +102,10 @@ export async function POST(request) {
       }
     }
 
-    // Création de l'article dans la base de données
     const newArticle = await db.article.create({
       data: { titre, contenu, categorieArticle },
     });
 
-    // Association des images à l'article
     const articleId = newArticle.id;
     const imageInsertions = imageUrls.map((imageUrl) =>
       db.image.create({
@@ -258,7 +115,6 @@ export async function POST(request) {
 
     await Promise.all(imageInsertions);
 
-    // Envoi des notifications aux abonnés
     await sendNewsletterNotification(titre);
 
     return new NextResponse(
@@ -282,16 +138,14 @@ export async function POST(request) {
 
 export async function GET() {
   try {
-    // Récupérer les articles avec leurs images associées
     const articles = await db.article.findMany({
       include: { images: true },
       orderBy: { createdAt: "desc" },
     });
 
-    // Formater les articles et leurs images
     const formattedArticles = articles.map((article) => ({
       ...article,
-      imageUrl: article.images[0]?.path || null, // Utilise la première image associée
+      imageUrl: article.images[0]?.path || null,
     }));
 
     return new NextResponse(JSON.stringify(formattedArticles), { status: 200 });
