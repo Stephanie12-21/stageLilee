@@ -10,11 +10,13 @@ import {
   ImageIcon,
   MapPinned,
   X,
+  BadgeEuro,
 } from "lucide-react";
 import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
 
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/swiper-bundle.css";
+import { typeTarif } from "@prisma/client";
 
 const InfoAnnonces = ({ params }) => {
   const { id } = params;
@@ -25,6 +27,8 @@ const InfoAnnonces = ({ params }) => {
   const [category, setCategory] = useState("");
   const [subcategory, setSubCategory] = useState("");
   const [description, setDescription] = useState("");
+  const [prix, setPrix] = useState("");
+  const [typeTarif, setTypeTarif] = useState("");
   const [images, setImages] = useState([]);
   const [localisation, setLocalisation] = useState("");
   const [adresse, setAdresse] = useState("");
@@ -49,6 +53,7 @@ const InfoAnnonces = ({ params }) => {
         const response = await fetch(`/api/annonce/${id}`);
         if (response.ok) {
           const data = await response.json();
+
           setAnnonceId(data.id);
           setTitle(data.titre);
           setCategory(data.categorieAnnonce);
@@ -56,6 +61,8 @@ const InfoAnnonces = ({ params }) => {
           setDescription(data.description);
           setAdresse(data.adresse);
           setLocalisation(data.localisation);
+          setPrix(data.prix);
+          setTypeTarif(data.typeTarif);
           setImages(data.imageAnnonces);
         } else {
           console.error("Annonce non trouvée, avec l'id annonce :", id);
@@ -64,7 +71,6 @@ const InfoAnnonces = ({ params }) => {
         console.error("Erreur lors de la récupération de l'annonce :", error);
       }
     }
-
     fetchAnnonce();
   }, [id]);
 
@@ -200,6 +206,18 @@ const InfoAnnonces = ({ params }) => {
                 <TagIcon className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>Sous-catégorie:</strong> {subcategory}
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <BadgeEuro className="text-blue-500 h-6 w-6" />
+                <p className="font-semibold text-gray-700">
+                  <strong>Tarification:</strong> {prix} euros
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <BadgeEuro className="text-blue-500 h-6 w-6" />
+                <p className="font-semibold text-gray-700">
+                  <strong>Type de tarif:</strong> {typeTarif}
                 </p>
               </div>
 

@@ -9,6 +9,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -42,7 +44,8 @@ import {
   SelectValue,
   SelectGroup,
 } from "@/components/ui/select";
-import { AlertTitle } from "@/components/ui/alert";
+import { Search } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 const UserPage = () => {
   const [raison, setRaison] = useState("");
@@ -151,7 +154,6 @@ const UserPage = () => {
       console.error("Erreur lors de la suspension :", error);
       alert("Une erreur s'est produite, veuillez réessayer.");
     } finally {
-      // Fermer le dialogue après l'action
       setIsSuspendAlertOpen(false);
     }
   };
@@ -205,17 +207,14 @@ const UserPage = () => {
         }),
       });
 
-      // Vérifiez que la réponse est OK avant de tenter de la convertir en JSON
       if (!response.ok) {
-        const textResponse = await response.text(); // Obtenez la réponse en texte brut
-        console.error("Erreur du serveur:", textResponse); // Affichez la réponse pour déboguer
+        const textResponse = await response.text();
+        console.error("Erreur du serveur:", textResponse);
         throw new Error(textResponse || "Une erreur s'est produite");
       }
 
-      // Si la réponse est OK, essayez de parser le JSON
       const data = await response.json();
 
-      // Vérifiez si des erreurs sont présentes dans la réponse
       if (data.error) {
         alert(data.error || "Une erreur s'est produite lors de l'activation.");
         return;
@@ -224,7 +223,7 @@ const UserPage = () => {
       alert(
         "Le compte de l'utilisateur a été activé et l'utilisateur a été informé par email."
       );
-      await fetchUsers(); // Récupérez la liste des utilisateurs après l'activation
+      await fetchUsers();
     } catch (error) {
       console.error("Erreur lors de l'activation :", error);
       alert("Une erreur s'est produite, veuillez réessayer.");
@@ -256,8 +255,63 @@ const UserPage = () => {
     { accessorKey: "prenom", header: "Prénom" },
     { accessorKey: "email", header: "Adresse email" },
     { accessorKey: "phone", header: "Téléphone" },
-    { accessorKey: "role", header: "Type de compte" },
-    { accessorKey: "statutUser", header: "Statut" },
+
+    {
+      accessorKey: "role",
+      header: "Type de compte",
+      cell: ({ row }) => {
+        const role = row.original.role;
+
+        const roleText = {
+          PERSO: "particulier",
+          PRO: "professionnel",
+        };
+
+        const statusColor = {
+          PERSO: "bg-primary text-white hover:bg-primary hover:text-white",
+          PRO: "bg-orange-100 text-orange-500 hover:bg-orange-100 hover:text-orange-500",
+        };
+
+        return (
+          <Badge
+            className={`px-3 py-[5px] rounded-full ${
+              statusColor[role] || "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {roleText[role] || "Inconnu"}
+          </Badge>
+        );
+      },
+    },
+
+    {
+      accessorKey: "statutUser",
+      header: "Statut",
+      cell: ({ row }) => {
+        const statut = row.original.statutUser;
+
+        const statusText = {
+          ACTIF: "actif",
+          SUSPENDU: "suspendue",
+        };
+
+        const statusColor = {
+          ACTIF: "bg-primary text-white hover:bg-primary hover:text-white",
+          SUSPENDU:
+            "bg-red-100 text-red-800 hover:bg-red-100 hover:text-red-800",
+        };
+
+        return (
+          <Badge
+            className={`px-3 py-[5px] rounded-full ${
+              statusColor[statut] || "bg-gray-100 text-gray-800"
+            }`}
+          >
+            {statusText[statut] || "Inconnu"}
+          </Badge>
+        );
+      },
+    },
     {
       header: "Actions",
       cell: ({ row }) => {
@@ -327,76 +381,88 @@ const UserPage = () => {
   if (loading) return <div>Chargement...</div>;
 
   return (
-    <div className="space-y-3">
-      <h1>Liste des utilisateurs</h1>
-      <div className="flex justify-between space-x-10 mx-6">
-        <Input
-          placeholder="Rechercher ici ..."
-          value={searchFilter}
-          onChange={(e) => setSearchFilter(e.target.value)}
-          className="max-w-sm"
-        />
-        <div className="flex justify-center space-x-3">
-          <Select
-            value={roleFilter}
-            onValueChange={(value) => setRoleFilter(value)}
-          >
-            <SelectTrigger className="w-fit">
-              <SelectValue placeholder="Sélectionner le type de compte" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="pro">Professionnel</SelectItem>
-                <SelectItem value="perso">Personnel</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          <Select
-            value={statusFilter}
-            onValueChange={(value) => setStatusFilter(value)} // Mettez à jour le filtre de statut ici
-          >
-            <SelectTrigger className="w-fit px-5">
-              <SelectValue placeholder="Sélectionner le statut" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="all">Tous</SelectItem>
-                <SelectItem value="actif">Actif</SelectItem>
-                <SelectItem value="nonActif">Non actif</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+    <div className="container mx-auto p-6">
+      <h1 className="text-4xl font-bold mb-8 text-center">
+        Liste de toutes les annonces de LILEE
+      </h1>
+
+      <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 justify-between pt-8 mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center gap-4 w-full max-w-full mx-auto">
+          <div className="relative w-full md:w-2/3">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Rechercher ici ..."
+              value={searchFilter}
+              onChange={(e) => setSearchFilter(e.target.value)}
+              className="pl-10 pr-4 py-2 w-full border-2 border-primary/20 transition-colors bg-white"
+            />
+          </div>
+
+          <div className="flex flex-row space-x-4 items-center w-full md:w-2/3">
+            <Select
+              value={roleFilter}
+              onValueChange={(value) => setRoleFilter(value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionner le type de compte" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="pro">Professionnel</SelectItem>
+                  <SelectItem value="perso">Personnel</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            <Select
+              value={statusFilter}
+              onValueChange={(value) => setStatusFilter(value)}
+            >
+              <SelectTrigger className="w-full">
+                <SelectValue placeholder="Sélectionner le statut" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="all">Tous</SelectItem>
+                  <SelectItem value="actif">Actif</SelectItem>
+                  <SelectItem value="nonActif">Non actif</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      <Table>
-        <TableHeader>
-          {table.getHeaderGroups().map((headerGroup) => (
-            <TableRow key={headerGroup.id}>
-              {headerGroup.headers.map((header) => (
-                <TableHead key={header.id}>
-                  {flexRender(
-                    header.column.columnDef.header,
-                    header.getContext()
-                  )}
-                </TableHead>
-              ))}
-            </TableRow>
-          ))}
-        </TableHeader>
-        <TableBody>
-          {table.getRowModel().rows.map((row) => (
-            <TableRow key={row.id}>
-              {row.getVisibleCells().map((cell) => (
-                <TableCell key={cell.id}>
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </TableCell>
-              ))}
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+      <div className="pt-7">
+        <Table>
+          <TableHeader>
+            {table.getHeaderGroups().map((headerGroup) => (
+              <TableRow key={headerGroup.id}>
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {flexRender(
+                      header.column.columnDef.header,
+                      header.getContext()
+                    )}
+                  </TableHead>
+                ))}
+              </TableRow>
+            ))}
+          </TableHeader>
+          <TableBody>
+            {table.getRowModel().rows.map((row) => (
+              <TableRow key={row.id}>
+                {row.getVisibleCells().map((cell) => (
+                  <TableCell key={cell.id}>
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                  </TableCell>
+                ))}
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
 
       <AlertDialog open={isAlertOpen} onOpenChange={setIsAlertOpen}>
         <AlertDialogContent>
@@ -469,6 +535,12 @@ const UserPage = () => {
           </div>
         </AlertDialogContent>
       </AlertDialog>
+
+      <ToastContainer
+        position="top-center"
+        autoClose={5000}
+        hideProgressBar={false}
+      />
     </div>
   );
 };

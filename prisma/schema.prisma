@@ -121,8 +121,6 @@ model favoris {
 
 
 
-
-
 model annonces {
   id                Int          @id @default(autoincrement())
   titre             String       @unique

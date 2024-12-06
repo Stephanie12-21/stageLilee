@@ -42,7 +42,7 @@ export async function POST(request) {
     const statut = body.get("statut");
     const imageFiles = body.getAll("images");
     const userId = parseInt(body.get("userId"), 10);
-    console.log("prix et tarif :", prix, typeTarif);
+
     if (
       !titre ||
       !description ||
@@ -51,8 +51,6 @@ export async function POST(request) {
       !localisation ||
       !adresse ||
       !userId ||
-      !prix ||
-      !typeTarif ||
       imageFiles.length === 0
     ) {
       return NextResponse.json(
@@ -93,7 +91,6 @@ export async function POST(request) {
       }
     }
 
-    // Création de l'annonce
     const newAnnonce = await db.annonces.create({
       data: {
         titre,
