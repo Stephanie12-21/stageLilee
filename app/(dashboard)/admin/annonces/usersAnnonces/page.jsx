@@ -293,7 +293,7 @@ const UserPage = () => {
         const statusText = {
           PUBLIEE: "publiée",
           DESACTIVEE: "suspendue",
-          EN_ATTENTE_DE_VALIDATION: "en cours de validation",
+          EN_ATTENTE_DE_VALIDATION: "en attente",
         };
 
         const statusColor = {

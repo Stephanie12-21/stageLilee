@@ -51,6 +51,7 @@ const InfoAnnonces = ({ params }) => {
   const [userId, setUserId] = useState("");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
+  const [subcategory, setSubCategory] = useState("");
   const [description, setDescription] = useState("");
   const [images, setImages] = useState([]);
   const [localisation, setLocalisation] = useState("");
@@ -324,6 +325,7 @@ const InfoAnnonces = ({ params }) => {
           setAnnonceId(data.id);
           setTitle(data.titre);
           setCategory(data.categorieAnnonce);
+          setSubCategory(data.sousCategorie);
           setDescription(data.description);
           setAdresse(data.adresse);
           setLocalisation(data.localisation);
@@ -528,7 +530,7 @@ const InfoAnnonces = ({ params }) => {
               </CardDescription>
             </CardHeader>
 
-            <CardFooter className="flex justify-center mt-4 w-full">
+            <CardFooter className="flex flex-col justify-center space-y-4 mt-4 w-full">
               {session && session.user ? (
                 <Button
                   variant="default"
@@ -545,7 +547,22 @@ const InfoAnnonces = ({ params }) => {
                   Connectez-vous pour discuter
                 </Button>
               )}
-              <Button></Button>
+              {session && session.user ? (
+                <Button
+                  variant="default"
+                  className=" text-white py-2 w-full px-4 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  // onClick={handleChat}
+                >
+                  Réserver cet article
+                </Button>
+              ) : (
+                <Button
+                  className="bg-gray-300 text-[#353945] hover:bg-gray-400 py-2 px-4 rounded-lg shadow-md transition-all"
+                  onClick={() => router.push("/login")}
+                >
+                  Connectez-vous pour pouvoir réserver
+                </Button>
+              )}
             </CardFooter>
           </Card>
         </div>
@@ -581,6 +598,10 @@ const InfoAnnonces = ({ params }) => {
                 <CardTitle>Description détaillée</CardTitle>
               </CardHeader>
               <CardContent className="space-y-7">
+                <div>
+                  <p>Catégorie : {category}</p>
+                  <p>Sous-Catégorie : {subcategory}</p>
+                </div>
                 <div className="space-y-1">
                   la description est :
                   <div

@@ -9,10 +9,19 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Send, ImageIcon, X, MoreVertical } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
 
 const MessageCard = ({ message, me, other }) => {
   const isMessageFromMe = message.senderId === me.id;
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const formattedTime = new Date(message.time).toLocaleString("fr-FR", {
     hour: "2-digit",
@@ -22,6 +31,15 @@ const MessageCard = ({ message, me, other }) => {
     year: "numeric",
   });
 
+  const handleDeleteClick = (id) => {
+    setSelectedAnnonceId(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDeleteModal(false);
+    setSelectedAnnonceId(null);
+  };
   return (
     <>
       <div
@@ -212,6 +230,8 @@ const MessageInput = ({
 
 export default function ChatInterface({ selectedChatroom }) {
   const [message, setMessage] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedChatroomId, setSelectedChatRoomId] = useState(false);
   const [messages, setMessages] = useState([]);
   const [imagePreviews, setImagePreviews] = useState([]);
   const messagesEndRef = useRef(null);
@@ -311,6 +331,20 @@ export default function ChatInterface({ selectedChatroom }) {
     }
   };
 
+  const handleDeleteClick = (chatRoomId) => {
+    setSelectedChatRoomId(chatRoomId);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDeleteModal(false);
+    setSelectedChatRoomId(null);
+  };
+
+  const handleConfirmDelete = () => {
+    console.log("les données sont effacées");
+  };
+
   return (
     <div className="flex flex-col h-screen bg-background">
       <div className="bg-primary text-primary-foreground p-4 flex items-center justify-between shadow-md sticky top-0 z-10">
@@ -331,9 +365,22 @@ export default function ChatInterface({ selectedChatroom }) {
             </h2>
           </div>
         </div>
-        <Button variant="ghost" size="icon">
-          <MoreVertical className="h-5 w-5" />
-        </Button>
+
+        <DropdownMenu>
+          <div className="flex items-center space-x-3 bg-dark rounded-full p-2">
+            <DropdownMenuTrigger asChild>
+              <Button size="icon">
+                <MoreVertical className="h-5 w-5 text-white" />
+              </Button>
+            </DropdownMenuTrigger>
+          </div>
+
+          <DropdownMenuContent align="end" className="w-64 mt-2">
+            <DropdownMenuItem onClick={() => handleDeleteClick(chatRoomId)}>
+              Supprimer cette discussion
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <ScrollArea className="flex-1 py-4">
@@ -356,6 +403,12 @@ export default function ChatInterface({ selectedChatroom }) {
         setMessage={setMessage}
         imagePreviews={imagePreviews}
         setImagePreviews={setImagePreviews}
+      />
+
+      <ConfirmDeleteModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );
