@@ -54,8 +54,10 @@ import { AlertTriangle, CalendarIcon, Search } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
+import { useSession } from "next-auth/react";
 
 const UserPage = () => {
+  const { data: session, status } = useSession();
   const [raison, setRaison] = useState("");
   const [date, setDate] = useState("");
   const [email, setEmail] = useState("");
@@ -70,6 +72,17 @@ const UserPage = () => {
   const [categoryFilter, setCategoryFilter] = useState("all");
   const [statusFilter, setStatusFilter] = useState("all");
   const router = useRouter();
+
+  // useEffect(() => {
+  //   if (!session?.user) {
+  //     router.push("/login");
+  //   }
+  // }, [session, router]);
+  useEffect(() => {
+    if (status === "unauthenticated") {
+      router.push("/login");
+    }
+  }, [status, router]);
 
   const fetchAnnoncesUsers = async () => {
     try {

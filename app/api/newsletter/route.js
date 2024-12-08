@@ -93,7 +93,6 @@ export async function POST(request) {
 
     await sendNewsletterEmail(email);
 
-    // Retourner une réponse de succès
     return new NextResponse(
       JSON.stringify({
         message: "Vous êtes maintenant abonné à la newsletter.",

@@ -6,18 +6,53 @@ async function sendSuspensionEmail() {
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
-    secure: process.env.SMTP_PORT === "465", // Le port 465 est sécurisé
+    secure: process.env.SMTP_PORT === "465",
     auth: {
       user: process.env.SMTP_USER,
       pass: process.env.SMTP_PASS,
     },
   });
 
+  // const mailOptions = {
+  //   from: `"Lilee" <${process.env.SMTP_USER}>`,
+  //   to: process.env.SMTP_USER,
+  //   subject: "Notification de validation d'annonces en attente",
+  //   text: `Bonjour,\n\nDe nouvelles annonces sont en attente de validation. Veuillez les examiner et les approuver ou rejeter selon votre politique.\n\nL'équipe Lilee.`,
+  // };
   const mailOptions = {
     from: `"Lilee" <${process.env.SMTP_USER}>`,
     to: process.env.SMTP_USER,
     subject: "Notification de validation d'annonces en attente",
-    text: `Bonjour,\n\nDe nouvelles annonces sont en attente de validation. Veuillez les examiner et les approuver ou rejeter selon votre politique.\n\nL'équipe Lilee.`,
+    html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff; border: 1px solid #eaeaea; border-radius: 8px;">
+      
+      <div style="background-color: #FCA311; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Validation d'annonces requise</h1>
+      </div>
+
+      <div style="padding: 20px; line-height: 1.6; color: #333333;">
+        <p style="font-size: 16px; margin-bottom: 15px;">Bonjour,</p>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">
+          De nouvelles annonces ont été modifiées et nécessitent votre validation. Veuillez examiner ces annonces pour les approuver ou les rejeter, conformément à votre politique.
+        </p>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${process.env.ADMIN_DASHBOARD_URL}" 
+             style="display: inline-block; padding: 12px 24px; background-color: #FCA311; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: bold; font-size: 16px;">
+            Accéder au tableau de bord
+          </a>
+        </div>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">Merci pour votre diligence,</p>
+        <p style="font-size: 16px; font-weight: bold;">L'équipe Lilee</p>
+      </div>
+
+      <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
+        <p>© 2024 Lilee. Tous droits réservés.</p>
+      </div>
+    </div>
+  `,
   };
 
   try {
@@ -108,7 +143,6 @@ export async function POST(request) {
 
     const AnnonceId = newAnnonce.id;
 
-    // Enregistrement des images associées
     const imageInsertions = imageUrls.map((imageUrl) => {
       return db.imageAnnonce.create({
         data: {
@@ -119,7 +153,6 @@ export async function POST(request) {
     });
     await Promise.all(imageInsertions);
 
-    // Envoi de l'email de notification à l'expéditeur
     sendSuspensionEmail().catch((error) => {
       console.error("Erreur lors de l'envoi de l'email :", error);
     });

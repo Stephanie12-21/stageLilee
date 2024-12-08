@@ -2,21 +2,8 @@
 
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
-import {
-  Bell,
-  CircleUser,
-  EllipsisVerticalIcon,
-  Home,
-  LineChart,
-  Menu,
-  MenuIcon,
-  Package,
-  Search,
-  ShoppingCart,
-  Star,
-  Users,
-} from "lucide-react";
-import { Badge } from "@/components/ui/badge";
+import { MenuIcon, Star, Users } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -109,13 +96,24 @@ export default function LayoutAdmin({ children }) {
 
   if (!session?.user) {
     return (
-      <div>
-        <h2>
-          Veuillez vous connecter à votre compte
-          <span>
-            <Link href="/login"> Se connecter</Link>
-          </span>
-        </h2>
+      <div className="flex items-center justify-center  min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary font-bold text-center">
+              Connexion requise
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center mb-6 text-gray-600">
+              Veuillez vous connecter à votre compte pour continuer
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className="w-full">
+                <Link href="/login">Se connecter</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }

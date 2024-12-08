@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { z } from "zod";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Label } from "@/components/ui/label";
@@ -190,7 +189,7 @@ const AddAnnonce = () => {
               className="w-full"
               onValueChange={(value) => {
                 setCategory(value);
-                setSubCategory(""); // Réinitialiser la sous-catégorie
+                setSubCategory("");
               }}
             >
               <SelectTrigger className="w-full px-4">

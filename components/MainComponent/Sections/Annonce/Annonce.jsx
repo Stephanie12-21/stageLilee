@@ -39,9 +39,13 @@ const Annonce = () => {
       const response = await fetch("/api/annonce/getAll");
       const data = await response.json();
 
-      // Filtrer les annonces pour exclure celles qui ont un statut "DESACTIVEE"
       const filteredData = data
-        .filter((annonce) => annonce.statut !== "DESACTIVEE")
+        .filter(
+          (annonce) =>
+            annonce.statut !== "DESACTIVEE" &&
+            annonce.statut !== "EN_ATTENTE_DE_VALIDATION"
+        )
+
         .map((annonce) => {
           console.log("Annonce:", annonce);
           console.log(
@@ -49,30 +53,27 @@ const Annonce = () => {
             `${annonce.user.nom} ${annonce.user.prenom}`
           );
 
-          // Récupérer toutes les notes associées à cette annonce
           const notes = annonce.commentaire
             .map((c) => c.note)
-            .filter((note) => note !== null); // Exclure les notes nulles
+            .filter((note) => note !== null);
 
           console.log("Notes associées :", notes);
 
           if (notes.length > 0) {
-            // Calculer la moyenne des notes
             const total = notes.reduce((acc, note) => acc + note, 0);
             const average = total / notes.length;
             console.log("Moyenne des notes :", average.toFixed(2));
 
-            // Ajouter la moyenne à l'annonce sans la formater à l'avance
             annonce.averageNote = average;
           } else {
             console.log("Aucune note trouvée pour cette annonce.");
             annonce.averageNote = 0;
           }
 
-          return annonce; // Retourner l'annonce avec la moyenne mise à jour
+          return annonce;
         });
 
-      setAnnonces(filteredData); // Mettre à jour les annonces filtrées
+      setAnnonces(filteredData);
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     } finally {
@@ -103,7 +104,6 @@ const Annonce = () => {
           const favorisIds = await response.json();
           setLikedAnnonces(favorisIds);
 
-          // Vérifier si l'annonce est déjà dans les favoris
           setIsFavorited(favorisIds.includes(annonces.id));
         }
       } catch (error) {
@@ -125,7 +125,6 @@ const Annonce = () => {
 
     try {
       if (likedAnnonces.includes(id)) {
-        // Si l'annonce est déjà dans les favoris, on la retire
         const updatedFavorites = likedAnnonces.filter((favId) => favId !== id);
         setLikedAnnonces(updatedFavorites);
         setIsFavorited(false);
@@ -133,7 +132,6 @@ const Annonce = () => {
         await removeFromFavorites(userId, id);
         toast.info("Annonce retirée des favoris.");
       } else {
-        // Si l'annonce n'est pas dans les favoris, on l'ajoute
         const updatedFavorites = [...likedAnnonces, id];
         setLikedAnnonces(updatedFavorites);
         setIsFavorited(true);
@@ -161,7 +159,6 @@ const Annonce = () => {
     }
   };
 
-  // Fonction pour retirer des favoris via l'API Next.js
   const removeFromFavorites = async (userId, annonceId) => {
     try {
       const response = await fetch("/api/favorites", {
@@ -190,7 +187,9 @@ const Annonce = () => {
     }),
     hidden: { opacity: 0, y: 50, transition: { duration: 0.5 } },
   };
-
+  const handleCardClick = (id) => {
+    router.push(`/Annonces/id=${id}`);
+  };
   return (
     <div className="container py-8 space-y-8">
       <div className="flex justify-between gap-8">
@@ -215,7 +214,10 @@ const Annonce = () => {
                 key={index}
                 className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
-                <Card className="w-full overflow-hidden">
+                <Card
+                  className="w-full overflow-hidden cursor-pointer"
+                  onClick={() => handleCardClick(annonce.id)}
+                >
                   <div className="relative">
                     <Skeleton className="w-full h-48" />
                     <div className="absolute top-2 right-2">

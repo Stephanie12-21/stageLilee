@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { X } from "lucide-react";
-
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Select,
   SelectTrigger,
@@ -16,6 +16,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { useSession } from "next-auth/react";
 import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
+import { Alert } from "@/components/ui/alert";
+import { Input } from "@/components/ui/input";
 
 const ArticleDetailPageModif = ({ params }) => {
   const { id } = params;
@@ -26,8 +28,11 @@ const ArticleDetailPageModif = ({ params }) => {
     titre: "",
     description: "",
     category: "",
+    subcategory: "",
     localisation: "",
     adresse: "",
+    prix: "",
+    typeTarif: "",
     files: [],
   });
   const [contenu, setContenu] = useState({});
@@ -42,6 +47,7 @@ const ArticleDetailPageModif = ({ params }) => {
         throw new Error("Annonce non trouvée");
       }
       const data = await response.json();
+      console.log("données reçues :", data);
       return data;
     } catch (error) {
       console.error("Erreur lors de la récupération de l'annonce:", error);
@@ -58,12 +64,15 @@ const ArticleDetailPageModif = ({ params }) => {
             titre: data.titre,
             description: data.description ? JSON.parse(data.description) : {},
             category: data.categorieAnnonce,
+            subcategory: data.sousCategorie,
+            prix: data.prix,
+            typeTarif: data.typeTarif,
             localisation: data.localisation,
             adresse: data.adresse,
             files: [],
           });
           setContenu(data.description ? JSON.parse(data.description) : {});
-          setIframeSrc(data.localisation || ""); // Charger l'iframe si localisation existante
+          setIframeSrc(data.localisation || "");
         })
         .catch((err) => setError(err.message));
     }
@@ -113,11 +122,14 @@ const ArticleDetailPageModif = ({ params }) => {
     e.preventDefault();
 
     const formDataToSend = new FormData();
-    const statut = "DESACTIVEE";
+    const statut = "EN_ATTENTE_DE_VALIDATION";
     formDataToSend.append("titre", formData.titre);
     formDataToSend.append("description", JSON.stringify(contenu));
     formDataToSend.append("categorieAnnonce", formData.category);
+    formDataToSend.append("sousCategorie", formData.subcategory);
     formDataToSend.append("localisation", formData.localisation);
+    formDataToSend.append("prix", formData.prix);
+    formDataToSend.append("typeTarif", formData.typeTarif);
     formDataToSend.append("statut", statut);
     formDataToSend.append("userId", session.user.id);
     formDataToSend.append("adresse", formData.adresse);
@@ -134,7 +146,7 @@ const ArticleDetailPageModif = ({ params }) => {
         throw new Error("Erreur lors de la mise à jour de l'annonce");
       }
       alert("Annonce mise à jour !");
-      router.push(`/professionel/annonces/${id}`);
+      router.push(`/personnel/annonces/`);
     } catch (error) {
       console.error("Erreur de mise à jour:", error);
       alert("Erreur lors de la mise à jour.");
@@ -149,6 +161,17 @@ const ArticleDetailPageModif = ({ params }) => {
     return <p>Chargement...</p>;
   }
 
+  const categoriesWithSubcategories = {
+    IMMOBILIER: [
+      "location pmr",
+      "appartement pmr",
+      "camping pmr",
+      "chambre d'hôtes pmr",
+      "hotel pmr",
+    ],
+    VOITURE: ["conduite accompagnée", " équipée d'une rampe"],
+    VETEMENT: ["femme", "homme", "enfant"],
+  };
   return (
     <div className="container mx-auto p-10">
       <h1 className="text-3xl font-bold mb-5">Modifier l&apos;annonce</h1>
@@ -170,33 +193,146 @@ const ArticleDetailPageModif = ({ params }) => {
           />
         </div>
 
-        <div className="space-y-3">
-          <Label htmlFor="category">Catégorie:</Label>
-          <Select
-            className="w-full"
-            value={formData.category}
-            onValueChange={(value) =>
-              setFormData((prev) => ({ ...prev, category: value }))
-            }
-          >
-            <SelectTrigger className="w-full px-4">
-              <SelectValue placeholder="Sélectionner une catégorie" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="IMMOBILIER">Immobilier</SelectItem>
-                <SelectItem value="VETEMENT">Vêtements</SelectItem>
-                <SelectItem value="EMPLOI">Emplois / Recrutement</SelectItem>
-                <SelectItem value="SERVICE">Services</SelectItem>
-                <SelectItem value="VOITURE">Voitures</SelectItem>
-                <SelectItem value="LOISIR">Loisir</SelectItem>
-                <SelectItem value="MATERIEL">
-                  Matériels / Équipements
-                </SelectItem>
-                <SelectItem value="MOBILIER">Mobilier</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
+        <div className="space-y-3"></div>
+
+        <div className="flex flex-col lg:flex-row w-full space-x-0 lg:space-x-2">
+          <div className="w-full space-y-3">
+            <Label htmlFor="category">Catégorie:</Label>
+            <Select
+              className="w-full"
+              value={formData.category || ""}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, category: value }))
+              }
+            >
+              <SelectTrigger className="w-full px-4">
+                <SelectValue placeholder="Sélectionner une catégorie" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectGroup>
+                  <SelectItem value="IMMOBILIER">Immobilier</SelectItem>
+                  <SelectItem value="VETEMENT">Vêtements</SelectItem>
+                  <SelectItem value="EMPLOI_SERVICE">
+                    Emplois / Recrutement / Services
+                  </SelectItem>
+                  <SelectItem value="VOITURE">Voitures</SelectItem>
+                  <SelectItem value="LOISIR">Loisir</SelectItem>
+                  <SelectItem value="MATERIEL">
+                    Matériels / Équipements
+                  </SelectItem>
+                  <SelectItem value="MOBILIER">Mobilier</SelectItem>
+                </SelectGroup>
+              </SelectContent>
+            </Select>
+
+            {errors.category && (
+              <Alert variant="error">{errors.category}</Alert>
+            )}
+          </div>
+
+          <div className="w-full space-y-3 mt-2 lg:mt-0 ">
+            <Label htmlFor="subcategory">Sous-catégorie:</Label>
+            {categoriesWithSubcategories[formData.category] ? (
+              <Select
+                className="w-full"
+                value={formData.subcategory || ""}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, subcategory: value }))
+                }
+              >
+                <SelectTrigger className="w-full px-4">
+                  <SelectValue placeholder="Sélectionner une sous-catégorie" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {categoriesWithSubcategories[formData.category].map(
+                      (sub, index) => (
+                        <SelectItem key={index} value={sub}>
+                          {sub}
+                        </SelectItem>
+                      )
+                    )}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                type="text"
+                id="subcategory"
+                name="subcategory"
+                value={formData.subcategory || ""}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    subcategory: e.target.value,
+                  }))
+                }
+                placeholder="Entrez une sous-catégorie"
+              />
+            )}
+            {errors.subCategory && (
+              <Alert variant="error">{errors.subCategory}</Alert>
+            )}
+          </div>
+        </div>
+
+        <div className="flex flex-col lg:flex-row w-full space-x-0 lg:space-x-10">
+          <div className="space-y-3 w-full">
+            <Label htmlFor="prix">Prix:</Label>
+
+            <Input
+              type="number"
+              id="prix"
+              name="prix"
+              value={formData.prix || ""}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, prix: e.target.value }))
+              }
+              required
+            />
+            {errors.prix && <Alert variant="error">{errors.prix}</Alert>}
+          </div>
+
+          <div className="w-full">
+            <Label htmlFor="tarifType">Type de tarif:</Label>
+
+            <RadioGroup
+              value={formData.typeTarif}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, typeTarif: value }))
+              }
+            >
+              <div className="flex items-center space-x-6 mt-3">
+                <div>
+                  <RadioGroupItem id="tarifJournalier" value="JOURNALIER" />
+                  <Label htmlFor="tarifJournalier" className="ml-2">
+                    Tarif journalier
+                  </Label>
+                </div>
+
+                <div>
+                  <RadioGroupItem id="tarifNuitee" value="NUITEE" />
+                  <Label htmlFor="tarifNuitee" className="ml-2">
+                    Tarif nuitée
+                  </Label>
+                </div>
+
+                <div>
+                  <RadioGroupItem id="tarifFixe" value="FIXE" />
+                  <Label htmlFor="tarifFixe" className="ml-2">
+                    Tarif fixe
+                  </Label>
+                </div>
+
+                <div>
+                  <RadioGroupItem id="tarifMensuel" value="MENSUEL" />
+                  <Label htmlFor="tarifMensuel" className="ml-2">
+                    Tarif mensuel
+                  </Label>
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
         </div>
 
         <div className="mb-4">

@@ -77,7 +77,7 @@ const faqItems = [
         >
           faire le don à LILEE
         </a>
-        . Nous vous remercions d&apos;avance pour l&apos;initiative. 🙂
+        . Nous vous remercions d&apos;avance pour l&apos;initiative. &#128516;
       </>
     ),
   },

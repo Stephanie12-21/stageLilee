@@ -1,6 +1,7 @@
 import nodemailer from "nodemailer";
 import { NextResponse } from "next/server";
 import { db } from "@/lib/db";
+import jwt from "jsonwebtoken";
 
 async function sendSuspensionEmail(email, annonceTitre) {
   const transporter = nodemailer.createTransport({
@@ -17,7 +18,32 @@ async function sendSuspensionEmail(email, annonceTitre) {
     from: `"Lilee" <${process.env.SMTP_USER}>`,
     to: email,
     subject: "Notification d'activation d'annonce",
-    text: `Bonjour,\n\nVotre annonce intitulée "${annonceTitre}" a été vérifiée et publiée sur la plateforme LILEE.\n\nMerci de nous contacter pour toute question.\n\nL'équipe Lilee.`,
+    html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+      
+
+      <div style="background-color: #FCA311; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Validation de votre annonce!</h1>
+      </div>
+
+      <div style="padding: 20px; line-height: 1.5; color: #333333;">
+        <p style="font-size: 16px; margin-bottom: 15px;">Bonjour,</p>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">
+            Votre annonce intitulée "${annonceTitre}" a été vérifiée et publiée sur la plateforme LILEE       
+        </p>
+
+       
+
+        <p style="font-size: 16px; margin-bottom: 15px;">À bientôt,</p>
+        <p style="font-size: 16px; font-weight: bold;">L'équipe de Lilee</p>
+      </div>
+
+      <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
+        <p>© 2024 Lilee. Tous droits réservés.</p>
+      </div>
+    </div>
+  `,
   };
 
   try {
@@ -47,13 +73,47 @@ async function sendNewsletterNotification(annonceTitre) {
       console.log("Aucun abonné trouvé.");
       return;
     }
+    const unsubscribeToken = jwt.sign({ abonnés }, process.env.JWT_SECRET);
+
+    const unsubscribeUrl = `${process.env.FRONTEND_URL}/Unsubscribe?token=${unsubscribeToken}`;
 
     for (const { email } of abonnés) {
       const mailOptions = {
         from: `"Lilee" <${process.env.SMTP_USER}>`,
         to: email,
-        subject: "Nouvelle annonce publiée sur LILEE",
-        text: `Bonjour,\n\nUne nouvelle annonce intitulée "${annonceTitre}" vient d'être publiée sur notre plateforme.\n\nDécouvrez-la dès maintenant !\n\nMerci de nous suivre.\n\nL'équipe de LILEE.`,
+        subject: "Notification de nouvelles publications d'annonces ",
+        html: `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #ffffff;">
+      
+
+      <div style="background-color: #FCA311; padding: 20px; border-radius: 8px; text-align: center; margin-bottom: 20px;">
+        <h1 style="color: #ffffff; margin: 0; font-size: 24px;">Du nouveau  chez Lilee!</h1>
+      </div>
+
+      <div style="padding: 20px; line-height: 1.5; color: #333333;">
+        <p style="font-size: 16px; margin-bottom: 15px;">Bonjour,</p>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">
+          Une nouvelle annonce portant le titre "${annonceTitre}" vient d'être publiée sur la plateforme LILEE.Peut-être que cela pourrait vous intéresser.       
+        </p>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${unsubscribeUrl}"
+             style="display: inline-block; padding: 12px 24px; background-color:  #fdf3e1; color: #FCA311; text-decoration: none; border-radius: 4px; font-weight: bold;">
+            Se désabonner
+          </a>
+          
+        </div>
+
+        <p style="font-size: 16px; margin-bottom: 15px;">À bientôt,</p>
+        <p style="font-size: 16px; font-weight: bold;">L'équipe de Lilee</p>
+      </div>
+
+      <div style="text-align: center; padding-top: 20px; border-top: 1px solid #eee; color: #666; font-size: 12px;">
+        <p>© 2024 Lilee. Tous droits réservés.</p>
+      </div>
+    </div>
+  `,
       };
 
       await transporter.sendMail(mailOptions);

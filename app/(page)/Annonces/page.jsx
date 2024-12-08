@@ -19,7 +19,7 @@ import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useSession } from "next-auth/react";
 import { Input } from "@/components/ui/input";
-import { CalendarIcon, Search } from "lucide-react";
+import { CalendarIcon, Euro, Search } from "lucide-react";
 import { fr } from "date-fns/locale";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -146,7 +146,6 @@ export default function Annonces() {
 
     try {
       if (likedAnnonces.includes(id)) {
-        // Si l'annonce est déjà dans les favoris, on la retire
         const updatedFavorites = likedAnnonces.filter((favId) => favId !== id);
         setLikedAnnonces(updatedFavorites);
         setIsFavorited(false);
@@ -154,7 +153,6 @@ export default function Annonces() {
         await removeFromFavorites(userId, id);
         toast.info("Annonce retirée des favoris.");
       } else {
-        // Si l'annonce n'est pas dans les favoris, on l'ajoute
         const updatedFavorites = [...likedAnnonces, id];
         setLikedAnnonces(updatedFavorites);
         setIsFavorited(true);
@@ -439,10 +437,18 @@ export default function Annonces() {
                             </Label>
                             <Label
                               htmlFor="prix"
-                              className="text-xl text-[gold] items-center justify-center"
+                              className="text-xl text-[gold] flex items-center "
                             >
-                              Prix : <span>{annonce.prix} Euro</span> /{" "}
-                              {annonce.typeTarif}
+                              <span>{annonce.prix} €</span>
+                              <span className="ml-1">
+                                {annonce.typeTarif === "NUITEE"
+                                  ? "par nuit"
+                                  : annonce.typeTarif === "JOURNALIER"
+                                  ? "par jour"
+                                  : annonce.typeTarif === "MENSUEL"
+                                  ? "par mois"
+                                  : "fixe"}
+                              </span>
                             </Label>
 
                             <Label
