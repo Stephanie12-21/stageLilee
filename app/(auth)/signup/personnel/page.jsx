@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Logo, MarcusAurelius } from "@/public/assets";
+
 import { motion } from "framer-motion";
 import {
   InputOTP,
@@ -256,11 +256,11 @@ const Personnel = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-start justify-center text-center h-full">
               <Image
-                src={Logo}
+                src="/assets/logo.svg"
                 width="200"
                 height="100"
                 alt="Logo Lilee"
-                className="h-[100px] mx-auto"
+                className="absolute top-4 left-40 max-md:left-8 h-[70px]"
               />
             </div>
           </div>
@@ -505,7 +505,7 @@ const Personnel = () => {
       </div>
       <div className="block max-lg:hidden bg-muted overflow-hidden">
         <Image
-          src={MarcusAurelius}
+          src="/assets/marcus-aurelius.jpg"
           alt="Image"
           width="1920"
           height="1080"

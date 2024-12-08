@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import React from "react";
 import { Input } from "@/components/ui/input";
-import { Logo, MarcusAurelius } from "@/public/assets";
+
 import { motion } from "framer-motion";
 import {
   InputOTP,
@@ -52,7 +52,6 @@ const Administrator = () => {
       .length(6, "Le code de vérification doit contenir 6 chiffres."),
   });
 
-  //génére des codes opt pour l'email et le numéro de téléphone
   function generateVerificationCodes() {
     const emailVerificationCode = Math.floor(
       100000 + Math.random() * 900000
@@ -61,14 +60,12 @@ const Administrator = () => {
       100000 + Math.random() * 900000
     ).toString();
 
-    // afficher les codes générés
     console.log("Generated Email Verification Code:", emailVerificationCode);
     console.log("Generated Phone Verification Code:", phoneVerificationCode);
 
     return { emailVerificationCode, phoneVerificationCode };
   }
 
-  //fonction pour les actions "précédent"
   const handlePreviousStep = () => {
     if (step > 1) {
       const previousStep = step - 1;
@@ -77,9 +74,7 @@ const Administrator = () => {
     }
   };
 
-  //fonction pour les actions "suivant"
   const handleNextStep = async () => {
-    //si on est à la première étape, on envoie le code à l'email saisi
     if (step === 1) {
       const generatedCodes = generateVerificationCodes();
       try {
@@ -107,19 +102,13 @@ const Administrator = () => {
         alert(error.message);
         return;
       }
-    }
-
-    //si on est à la première étape, on vérifie le code envoyé
-    else if (step === 2) {
+    } else if (step === 2) {
       if (verificationCode !== emailVerificationCode) {
         alert("Le code de vérification est incorrect.");
         return;
       }
       console.log("Code de vérification correct.");
-    }
-
-    //si on est à la troisième étape, on envoie le code au numéro de téléphone saisi
-    else if (step === 3) {
+    } else if (step === 3) {
       const generatedCodes = generateVerificationCodes();
       const Phone = `+${phone}`;
       try {
@@ -150,9 +139,7 @@ const Administrator = () => {
         alert(error.message);
         return;
       }
-    }
-    //si on est à la troisième étape, on vérifie le code envoyé
-    else if (step === 4) {
+    } else if (step === 4) {
       if (verificationCodePhone !== phoneVerificationCode) {
         alert("Le code de vérification est incorrect.");
         return;
@@ -170,21 +157,19 @@ const Administrator = () => {
   const handleImageChange = (e) => {
     const file = e.target.files[0];
     if (file) {
-      // Vérifiez si le fichier est une image
       if (!file.type.startsWith("image/")) {
         alert("Veuillez télécharger un fichier image valide.");
         return;
       }
 
-      // Créer une URL pour prévisualiser l'image
       const imageUrl = URL.createObjectURL(file);
       setSelectedImage(imageUrl);
-      setImageFile(file); // Assurez-vous que c'est un fichier unique
+      setImageFile(file);
     }
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault(); // Empêche le rechargement de la page
+    e.preventDefault();
     const role = "ADMIN";
     const statutUser = "ACTIF";
     const Phone = `+${phone}`;
@@ -197,14 +182,12 @@ const Administrator = () => {
     formData.append("role", role);
     formData.append("statutUser", statutUser);
 
-    // Ajoutez le fichier d'image
     if (imageFile) {
       formData.append("imageFile", imageFile);
     }
 
     try {
       const response = await fetch("/api/user/", {
-        // Remplacez par votre endpoint
         method: "POST",
         body: formData,
       });
@@ -217,8 +200,6 @@ const Administrator = () => {
       } else {
         router.push(`/login`);
       }
-
-      // Gestion de la réponse (par exemple, rediriger ou afficher un message)
     } catch (error) {
       console.error("Erreur lors de l'envoi des données :", error);
     }
@@ -230,7 +211,7 @@ const Administrator = () => {
 
   const slideVariants = {
     initial: (direction) => ({
-      x: direction < 0 ? -300 : 300, // Entrée : vers la gauche si retour en arrière
+      x: direction < 0 ? -300 : 300,
       opacity: 0,
     }),
     animate: {
@@ -239,7 +220,7 @@ const Administrator = () => {
       transition: { duration: 0.5 },
     },
     exit: (direction) => ({
-      x: direction > 0 ? -300 : 300, // Sortie : vers la droite si avance
+      x: direction > 0 ? -300 : 300,
       opacity: 0,
       transition: { duration: 0.5 },
     }),
@@ -256,11 +237,11 @@ const Administrator = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-start justify-center text-center h-full">
               <Image
-                src={Logo}
+                src="/assets/logo.svg"
                 width="200"
                 height="100"
                 alt="Logo Lilee"
-                className="h-[100px] mx-auto"
+                className="absolute top-4 left-40 max-md:left-8 h-[70px]"
               />
             </div>
           </div>
@@ -505,7 +486,7 @@ const Administrator = () => {
       </div>
       <div className="block max-lg:hidden bg-muted overflow-hidden">
         <Image
-          src={MarcusAurelius}
+          src="/assets/marcus-aurelius.jpg"
           alt="Image"
           width="1920"
           height="1080"

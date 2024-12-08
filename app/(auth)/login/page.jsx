@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { MarcusAurelius, Logo } from "@/public/assets";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Eye, EyeOff } from "lucide-react";
@@ -12,7 +12,6 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   AlertDialog,
-  AlertDialogTrigger,
   AlertDialogContent,
   AlertDialogTitle,
   AlertDialogDescription,
@@ -105,7 +104,7 @@ export default function Login() {
   return (
     <div className="w-full h-screen lg:grid lg:grid-cols-2">
       <Image
-        src={Logo}
+        src="/assets/logo.svg"
         width="200"
         height="100"
         alt="Logo Lilee"
@@ -196,7 +195,7 @@ export default function Login() {
 
       <div className="block max-lg:hidden bg-muted overflow-hidden">
         <Image
-          src={MarcusAurelius}
+          src="/assets/marcus-aurelius.jpg"
           alt="Image"
           width="1920"
           height="1080"

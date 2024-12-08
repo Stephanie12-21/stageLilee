@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Logo, MarcusAurelius } from "@/public/assets";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Image from "next/image";
@@ -426,11 +426,11 @@ const SignUpPage = () => {
           <div className="flex items-start justify-between">
             <div className="flex items-start justify-center text-center h-full">
               <Image
-                src={Logo}
+                src="/assets/logo.svg"
                 width="200"
                 height="100"
                 alt="Logo Lilee"
-                className="h-[100px] mx-auto"
+                className="absolute top-4 left-40 max-md:left-8 h-[70px]"
               />
             </div>
           </div>
@@ -890,7 +890,7 @@ const SignUpPage = () => {
       </div>
       <div className="block max-lg:hidden bg-muted overflow-hidden">
         <Image
-          src={MarcusAurelius}
+          src="/assets/marcus-aurelius.jpg"
           alt="Image"
           width="1920"
           height="1080"

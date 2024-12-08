@@ -15,7 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import Image from "next/image";
-import { Logo, LogoSite } from "@/public/assets";
+
 import NavigationDesk from "../professionel/_components/NavigationDesk";
 import { Label } from "@/components/ui/label";
 import { FaBullhorn, FaChartLine, FaEnvelope, FaHeart } from "react-icons/fa";
@@ -120,11 +120,11 @@ export default function LayoutAdmin({ children }) {
           <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
             <Link href="/" className="flex items-center gap-2 font-semibold">
               <Image
-                src={Logo}
-                alt="logo"
-                width={180}
-                height={80}
-                className="size-40"
+                src="/assets/logo.svg"
+                width="200"
+                height="100"
+                alt="Logo Lilee"
+                className="absolute top-4 left-40 max-md:left-8 h-[70px]"
               />
             </Link>
             <Button variant="outline" size="icon" className="ml-auto h-8 w-8">

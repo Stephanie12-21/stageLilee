@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Logo, MarcusAurelius } from "@/public/assets";
+
 import Image from "next/image";
 import Link from "next/link";
 import React from "react";
@@ -8,11 +8,11 @@ const SignUpPage = () => {
   return (
     <div className="w-full h-screen lg:grid lg:grid-cols-2">
       <Image
-        src={Logo}
+        src="/assets/logo.svg"
         width="200"
         height="100"
         alt="Logo Lilee"
-        className="absolute top-4 left-48 max-md:left-8 h-[100px]"
+        className="absolute top-4 left-40 max-md:left-8 h-[70px]"
       />
       <div className="flex items-center justify-center min-h-screen">
         <div className="mx-auto grid w-[350px] gap-6 max-md:px-8">
@@ -53,7 +53,7 @@ const SignUpPage = () => {
       </div>
       <div className="block max-lg:hidden bg-muted overflow-hidden">
         <Image
-          src={MarcusAurelius}
+          src="/assets/marcus-aurelius.jpg"
           alt="Image"
           width="1920"
           height="1080"

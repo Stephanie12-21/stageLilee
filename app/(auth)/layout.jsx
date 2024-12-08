@@ -1,9 +1,7 @@
-import React from 'react'
+import React from "react";
 
-const layoutlayoutAuth = ({children}) => {
-  return (
-    <main className='min-h-[100dvh]'>{children}</main>
-  )
-}
+const layoutlayoutAuth = ({ children }) => {
+  return <main className="min-h-[100dvh]">{children}</main>;
+};
 
 export default layoutlayoutAuth;
