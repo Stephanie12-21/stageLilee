@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ref, get, set } from "firebase/database";
 import UserCard from "./UserCard";
 import { db } from "@/firebaseconfig";
+import { MessageCircleMore, UserCircle } from "lucide-react";
 
 const User = ({ userData, setSelectedChatroom }) => {
   const { status } = useSession();
@@ -189,25 +190,23 @@ const User = ({ userData, setSelectedChatroom }) => {
         <button
           onClick={() => handleTabClick("users")}
           className={`px-4 py-2 rounded-lg ${
-            activeTab === "users" ? "bg-blue-500 text-white" : "bg-gray-200"
+            activeTab === "users" ? "bg-primary text-white" : "bg-gray-200"
           }`}
         >
-          Users
+          <UserCircle />
         </button>
         <button
           onClick={() => handleTabClick("chatroom")}
           className={`px-4 py-2 rounded-lg ${
-            activeTab === "chatroom" ? "bg-blue-500 text-white" : "bg-gray-200"
+            activeTab === "chatroom" ? "bg-primary text-white" : "bg-gray-200"
           }`}
         >
-          ChatRoom
+          <MessageCircleMore />
         </button>
       </div>
 
       {activeTab === "chatroom" && (
         <div>
-          <h1 className="px-4 text-base font-semibold">ChatRooms</h1>
-
           {chatrooms.map((chatroom) => {
             const isSender = chatroom.sender === userData.id;
             const otherUserId = isSender ? chatroom.receiver : chatroom.sender;
@@ -223,7 +222,13 @@ const User = ({ userData, setSelectedChatroom }) => {
                     otherUser?.profileImages?.[0]?.path || "/default-avatar.jpg"
                   }
                   latestMessageText={chatroom.lastMessage || "Aucun message"}
-                  time={new Date(chatroom.timestamp).toLocaleTimeString()}
+                  time={new Date(chatroom.timestamp).toLocaleString("fr-FR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })}
                   type="chat"
                 />
               </div>
@@ -234,7 +239,6 @@ const User = ({ userData, setSelectedChatroom }) => {
 
       {activeTab === "users" && (
         <div>
-          <h1 className="px-4 text-base font-semibold">Users</h1>
           {users
             .filter((user) => String(user.id) !== String(userData?.id))
             .map((user) => (
