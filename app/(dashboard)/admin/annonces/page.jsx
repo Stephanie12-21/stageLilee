@@ -31,6 +31,7 @@ const Annonces = () => {
   const [error, setError] = useState(null);
   const router = useRouter();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [isDropdownRocketOpen, setIsDropdownRocketOpen] = useState(false);
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -110,6 +111,21 @@ const Annonces = () => {
     { value: "MATERIEL", label: "Matériels et équipements" },
     { value: "MOBILIER", label: "Mobilier" },
     { value: "DONS", label: "Dons" },
+  ];
+
+  const handleRocketClick = (id) => {
+    setSelectedAnnonceId(id);
+    setIsDropdownRocketOpen(!isDropdownRocketOpen);
+  };
+
+  const dropdownItems = [
+    { label: "Urgent", action: () => console.log("Urgent clicked") },
+    { label: "Populaire", action: () => console.log("Populaire clicked") },
+    {
+      label: "Recommandation",
+      action: () => console.log("Recommandation clicked"),
+    },
+    { label: "Use Client", action: () => console.log("Use Client clicked") },
   ];
 
   return (
@@ -236,13 +252,36 @@ const Annonces = () => {
                 </div>
 
                 <div className="flex justify-between items-center w-full pt-8 mt-auto">
-                  <Link
+                  {/* <Link
                     href={`/admin/annonces/boostAnnonce/id=${annonce.id}`}
                     className="text-blue-500 hover:text-blue-700 transition-colors"
                     title="Booster"
                   >
                     <Rocket className="h-6 w-6" />
-                  </Link>
+                  </Link> */}
+                  <button
+                    onClick={() => handleRocketClick(annonce.id)}
+                    className="text-blue-500 hover:text-blue-700 transition-colors"
+                    title="Booster"
+                  >
+                    <Rocket className="h-6 w-6" />
+                  </button>
+                  {isDropdownRocketOpen && selectedAnnonceId === annonce.id && (
+                    <div className="absolute z-10 mt-2 bg-white border border-gray-300 rounded-md shadow-lg">
+                      <div className="p-2 text-sm font-semibold text-gray-700">
+                        ID: {annonce.id}
+                      </div>
+                      {dropdownItems.map((item, index) => (
+                        <button
+                          key={index}
+                          className="block w-full text-left px-4 py-2 hover:bg-gray-200 focus:outline-none"
+                          onClick={item.action}
+                        >
+                          {item.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                   <Link
                     href={`/admin/annonces/id=${annonce.id}`}
                     className="text-green-500 hover:text-green-700 transition-colors"

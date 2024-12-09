@@ -162,7 +162,12 @@ export default function LayoutAdmin({ children }) {
                   href="/"
                   className="flex items-center gap-2 font-semibold"
                 >
-                  <Image src={Logo} alt="logo" width={200} height={100} />
+                  <Image
+                    src="/assets/logo.svg"
+                    width="200"
+                    height="100"
+                    alt="Logo Lilee"
+                  />
                 </Link>
 
                 <Link

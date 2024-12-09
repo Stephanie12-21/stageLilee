@@ -11,7 +11,6 @@ import Image from "next/image";
 import { AiFillHeart, AiOutlineEye, AiOutlineHeart } from "react-icons/ai";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-
 import { useSession } from "next-auth/react";
 import {
   Carousel,
@@ -22,6 +21,8 @@ import {
 } from "@/components/ui/carousel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { useRouter } from "next/navigation";
+import { Label } from "@/components/ui/label";
 
 const ITEMS_TO_SHOW = 4;
 
@@ -33,7 +34,7 @@ const Annonce = () => {
   const [loading, setLoading] = useState(true);
   const controls = useAnimation();
   const [ref, inView] = useInView({ threshold: 0.5 });
-
+  const router = useRouter();
   const fetchAnnonces = async () => {
     try {
       const response = await fetch("/api/annonce/getAll");
@@ -45,28 +46,16 @@ const Annonce = () => {
             annonce.statut !== "DESACTIVEE" &&
             annonce.statut !== "EN_ATTENTE_DE_VALIDATION"
         )
-
         .map((annonce) => {
-          console.log("Annonce:", annonce);
-          console.log(
-            "Utilisateur associé:",
-            `${annonce.user.nom} ${annonce.user.prenom}`
-          );
-
           const notes = annonce.commentaire
             .map((c) => c.note)
             .filter((note) => note !== null);
 
-          console.log("Notes associées :", notes);
-
           if (notes.length > 0) {
             const total = notes.reduce((acc, note) => acc + note, 0);
             const average = total / notes.length;
-            console.log("Moyenne des notes :", average.toFixed(2));
-
             annonce.averageNote = average;
           } else {
-            console.log("Aucune note trouvée pour cette annonce.");
             annonce.averageNote = 0;
           }
 
@@ -75,7 +64,7 @@ const Annonce = () => {
 
       setAnnonces(filteredData);
     } catch (error) {
-      console.error("Erreur lors de la récupération des utilisateurs :", error);
+      console.error("Erreur lors de la récupération des annonces:", error);
     } finally {
       setLoading(false);
     }
@@ -103,17 +92,17 @@ const Annonce = () => {
 
           const favorisIds = await response.json();
           setLikedAnnonces(favorisIds);
-
-          setIsFavorited(favorisIds.includes(annonces.id));
         }
       } catch (error) {
-        console.error("Erreur lors de la récupération des favoris :", error);
+        console.error("Erreur lors de la récupération des favoris:", error);
         toast.error("Erreur lors de la récupération des favoris.");
       }
     };
 
-    fetchFavorites();
-  }, [annonces.id, session?.user?.id]);
+    if (session?.user?.id) {
+      fetchFavorites();
+    }
+  }, [session?.user?.id]);
 
   const toggleHeart = async (id) => {
     const userId = session?.user?.id;
@@ -127,14 +116,12 @@ const Annonce = () => {
       if (likedAnnonces.includes(id)) {
         const updatedFavorites = likedAnnonces.filter((favId) => favId !== id);
         setLikedAnnonces(updatedFavorites);
-        setIsFavorited(false);
 
         await removeFromFavorites(userId, id);
         toast.info("Annonce retirée des favoris.");
       } else {
         const updatedFavorites = [...likedAnnonces, id];
         setLikedAnnonces(updatedFavorites);
-        setIsFavorited(true);
 
         await addToFavorites(userId, id);
         toast.success("Annonce ajoutée aux favoris.");
@@ -187,9 +174,11 @@ const Annonce = () => {
     }),
     hidden: { opacity: 0, y: 50, transition: { duration: 0.5 } },
   };
-  const handleCardClick = (id) => {
-    router.push(`/Annonces/id=${id}`);
+
+  const handleCardClick = (annonceId) => {
+    router.push(`/Annonces/id=${annonceId}`);
   };
+
   return (
     <div className="container py-8 space-y-8">
       <div className="flex justify-between gap-8">
@@ -214,10 +203,7 @@ const Annonce = () => {
                 key={index}
                 className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
-                <Card
-                  className="w-full overflow-hidden cursor-pointer"
-                  onClick={() => handleCardClick(annonce.id)}
-                >
+                <Card className="w-full overflow-hidden cursor-pointer">
                   <div className="relative">
                     <Skeleton className="w-full h-48" />
                     <div className="absolute top-2 right-2">
@@ -243,12 +229,15 @@ const Annonce = () => {
           ) : annonces.length === 0 ? (
             <p>Aucune annonce trouvée.</p>
           ) : (
-            annonces.slice(0, 4).map((annonce, i) => (
+            annonces.slice(0, ITEMS_TO_SHOW).map((annonce, i) => (
               <CarouselItem
                 key={annonce.id}
                 className="sm:basis-1/2 md:basis-1/3 lg:basis-1/4"
               >
-                <Card className="w-full overflow-hidden">
+                <Card
+                  className="w-full overflow-hidden cursor-pointer"
+                  onClick={() => handleCardClick(annonce.id)}
+                >
                   <div className="relative">
                     {annonce.imageAnnonces.length > 0 && (
                       <Image
@@ -260,7 +249,10 @@ const Annonce = () => {
                       />
                     )}
                     <button
-                      onClick={() => toggleHeart(annonce.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleHeart(annonce.id);
+                      }}
                       className="absolute top-2 right-2 text-red-500 hover:text-red-600"
                     >
                       {likedAnnonces.includes(annonce.id) ? (
@@ -285,9 +277,21 @@ const Annonce = () => {
                     </p>
                   </CardContent>
                   <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                    <Button asChild>
-                      <Link href={`/Annonces/id=${annonce.id}`}>Details</Link>
-                    </Button>
+                    <Label
+                      htmlFor="prix"
+                      className="text-xl text-[gold] flex items-center "
+                    >
+                      <span>{annonce.prix} €</span>
+                      <span className="ml-1">
+                        {annonce.typeTarif === "NUITEE"
+                          ? "par nuit"
+                          : annonce.typeTarif === "JOURNALIER"
+                          ? "par jour"
+                          : annonce.typeTarif === "MENSUEL"
+                          ? "par mois"
+                          : "fixe"}
+                      </span>
+                    </Label>
                     <div className="flex items-center">
                       {[...Array(5)].map((_, i) => (
                         <svg

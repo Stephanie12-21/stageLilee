@@ -49,7 +49,7 @@ export async function GET(req) {
       where: { email },
     });
 
-    // Redirection après suppression
+    
     return new Response(null, {
       status: 302,
       headers: { Location: "/" },

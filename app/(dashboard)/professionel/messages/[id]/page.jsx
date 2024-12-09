@@ -3,12 +3,12 @@ import React, { useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { MessageCircle, Loader2, Mails } from "lucide-react";
-import Component from "../../_components/Chatroom";
 import { ref, get, set } from "firebase/database";
 
 import { db } from "@/firebaseconfig";
 import { MessageCircleMore, UserCircle } from "lucide-react";
 import Image from "next/image";
+import ChatInterface from "../../_components/Chatroom";
 
 function UserCard({ name, avatarUrl, latestMessageText, time, type }) {
   return (
@@ -352,7 +352,7 @@ const MessageProPage = () => {
 
       <div className="flex-grow bg-gray-100">
         {selectedChatroom ? (
-          <Component user={user} selectedChatroom={selectedChatroom} />
+          <ChatInterface user={user} selectedChatroom={selectedChatroom} />
         ) : (
           <div className="flex flex-col items-center justify-center h-full text-gray-500">
             <MessageCircle className="w-16 h-16 mb-4 text-blue-300" />

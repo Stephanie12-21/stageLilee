@@ -127,6 +127,7 @@ model annonces {
   description       String
   prix              Decimal?
   typeTarif         typeTarif?  
+  priority          priority?
   localisation      String?
   adresse           String
   statut            statut?      @default(EN_ATTENTE_DE_VALIDATION)
@@ -155,6 +156,11 @@ enum typeTarif {
   MENSUEL
 }
 
+enum priority {
+  URGENT
+  POPULAIRE
+  RECOMMANDATION
+}
 
 model imageAnnonce {
   id            Int      @id @default(autoincrement())
@@ -173,10 +179,6 @@ enum categorieAnnonce {
   MOBILIER
   DONS
 }
-
-
-
-
 
 
 

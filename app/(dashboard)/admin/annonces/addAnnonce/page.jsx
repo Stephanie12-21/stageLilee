@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
-import { z } from "zod";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Label } from "@/components/ui/label";
@@ -22,11 +21,15 @@ import {
 import { useRouter } from "next/navigation";
 import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+
 const AddAnnonce = () => {
   const router = useRouter();
   const { data: session, status } = useSession();
   const [title, setTitle] = useState("");
+  const [prix, setPrix] = useState("");
   const [category, setCategory] = useState("");
+  const [priority, setPriority] = useState("");
   const [subCategory, setSubCategory] = useState("");
   const [description, setDescription] = useState({});
   const [images, setImages] = useState([]);
@@ -34,6 +37,7 @@ const AddAnnonce = () => {
   const [localisation, setLocalisation] = useState("");
   const [adresse, setAdresse] = useState("");
   const [iframeSrc, setIframeSrc] = useState("");
+  const [tarifType, setTarifType] = useState("");
 
   useEffect(() => {
     if (status === "unauthenticated") {
@@ -90,6 +94,8 @@ const AddAnnonce = () => {
       !subCategory ||
       !localisation ||
       !adresse ||
+      !prix ||
+      !tarifType ||
       images.length === 0
     ) {
       alert(
@@ -97,7 +103,7 @@ const AddAnnonce = () => {
       );
       return;
     }
-    const statut = "PUBLIEE";
+    const statut = "EN_ATTENTE_DE_VALIDATION";
     const formData = new FormData();
     formData.append("title", title);
     formData.append("description", JSON.stringify(description));
@@ -107,6 +113,8 @@ const AddAnnonce = () => {
     formData.append("localisation", localisation);
     formData.append("statut", statut);
     formData.append("userId", session?.user.id);
+    formData.append("prix", prix);
+    formData.append("tarifType", tarifType);
 
     if (images.length > 0) {
       images.forEach((image) => {
@@ -162,7 +170,6 @@ const AddAnnonce = () => {
         avec l&apos;ID: {session?.user.id}
       </h1>
       <div className="flex flex-col space-y-4 w-full">
-        {/* Titre */}
         <div className="space-y-3">
           <Label htmlFor="title">Titre:</Label>
           <Input
@@ -176,81 +183,131 @@ const AddAnnonce = () => {
           {errors.title && <Alert variant="error">{errors.title}</Alert>}
         </div>
 
-        {/* Catégorie */}
-        <div className="space-y-3">
-          <Label htmlFor="category">Catégorie:</Label>
-          <Select
-            className="w-full"
-            onValueChange={(value) => {
-              setCategory(value);
-              setSubCategory("");
-            }}
-          >
-            <SelectTrigger className="w-full px-4">
-              <SelectValue
-                placeholder="Sélectionner une catégorie"
-                className="flex items-start"
-              />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectGroup>
-                <SelectItem value="IMMOBILIER">Immobilier</SelectItem>
-                <SelectItem value="VETEMENT">Vêtements</SelectItem>
-                <SelectItem value="EMPLOI_SERVICE">
-                  Emplois / Recrutement / Services
-                </SelectItem>
-                <SelectItem value="VOITURE">Voitures</SelectItem>
-                <SelectItem value="LOISIR">Loisir</SelectItem>
-                <SelectItem value="MATERIEL">
-                  Matériels / Equipements
-                </SelectItem>
-                <SelectItem value="MOBILIER">Mobilier</SelectItem>
-                <SelectItem value="DONS">Dons</SelectItem>
-              </SelectGroup>
-            </SelectContent>
-          </Select>
-          {errors.category && <Alert variant="error">{errors.category}</Alert>}
-        </div>
-
-        {/* Sous-catégorie */}
-        <div className="space-y-3">
-          <Label htmlFor="subCategory">Sous-catégorie:</Label>
-          {categoriesWithSubcategories[category] ? (
+        <div className="flex flex-col lg:flex-row w-full space-x-0 lg:space-x-2">
+          <div className="w-full space-y-3">
+            <Label htmlFor="category">Catégorie:</Label>
             <Select
               className="w-full"
-              onValueChange={(value) => setSubCategory(value)}
+              onValueChange={(value) => {
+                setCategory(value);
+                setSubCategory("");
+              }}
             >
               <SelectTrigger className="w-full px-4">
                 <SelectValue
-                  placeholder="Sélectionner une sous-catégorie"
+                  placeholder="Sélectionner une catégorie"
                   className="flex items-start"
                 />
               </SelectTrigger>
               <SelectContent>
                 <SelectGroup>
-                  {categoriesWithSubcategories[category].map((sub, index) => (
-                    <SelectItem key={index} value={sub}>
-                      {sub}
-                    </SelectItem>
-                  ))}
+                  <SelectItem value="IMMOBILIER">Immobilier</SelectItem>
+                  <SelectItem value="VETEMENT">Vêtements</SelectItem>
+                  <SelectItem value="EMPLOI_SERVICE">
+                    Emplois / Recrutement / Services
+                  </SelectItem>
+                  <SelectItem value="VOITURE">Voitures</SelectItem>
+                  <SelectItem value="LOISIR">Loisir</SelectItem>
+                  <SelectItem value="MATERIEL">
+                    Matériels / Equipements
+                  </SelectItem>
+                  <SelectItem value="MOBILIER">Mobilier</SelectItem>
+                  <SelectItem value="DONS">Dons</SelectItem>
                 </SelectGroup>
               </SelectContent>
             </Select>
-          ) : (
-            <Input
-              type="text"
-              id="subCategory"
-              value={subCategory}
-              onChange={(e) => setSubCategory(e.target.value)}
-              placeholder="Entrez une sous-catégorie"
-            />
-          )}
-          {errors.subCategory && (
-            <Alert variant="error">{errors.subCategory}</Alert>
-          )}
+            {errors.category && (
+              <Alert variant="error">{errors.category}</Alert>
+            )}
+          </div>
+
+          <div className="w-full space-y-3 mt-2 lg:mt-0 ">
+            <Label htmlFor="subCategory">Sous-catégorie:</Label>
+            {categoriesWithSubcategories[category] ? (
+              <Select
+                className="w-full"
+                onValueChange={(value) => setSubCategory(value)}
+              >
+                <SelectTrigger className="w-full px-4">
+                  <SelectValue
+                    placeholder="Sélectionner une sous-catégorie"
+                    className="flex items-start"
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectGroup>
+                    {categoriesWithSubcategories[category].map((sub, index) => (
+                      <SelectItem key={index} value={sub}>
+                        {sub}
+                      </SelectItem>
+                    ))}
+                  </SelectGroup>
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input
+                type="text"
+                id="subCategory"
+                value={subCategory}
+                onChange={(e) => setSubCategory(e.target.value)}
+                placeholder="Entrez une sous-catégorie"
+              />
+            )}
+            {errors.subCategory && (
+              <Alert variant="error">{errors.subCategory}</Alert>
+            )}
+          </div>
         </div>
 
-        {/* Description */}
+        <div className="flex flex-col lg:flex-row w-full space-x-0 lg:space-x-10">
+          <div className="space-y-3 w-full">
+            <Label htmlFor="prix">Prix:</Label>
+            <Input
+              type="number"
+              id="prix"
+              value={prix}
+              onChange={(e) => setPrix(e.target.value)}
+              required
+              error={errors.prix}
+            />
+            {errors.prix && <Alert variant="error">{errors.prix}</Alert>}
+          </div>
+
+          <div className="w-full">
+            <Label htmlFor="tarifType">Type de tarif:</Label>
+            <RadioGroup value={tarifType} onValueChange={setTarifType}>
+              <div className="flex items-center space-x-6 mt-3">
+                <div>
+                  <RadioGroupItem id="tarifJournalier" value="JOURNALIER" />
+                  <Label htmlFor="tarifJournalier" className="ml-2">
+                    Tarif journalier
+                  </Label>
+                </div>
+
+                <div>
+                  <RadioGroupItem id="tarifNuitee" value="NUITEE" />
+                  <Label htmlFor="tarifNuitee" className="ml-2">
+                    Tarif nuitée
+                  </Label>
+                </div>
+
+                <div>
+                  <RadioGroupItem id="tarifFixe" value="FIXE" />
+                  <Label htmlFor="tarifFixe" className="ml-2">
+                    Tarif fixe
+                  </Label>
+                </div>
+                <div>
+                  <RadioGroupItem id="tarifMensuel" value="MENSUEL" />
+                  <Label htmlFor="tarifFixe" className="ml-2">
+                    Tarif mensuel
+                  </Label>
+                </div>
+              </div>
+            </RadioGroup>
+          </div>
+        </div>
+
         <div className="space-y-3">
           <Label htmlFor="description">Description:</Label>
           <RichTextEditor
@@ -262,7 +319,6 @@ const AddAnnonce = () => {
           )}
         </div>
 
-        {/* Adresse */}
         <div className="space-y-3">
           <Label htmlFor="adresse">Adresse exacte:</Label>
           <Input
@@ -276,7 +332,6 @@ const AddAnnonce = () => {
           {errors.adresse && <Alert variant="error">{errors.adresse}</Alert>}
         </div>
 
-        {/* Localisation */}
         <div className="space-y-3">
           <Label htmlFor="localisation">
             Localisation (prendre uniquement la source de l&apos;iframe Google
@@ -307,7 +362,6 @@ const AddAnnonce = () => {
           )}
         </div>
 
-        {/* Image */}
         <div className="space-y-3">
           <Label htmlFor="images">Images:</Label>
           <Input
@@ -343,7 +397,7 @@ const AddAnnonce = () => {
       </div>
 
       <ToastContainer
-        position="top-center"
+        position="top-right"
         autoClose={5000}
         hideProgressBar={false}
       />

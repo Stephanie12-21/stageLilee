@@ -73,11 +73,6 @@ const UserPage = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const router = useRouter();
 
-  // useEffect(() => {
-  //   if (!session?.user) {
-  //     router.push("/login");
-  //   }
-  // }, [session, router]);
   useEffect(() => {
     if (status === "unauthenticated") {
       router.push("/login");
