@@ -12,7 +12,6 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
 
 export async function POST(request) {
   try {
-   
     const body = await request.json();
 
     const { abonnementId, userId, userName, userEmail, successUrl, cancelUrl } =
@@ -27,38 +26,35 @@ export async function POST(request) {
       cancelUrl,
     });
 
-   const session = await stripe.checkout.sessions.create({
-     payment_method_types: ["card"],
-     mode: "subscription",
-     line_items: [
-       {
-         price_data: {
-           currency: "eur",
-           product_data: {
-             name: `Abonnement ${abonnementId}`,
-             description: `Abonnement choisi par ${userName}`,
-           },
-           unit_amount: prices[abonnementId] * 100, // Convertir en centimes pour Stripe
-         },
-         quantity: 1,
-       },
-     ],
-     success_url: successUrl,
-     cancel_url: cancelUrl,
-     client_reference_id: userId,
-     customer_email: userEmail,
-     metadata: {
-       userId: userId,
-       userName: userName,
-       abonnementId: abonnementId.toString(),
-     },
-   });
-
-   // Retourner l'ID de la session
-   return new Response(JSON.stringify({ sessionId: session.id }), {
-     status: 200,
-   });
-   
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ["card"],
+      mode: "subscription",
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: `Abonnement ${abonnementId}`,
+              description: `Abonnement choisi par ${userName}`,
+            },
+            unit_amount: prices[abonnementId] * 100, // Convertir en centimes
+          },
+          quantity: 1,
+        },
+      ],
+      success_url: successUrl,
+      cancel_url: cancelUrl,
+      client_reference_id: userId,
+      customer_email: userEmail,
+      metadata: {
+        userId: userId,
+        userName: userName,
+        abonnementId: abonnementId.toString(),
+      },
+    });
+    return new Response(JSON.stringify({ sessionId: session.id }), {
+      status: 200,
+    });
   } catch (error) {
     console.error("Erreur lors de la création de la session Stripe:", error);
     return new Response(
