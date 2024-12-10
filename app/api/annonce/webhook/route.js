@@ -26,6 +26,20 @@ export async function POST(request) {
       cancelUrl,
     });
 
+    // Define pricing for each abonnementId
+    const prices = {
+      1: { amount: 799, interval: "month" }, // 7.99 EUR = 799 cents
+      2: { amount: 1999, interval: "month" }, // 19.99 EUR = 1999 cents
+      3: { amount: 3999, interval: "month" }, // 39.99 EUR = 3999 cents
+    };
+
+    const priceData = prices[abonnementId];
+    if (!Number.isInteger(priceData.amount)) {
+      throw new Error(
+        `Le montant n'est pas un entier valide: ${priceData.amount}`
+      );
+    }
+    
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "subscription",
@@ -37,7 +51,10 @@ export async function POST(request) {
               name: `Abonnement ${abonnementId}`,
               description: `Abonnement choisi par ${userName}`,
             },
-            unit_amount: prices[abonnementId] * 100, // Convertir en centimes
+            unit_amount: priceData.amount, // Amount in cents
+            recurring: {
+              interval: priceData.interval, // Interval: "month", "year"
+            },
           },
           quantity: 1,
         },

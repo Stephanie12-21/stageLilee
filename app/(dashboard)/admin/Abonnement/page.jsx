@@ -67,20 +67,20 @@ export default function Abonnement() {
 
       console.log("Réponse de l'API :", data);
 
-      // if (!response.ok) {
-      //   throw new Error(data.error || "Erreur inconnue");
-      // }
+      if (!response.ok) {
+        throw new Error(data.error || "Erreur inconnue");
+      }
 
-      // const stripe = await loadStripe(
-      //   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
-      // );
-      // const result = await stripe.redirectToCheckout({
-      //   sessionId: data.sessionId,
-      // });
+      const stripe = await loadStripe(
+        process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY
+      );
+      const result = await stripe.redirectToCheckout({
+        sessionId: data.sessionId,
+      });
 
-      // if (result.error) {
-      //   console.error(result.error);
-      // }
+      if (result.error) {
+        console.error(result.error);
+      }
     } catch (error) {
       console.error("Erreur lors de la création de la session Stripe:", error);
     }
