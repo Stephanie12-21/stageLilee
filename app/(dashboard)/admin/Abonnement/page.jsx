@@ -22,6 +22,7 @@ export default function Abonnement() {
   const userName = `${session.user?.name || ""} ${
     session.user?.prenom || ""
   }`.trim();
+  
   const userEmail = session.user?.email || "Email inconnu";
 
   // Liste des abonnements disponibles
@@ -55,17 +56,15 @@ export default function Abonnement() {
         },
         body: JSON.stringify({
           abonnementId,
-          userId, // From session
-          userName, // From session
-          userEmail, // From session
-          successUrl: `${window.location.origin}/success?session_id={CHECKOUT_SESSION_ID}`,
+          userId,
+          userName,
+          userEmail,
+          successUrl: `${window.location.origin}/admin/succesPage?session_id={CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}/cancel`,
         }),
       });
 
       const data = await response.json();
-
-      console.log("Réponse de l'API :", data);
 
       if (!response.ok) {
         throw new Error(data.error || "Erreur inconnue");
