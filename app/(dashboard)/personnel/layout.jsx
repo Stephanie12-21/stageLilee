@@ -35,6 +35,8 @@ import {
   AlertDialogDescription,
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
+
 export default function LayoutAdmin({ children }) {
   const { data: session } = useSession();
   const router = useRouter();
@@ -42,7 +44,7 @@ export default function LayoutAdmin({ children }) {
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [testimony, setTestimony] = useState("");
-  const [isEditing, setIsEditing] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -87,10 +89,19 @@ export default function LayoutAdmin({ children }) {
   const handleCloseDialog = () => {
     setIsOpen(false);
   };
+
   const handleSignOut = async () => {
     await signOut({ redirect: false });
     router.push("/login");
   };
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   if (!session?.user) {
     return (
@@ -116,6 +127,15 @@ export default function LayoutAdmin({ children }) {
     );
   }
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <AnimatedSymbol />
+        <fer></fer>
+      </div>
+    );
+  }
+
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden  md:block bg-primary">
@@ -127,7 +147,6 @@ export default function LayoutAdmin({ children }) {
                 width="200"
                 height="100"
                 alt="Logo Lilee"
-                //className="absolute top-4 left-40 max-md:left-8 h-[70px]"
               />
             </Link>
           </div>
@@ -157,7 +176,6 @@ export default function LayoutAdmin({ children }) {
                     width="200"
                     height="100"
                     alt="Logo Lilee"
-                    //className="absolute top-4 left-40 max-md:left-8 h-[70px]"
                   />
                 </Link>
 

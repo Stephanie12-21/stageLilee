@@ -199,35 +199,16 @@ export default function Annonces() {
     }
   };
 
-  // const filteredAnnonces = annonces.filter((annonce) => {
-  //   const searchLower = searchText.toLowerCase();
-  //   return (
-  //     annonce.titre.toLowerCase().includes(searchLower) ||
-  //     annonce.adresse.toLowerCase().includes(searchLower)
-  //   );
-  // });
-
-  // const filteredAnnonces = annonces.filter((annonce) => {
-  //   const searchLower = searchText.toLowerCase();
-  //   const matchesSearchText =
-  //     annonce.titre.toLowerCase().includes(searchLower) ||
-  //     annonce.adresse.toLowerCase().includes(searchLower);
-  //   if (tarifFilter === "all") return true;
-  //   const matchesTarifFilter =
-  //     !tarifFilter || annonce.typeTarif === tarifFilter;
-
-  //   const matchesRatingFilter =
-  //     !ratingFilter || annonce.averageNote >= parseInt(ratingFilter);
-
-  //   return matchesSearchText && matchesTarifFilter && matchesRatingFilter;
-  // });
-
-  // Filtrage par dates
   const filteredAnnonces = annonces.filter((annonce) => {
-    const searchLower = searchText.toLowerCase();
-    const matchesSearchText =
-      annonce.titre.toLowerCase().includes(searchLower) ||
-      annonce.adresse.toLowerCase().includes(searchLower);
+    const matchesCategory =
+      activeTab === "" || annonce.categorieAnnonce === activeTab;
+
+    const matchesSearch =
+      searchText === "" ||
+      annonce.titre.toLowerCase().includes(searchText.toLowerCase()) ||
+      annonce.adresse.toLowerCase().includes(searchText.toLowerCase()) ||
+      annonce.user.nom?.toLowerCase().includes(searchText.toLowerCase()) ||
+      annonce.user.prenom?.toLowerCase().includes(searchText.toLowerCase());
 
     if (tarifFilter === "all") return true;
 
@@ -244,7 +225,8 @@ export default function Annonces() {
         new Date(annonce.createdAt) <= date.to);
 
     return (
-      matchesSearchText &&
+      matchesSearch &&
+      matchesCategory &&
       matchesTarifFilter &&
       matchesRatingFilter &&
       matchesDateRange
@@ -310,10 +292,6 @@ export default function Annonces() {
     router.push(`/Annonces/id=${annonceId}`);
   };
 
-  const filteredAnnoncesByCategorie = annonces.filter(
-    (annonce) => annonce.categorieAnnonce === activeTab
-  );
-
   return (
     <div className="w-full py-9 px-6">
       <div className="flex flex-col space-y-4 md:flex-row md:space-y-0 md:space-x-4 justify-between pt-8 mb-6">
@@ -322,8 +300,8 @@ export default function Annonces() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
             <Input
               placeholder="Rechercher ici ..."
-              value={searchFilter}
-              onChange={(e) => setSearchFilter(e.target.value)}
+              value={searchText}
+              onChange={(e) => setSearchText(e.target.value)}
               className="pl-10 pr-4 py-2 w-full border-2 border-primary/20 transition-colors bg-white"
             />
           </div>
@@ -403,46 +381,11 @@ export default function Annonces() {
         </div>
       </div>
 
-      <Tabs defaultValue="IMMOBILIER" className="container mx-auto">
-        {/* {isMobile ? (
-          // <select
-          //   value={activeTab}
-          //   onChange={(e) => setActiveTab(e.target.value)}
-          //   className="w-full p-3 mb-4 border rounded-lg"
-          // >
-          //   {tabItems.map((item) => (
-          //     <option key={item.value} value={item.value}>
-          //       {item.label}
-          //     </option>
-          //   ))}
-          // </select>
-          <select
-            value={activeTab}
-            onChange={(e) => {
-              setActiveTab(e.target.value);
-              console.log("Active Tab:", e.target.value);
-            }}
-            className="w-full p-3 mb-4 border rounded-lg"
-          >
-            {tabItems.map((item) => (
-              <option key={item.value} value={item.value}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        ) : (
-          <TabsList className="grid w-full grid-cols-8 space-x-10 h-[70px] text-black">
-            {tabItems.map((item) => (
-              <TabsTrigger
-                key={item.value}
-                value={item.value}
-                className="text-[16px] font-semibold"
-              >
-                {item.label}
-              </TabsTrigger>
-            ))}
-          </TabsList>
-        )} */}
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="container mx-auto"
+      >
         {isMobile ? (
           <select
             value={activeTab}
@@ -462,7 +405,6 @@ export default function Annonces() {
                 key={item.value}
                 value={item.value}
                 className="text-[16px] font-semibold"
-                onClick={() => setActiveTab(item.value)}
               >
                 {item.label}
               </TabsTrigger>
@@ -473,9 +415,7 @@ export default function Annonces() {
         {tabItems.map((item) => (
           <TabsContent key={item.value} value={item.value} className="mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 pt-10 mx-4 md:mx-10">
-              {filteredAnnonces.length === 0 &&
-              annonces.length === 0 &&
-              filteredAnnoncesByCategorie.length === 0 ? (
+              {filteredAnnonces.length === 0 && annonces.length === 0 ? (
                 <Label>Aucune annonce disponible.</Label>
               ) : (
                 filteredAnnonces
@@ -488,91 +428,6 @@ export default function Annonces() {
                       animate="visible"
                       variants={cardVariants}
                     >
-                      {/* <Card
-                        className="w-full overflow-hidden cursor-pointer"
-                        onClick={() => handleCardClick(annonce.id)}
-                      >
-                        <div className="relative">
-                          {annonce.imageAnnonces.length > 0 && (
-                            <Image
-                              src={annonce.imageAnnonces[0].path}
-                              alt={annonce.titre}
-                              width={400}
-                              height={300}
-                              className="w-full h-48 object-cover"
-                            />
-                          )}
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              toggleHeart(annonce.id);
-                            }}
-                            className="absolute top-2 right-2 text-red-500 hover:text-red-600"
-                          >
-                            {likedAnnonces.includes(annonce.id) ? (
-                              <AiFillHeart size={28} color="#FC1111" />
-                            ) : (
-                              <AiOutlineHeart size={28} color="#FC1111" />
-                            )}
-                          </button>
-                        </div>
-                        <CardContent className="p-4">
-                          <Badge
-                            variant="secondary"
-                            className="text-base text-muted-foreground mb-1"
-                          >
-                            {annonce.categorieAnnonce}
-                          </Badge>
-                          <h2 className="text-lg font-semibold mb-1">
-                            {annonce.titre}
-                          </h2>
-                          <p className="text-sm text-muted-foreground mb-2">
-                            {annonce.user.nom} {annonce.user.prenom}
-                          </p>
-                        </CardContent>
-                        <CardFooter className="p-4 pt-0 flex justify-between items-center">
-                          <Label
-                            htmlFor="prix"
-                            className="text-xl text-[gold] flex items-center"
-                          >
-                            <span>{annonce.prix} €</span>
-                            <span className="ml-1">
-                              {annonce.typeTarif === "NUITEE"
-                                ? "nuiltée"
-                                : annonce.typeTarif === "JOURNALIER"
-                                ? "journalier"
-                                : annonce.typeTarif === "MENSUEL"
-                                ? "mensuel"
-                                : annonce.typeTarif === "FIXE"
-                                ? "fixe"
-                                : ""}
-                            </span>
-                          </Label>
-                          <div className="flex items-center">
-                            {[...Array(5)].map((_, i) => (
-                              <svg
-                                key={i}
-                                className="w-4 h-4"
-                                fill={
-                                  i < Math.round(annonce.averageNote)
-                                    ? "gold"
-                                    : "none"
-                                }
-                                stroke="gold"
-                                strokeWidth="1.5"
-                                viewBox="0 0 20 20"
-                                xmlns="http://www.w3.org/2000/svg"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
-                                />
-                              </svg>
-                            ))}
-                          </div>
-                        </CardFooter>
-                      </Card> */}
                       <Card
                         className="w-full overflow-hidden cursor-pointer relative"
                         onClick={() => handleCardClick(annonce.id)}
@@ -589,7 +444,8 @@ export default function Annonces() {
                           )}
                           <div className="absolute top-0 left-0 z-10 bg-[#FFA500] text-white px-4 py-1 rounded-br-lg transform -skew-x-12">
                             <span className="block transform skew-x-12">
-                              {annonce.priority}
+                              {/* {annonce.priority} */}
+                              Populaire
                             </span>
                           </div>
                           <button

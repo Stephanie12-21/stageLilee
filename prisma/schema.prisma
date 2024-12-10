@@ -244,11 +244,20 @@ model newsletter {
   unsubscribeToken  String? // Optionnel
 }
 
-// enum plan {
-//  UNE
-//  RECOMMANDATION
-//  URGENT
-// }
+model Abonnement {
+  id Int @id @default(autoincrement())
+  plan  plan 
+  createdAT DateTime
+  updateAt DateTime
+  dateDebut DateTime
+  dateFin DateTime
+}
+
+enum plan {
+ PREMIUM
+ MEDIUM
+ STANDARD
+}
 
 // enum periode {
 //   SEMAINE

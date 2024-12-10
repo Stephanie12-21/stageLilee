@@ -152,14 +152,14 @@ const AddAnnonce = () => {
 
   const categoriesWithSubcategories = {
     IMMOBILIER: [
-      "location pmr",
-      "appartement pmr",
-      "camping pmr",
-      "chambre d'hôtes pmr",
-      "hotel pmr",
+      "Location PMR",
+      "Appartement PMR",
+      "Camping PMR",
+      "Chambre d'hôtes PMR",
+      "Hôtel PMR",
     ],
-    VOITURE: ["conduite accompagnée", " équipée d'une rampe"],
-    VETEMENT: ["femme", "homme", "enfant"],
+    VOITURE: ["Conduite accompagnée", " Équipée d'une rampe"],
+    VETEMENT: ["Femme", "Homme", "Enfant"],
   };
 
   return (

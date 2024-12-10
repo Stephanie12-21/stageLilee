@@ -125,7 +125,7 @@ const Annonces = () => {
       label: "Recommandation",
       action: () => console.log("Recommandation clicked"),
     },
-    { label: "Use Client", action: () => console.log("Use Client clicked") },
+    { label: "Normal", action: () => console.log("Plan gratuit") },
   ];
 
   return (
@@ -252,13 +252,6 @@ const Annonces = () => {
                 </div>
 
                 <div className="flex justify-between items-center w-full pt-8 mt-auto">
-                  {/* <Link
-                    href={`/admin/annonces/boostAnnonce/id=${annonce.id}`}
-                    className="text-blue-500 hover:text-blue-700 transition-colors"
-                    title="Booster"
-                  >
-                    <Rocket className="h-6 w-6" />
-                  </Link> */}
                   <button
                     onClick={() => handleRocketClick(annonce.id)}
                     className="text-blue-500 hover:text-blue-700 transition-colors"

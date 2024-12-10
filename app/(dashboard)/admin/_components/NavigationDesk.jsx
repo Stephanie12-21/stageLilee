@@ -59,6 +59,16 @@ const Navigation = () => {
       name: "Comptes utilisateurs",
       href: session ? `/admin/users` : "#",
     },
+    {
+      icon: UsersRound,
+      name: "Abonnement",
+      href: session ? `/admin/Abonnement` : "#",
+    },
+    {
+      icon: Megaphone,
+      name: "Publicité",
+      href: session ? `/admin/pubs` : "#",
+    },
   ];
 
   return (

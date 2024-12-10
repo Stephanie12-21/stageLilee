@@ -30,7 +30,7 @@ import Image from "next/image";
 import NavigationDesk from "../admin/_components/NavigationDesk";
 
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   AlertDialogFooter,
   AlertDialog,
@@ -41,15 +41,25 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 export default function LayoutAdmin({ children }) {
   const { data: session } = useSession();
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(true);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [testimony, setTestimony] = useState("");
+  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -100,7 +110,13 @@ export default function LayoutAdmin({ children }) {
     router.push("/login");
   };
 
-  const [isSubmenuOpen, setIsSubmenuOpen] = useState(false);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+        <AnimatedSymbol />
+      </div>
+    );
+  }
 
   if (!session?.user) {
     return (
@@ -137,7 +153,6 @@ export default function LayoutAdmin({ children }) {
                 width="200"
                 height="100"
                 alt="Logo Lilee"
-                //className="absolute top-4 left-40 max-md:left-8 h-[70px]"
               />
             </Link>
           </div>

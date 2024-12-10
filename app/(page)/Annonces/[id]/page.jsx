@@ -29,10 +29,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
+  BlocksIcon,
   DeleteIcon,
   EditIcon,
   MoreHorizontal,
   StarIcon,
+  TagIcon,
   X,
 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
@@ -383,8 +385,8 @@ const InfoAnnonces = ({ params }) => {
         </Button>
       </Link>
 
-      <div className="pt-10 pb-10 flex items-center space-x-20">
-        <div className="relative">
+      <div className="pt-10 pb-10 flex flex-col md:flex-row items-center space-x-0 md:space-x-20">
+        <div className="relative w-full md:w-auto">
           {images[0]?.path && (
             <div>
               <Image
@@ -404,7 +406,7 @@ const InfoAnnonces = ({ params }) => {
             </div>
           )}
 
-          <div className="mt-4 flex space-x-10 justify-center">
+          <div className="mt-4 flex space-x-4 justify-center md:space-x-10">
             {images.slice(1, 4).map((image, index) => (
               <div
                 key={index}
@@ -431,11 +433,11 @@ const InfoAnnonces = ({ params }) => {
                   className="bg-gray-200 inline-block py-2 px-4 rounded-full cursor-pointer"
                   onClick={() => openLightbox(4)}
                 >
-                  <p>
+                  <span>
                     + {images.length - 4} image
                     {images.length - 4 > 1 ? "s" : ""} restante
                     {images.length - 4 > 1 ? "s" : ""}
-                  </p>
+                  </span>
                 </div>
               </div>
             )}
@@ -484,8 +486,8 @@ const InfoAnnonces = ({ params }) => {
           )}
         </div>
 
-        <div className="w-[50%]">
-          <Card className="w-[500px] space-y-6 flex flex-col shadow-lg rounded-lg bg-white p-4 hover:shadow-2xl transition-shadow duration-300">
+        <div className="w-full md:w-[50%] mt-6 md:mt-0">
+          <Card className="w-full md:w-[500px] space-y-6 flex flex-col shadow-lg rounded-lg bg-white p-4 hover:shadow-2xl transition-shadow duration-300">
             <CardHeader className="flex flex-col space-y-4">
               <div className="flex items-center justify-between">
                 <CardTitle className="text-xl font-bold text-[#152447] hover:underline">
@@ -514,17 +516,17 @@ const InfoAnnonces = ({ params }) => {
                       alt="Photo de profil de l'utilisateur"
                       width={65}
                       height={65}
-                      className="w-16 h-16 rounded-full object-cove  border-2 border-gray-300"
+                      className="w-16 h-16 rounded-full object-cover border-2 border-gray-300"
                     />
                   </div>
 
                   <div className="flex flex-col p-0 space-y-1">
-                    <p className="text-[18px] font-bold text-[#666]">
+                    <span className="text-[18px] font-bold text-[#666]">
                       {userName}
-                    </p>
-                    <p className="text-[16px] text-gray-500">
+                    </span>
+                    <span className="text-[16px] text-gray-500">
                       Membre depuis : {userDate}
-                    </p>
+                    </span>
                   </div>
                 </div>
               </CardDescription>
@@ -534,7 +536,7 @@ const InfoAnnonces = ({ params }) => {
               {session && session.user ? (
                 <Button
                   variant="default"
-                  className=" text-white py-2 w-full px-4 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  className="text-white py-2 w-full px-4 rounded-lg shadow-md hover:shadow-lg transition-all"
                   onClick={handleChat}
                 >
                   Discuter avec l&apos;annonceur
@@ -550,7 +552,7 @@ const InfoAnnonces = ({ params }) => {
               {session && session.user ? (
                 <Button
                   variant="default"
-                  className=" text-white py-2 w-full px-4 rounded-lg shadow-md hover:shadow-lg transition-all"
+                  className="text-white py-2 w-full px-4 rounded-lg shadow-md hover:shadow-lg transition-all"
                   // onClick={handleChat}
                 >
                   Réserver cet article
@@ -593,17 +595,23 @@ const InfoAnnonces = ({ params }) => {
           </TabsList>
 
           <TabsContent value="description">
-            <Card className="border-none bg-inherit">
-              <CardHeader>
-                <CardTitle>Description détaillée</CardTitle>
-              </CardHeader>
+            <Card className="border-none bg-inherit p-6">
               <CardContent className="space-y-7">
-                <div>
-                  <p>Catégorie : {category}</p>
-                  <p>Sous-Catégorie : {subcategory}</p>
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3">
+                    <TagIcon className="text-blue-500 h-6 w-6" />
+                    <span className="font-semibold text-gray-700">
+                      <strong>Catégorie:</strong> {category}
+                    </span>
+                  </div>
+                  <div className="flex items-center space-x-3">
+                    <TagIcon className="text-blue-500 h-6 w-6" />
+                    <span className="font-semibold text-gray-700">
+                      <strong>Sous-catégorie:</strong> {subcategory}
+                    </span>
+                  </div>
                 </div>
                 <div className="space-y-1">
-                  la description est :
                   <div
                     className="container px-5 py-4"
                     dangerouslySetInnerHTML={{
@@ -612,13 +620,11 @@ const InfoAnnonces = ({ params }) => {
                   />
                 </div>
               </CardContent>
-
-              <CardFooter></CardFooter>
             </Card>
           </TabsContent>
 
           <TabsContent value="avis">
-            <Card className="border-none bg-inherit">
+            <Card className="border-none bg-inherit p-6">
               <CardHeader className="space-y-4">
                 <CardTitle className="text-[#23262F]">
                   Laissez un avis
@@ -647,9 +653,10 @@ const InfoAnnonces = ({ params }) => {
                 </div>
 
                 <div className="flex justify-between pt-7">
-                  <p className="font-semibold">
-                    {comments.length} commentaires
-                  </p>
+                  <span className="font-semibold">
+                    {comments.length} commentaire
+                    {comments.length > 1 ? "s" : ""}
+                  </span>
                 </div>
 
                 {comments.map((commentItem, index) => {
@@ -673,9 +680,9 @@ const InfoAnnonces = ({ params }) => {
                         </div>
                         <div className="space-y-3 flex-grow">
                           <div className="flex justify-between items-center">
-                            <p className="text-[#182135] font-bold text-[18px] hover:underline hover:cursor-default">
+                            <span className="text-[#182135] font-bold text-[18px] hover:underline hover:cursor-default">
                               {commentItem.user.nom} {commentItem.user.prenom}
-                            </p>
+                            </span>
 
                             {isSameUser && (
                               <DropdownMenu>
@@ -750,7 +757,7 @@ const InfoAnnonces = ({ params }) => {
                                 commentItem.updatedAt ===
                                   commentItem.createdAt ? (
                                   <span className="text-sm text-gray-500">
-                                    Publié le :{" "}
+                                    {" "}
                                     {new Date(
                                       commentItem.createdAt
                                     ).toLocaleDateString()}{" "}
