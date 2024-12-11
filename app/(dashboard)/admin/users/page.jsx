@@ -47,7 +47,7 @@ import {
 import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-const UserPage = () => {
+const PubPage = () => {
   const [raison, setRaison] = useState("");
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
@@ -545,4 +545,4 @@ const UserPage = () => {
   );
 };
 
-export default UserPage;
+export default PubPage;

@@ -16,7 +16,7 @@ export default function AnimatedSymbol() {
   };
 
   return (
-    <div className="relative flex items-center justify-center min-h-screen bg-[#f0f8ff]">
+    <div className="relative flex items-center justify-center min-h-screen bg-inherit">
       <div className="transform rotate-180">
         <motion.svg
           xmlns="http://www.w3.org/2000/svg"

@@ -1,17 +1,15 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-export default succesPage = () => {
-  //   const router = useRouter();
-  const { session_id } = router.query;
+const SuccesPage = ({ params }) => {
+  const { id } = params;
 
   useEffect(() => {
-    if (session_id) {
-      handleStripeSession(session_id);
+    if (id) {
+      handleStripeSession(id);
     }
-  }, [session_id]);
+  }, [id]);
 
   const handleStripeSession = async (sessionId) => {
     try {
@@ -57,3 +55,4 @@ export default succesPage = () => {
   );
 };
 
+export default SuccesPage;

@@ -259,21 +259,33 @@ enum plan {
  STANDARD
 }
 
-// enum periode {
-//   SEMAINE
-//   MOIS
-// }
 
-// model boost {
-//   id            Int          @id @default(autoincrement())
-//   plan          plan                 
-//   periode       periode      
-//   createdAt     DateTime     @default(now())  
-//   updatedAt     DateTime     @updatedAt       
-//   debutDate     DateTime     @default(now())  
-//   finDate       DateTime    
-//   annonceId     Int          @unique          
-//   annonce       annonces     @relation(fields: [annonceId], references: [id], onDelete: Cascade) // Relation un-à-un avec l'annonce
-// }
+//pour les publicite
 
+model publicite {
+  id              Int           @id @default(autoincrement())
+  nomMarque       String        @unique
+  emailMarque     String        @unique
+  phoneMarque     String        @unique
+  adresseMarque   String
+  siteWeb         String?
+  createdAt       DateTime      @default(now())
+  debutPub        DateTime
+  finPub          DateTime
+  updatedAt       DateTime      @updatedAt
+  dureePub        Int           
+  contenuPub      contenuPub[]
+  statutPub       statutPub @default(ACTIVE)  
+}
+enum statutPub {
+ ACTIVE
+ SUSPENDUE
+}
+
+model contenuPub {
+  id              Int       @id @default(autoincrement())
+  path            String
+  publiciteId     Int
+  publicite       publicite @relation(fields: [publiciteId], references: [id], onDelete: Cascade)
+}
 
