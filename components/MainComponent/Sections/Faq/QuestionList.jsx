@@ -81,6 +81,32 @@ const faqItems = [
       </>
     ),
   },
+  {
+    id: "item-6",
+    question: "Comment faire pour devenir partenaire de Lilee?",
+    answer: (
+      <ul className="list-none pl-4 space-y-2">
+        <li className="flex items-start">
+          <span className="mr-2 text-xl">•</span>
+          Téléchargez le contrat et les documents nécessaires en cliquant sur le
+          bouton &quot;Devenir partenaire&quot;.
+        </li>
+        <li className="flex items-start">
+          <span className="mr-2 text-xl">•</span>
+          Remplissez les documents avec les informations requises.
+        </li>
+        <li className="flex items-start">
+          <span className="mr-2 text-xl">•</span>
+          Envoyez les documents complétés par email à contact@lilee.fr
+        </li>
+        <li className="flex items-start">
+          <span className="mr-2 text-xl">•</span>
+          Profitez de votre visibilité accrue sur Entrehandi.com et constatez
+          les retombées positives sur votre entreprise.
+        </li>
+      </ul>
+    ),
+  },
 ];
 
 const QuestionList = () => {
@@ -90,13 +116,12 @@ const QuestionList = () => {
     threshold: 0.2,
   });
 
-  // Définir des variants pour le stagger effect
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.2, // Décalage entre chaque enfant
+        staggerChildren: 0.2,
       },
     },
   };

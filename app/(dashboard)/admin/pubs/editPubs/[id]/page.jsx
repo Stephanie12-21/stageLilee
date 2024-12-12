@@ -7,7 +7,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 
 const PubliciteForm = () => {
   const [phoneMarque, setPhoneMarque] = useState("");
@@ -21,49 +20,20 @@ const PubliciteForm = () => {
   const [contenuPub, setContenuPub] = useState([]);
   const router = useRouter();
 
-  // const validateForm = () => {
-  //   const newErrors = {};
-
-  //   if (!nomMarque.trim()) {
-  //     newErrors.nomMarque = "Le nom de la marque est requis";
-  //   }
-
-  //   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  //   if (!emailRegex.test(emailMarque)) {
-  //     newErrors.emailMarque = "Email invalide";
-  //   }
-
-  //   const phoneRegex = /^(\+\d{1,3})?\d{10}$/;
-  //   if (!phoneRegex.test(phoneMarque)) {
-  //     newErrors.phoneMarque = "Numéro de téléphone invalide";
-  //   }
-
-  //   if (!adresseMarque.trim()) {
-  //     newErrors.adresseMarque = "Adresse requise";
-  //   }
-
-  //   const debutPub = new Date(DebutPub);
-  //   const finPub = new Date(FinPub);
-
-  //   if (!DebutPub) {
-  //     newErrors.debutPub = "Date de début requise";
-  //   }
-
-  //   if (!FinPub) {
-  //     newErrors.finPub = "Date de fin requise";
-  //   }
-
-  //   if (debutPub > finPub) {
-  //     newErrors.finPub = "La date de fin doit être après la date de début";
-  //   }
-
-  //   if (siteWeb && !/^https?:\/\/\S+$/.test(siteWeb)) {
-  //     newErrors.siteWeb = "URL du site web invalide";
-  //   }
-
-  //   setErrors(newErrors);
-  //   return Object.keys(newErrors).length === 0;
-  // };
+  const fetchPubData = async (id) => {
+    try {
+      const response = await fetch(`/api/pub/${id}`);
+      if (!response.ok) {
+        throw new Error("Annonce non trouvée");
+      }
+      const data = await response.json();
+      console.log("données reçues :", data);
+      return data;
+    } catch (error) {
+      console.error("Erreur lors de la récupération de l'annonce:", error);
+      throw error;
+    }
+  };
 
   const handleContenuChange = (e) => {
     const selectedImages = Array.from(e.target.files);
@@ -76,10 +46,6 @@ const PubliciteForm = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    // if (!validateForm()) {
-    //   return;
-    // }
 
     const statutPub = "ACTIVE";
     const PhoneMarque = `+${phoneMarque}`;
@@ -257,12 +223,12 @@ const PubliciteForm = () => {
             </div>
           </div>
         </div>
-        <Button
+        <button
           onClick={handleSubmit}
-          className="col-span-2 bg text-white p-2 rounded "
+          className="col-span-2 bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
         >
-          Ajouter le nouveau Partenaire
-        </Button>
+          Créer la Publicité
+        </button>
       </div>
     </div>
   );

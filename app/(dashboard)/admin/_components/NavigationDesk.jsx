@@ -11,6 +11,7 @@ import {
   ChevronDown,
   ChevronUp,
   UsersRound,
+  Rocket,
 } from "lucide-react";
 
 const Navigation = () => {
@@ -60,14 +61,14 @@ const Navigation = () => {
       href: session ? `/admin/users` : "#",
     },
     {
-      icon: UsersRound,
+      icon: Rocket,
       name: "Abonnement",
       href: session ? `/admin/Abonnement` : "#",
     },
     {
-      icon: Megaphone,
-      name: "Publicité",
-      href: session ? `/admin/pubs` : "#",
+      icon: UsersRound,
+      name: "Partenaires engagés",
+      href: session ? `/admin/partenaire` : "#",
     },
   ];
 

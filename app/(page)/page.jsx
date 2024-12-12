@@ -6,53 +6,18 @@ import Hero from "@/components/MainComponent/Sections/Hero/Hero";
 import Informations from "@/components/MainComponent/Sections/Informations/Informations";
 import Sponsors from "@/components/MainComponent/Sections/Sponsors/Sponsors";
 import { Testimonial } from "@/components/MainComponent/Sections/Testimonials/Testimonials";
-import {
-  AlertDialog,
-  AlertDialogTrigger,
-  AlertDialogContent,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogCancel,
-  AlertDialogAction,
-} from "@/components/ui/alert-dialog";
+import Partenaires from "@/components/MainComponent/Sections/Partenaires/Partenaires";
 
 export default function Home() {
-  const [isDialogOpen, setDialogOpen] = useState(false);
-
-  useEffect(() => {
-    setDialogOpen(true);
-  }, []);
- 
- 
   return (
     <main className="p-8">
-      <AlertDialog open={isDialogOpen} onOpenChange={setDialogOpen}>
-        <AlertDialogTrigger asChild>
-          <button className="hidden" />
-        </AlertDialogTrigger>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Publicité</AlertDialogTitle>
-            <AlertDialogDescription>
-              Ceci est un modal de publicité affiché automatiquement. Cliquez
-              sur Continuer pour en savoir plus ou Fermer pour ignorer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>Fermer</AlertDialogCancel>
-            <AlertDialogAction>Continuer</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
       <Hero />
       <Annonce />
       <Informations />
       <Faq />
       <Testimonial />
       <Sponsors />
+      <Partenaires />
     </main>
   );
 }

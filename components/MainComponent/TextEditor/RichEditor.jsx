@@ -57,7 +57,7 @@ export default function RichTextEditor({ content, onChange = () => {} }) {
     editorProps: {
       attributes: {
         class:
-          "min-h-[300px] border rounded-md bg-slate-50 py-2 px-3 focus:outline-none",
+          "min-h-[500px]  border rounded-md bg-slate-50 py-2 px-3 focus:outline-none",
       },
     },
     onUpdate: ({ editor }) => {

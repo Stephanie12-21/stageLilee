@@ -38,7 +38,6 @@ import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 import React, { useEffect, useState } from "react";
 
 const Layout = ({ children }) => {
-  // Changement de "layout" en "Layout"
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -51,7 +50,7 @@ const Layout = ({ children }) => {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-[#15213d]">
         <AnimatedSymbol />
       </div>
     );
@@ -66,4 +65,4 @@ const Layout = ({ children }) => {
   );
 };
 
-export default Layout; // Changement ici aussi
+export default Layout; 

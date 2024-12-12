@@ -38,6 +38,7 @@ export default function Abonnement() {
       nom: "Plan medium",
       prix: "10€ / mois",
       description: "Fonctionnalités avancées pour un usage régulier.",
+      
     },
     {
       id: 3,
@@ -59,7 +60,7 @@ export default function Abonnement() {
           userId,
           userName,
           userEmail,
-          successUrl: `${window.location.origin}/admin/succesPage?session_id={CHECKOUT_SESSION_ID}`,
+          successUrl: `${window.location.origin}/admin/succesPage/{CHECKOUT_SESSION_ID}`,
           cancelUrl: `${window.location.origin}/cancel`,
         }),
       });

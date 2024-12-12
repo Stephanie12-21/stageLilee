@@ -31,15 +31,16 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 export default function LayoutAdmin({ children }) {
   const { data: session } = useSession();
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [rating, setRating] = useState(0);
   const [hover, setHover] = useState(0);
   const [testimony, setTestimony] = useState("");
-  const [isEditing, setIsEditing] = useState(true);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -112,7 +113,13 @@ export default function LayoutAdmin({ children }) {
       </div>
     );
   }
-
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#15213d]">
+        <AnimatedSymbol />
+      </div>
+    );
+  }
   return (
     <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
       <div className="hidden border-r bg-muted/40 md:block">

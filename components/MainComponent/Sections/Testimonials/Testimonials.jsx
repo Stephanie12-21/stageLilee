@@ -6,7 +6,6 @@ export function Testimonial() {
       <p className="flex items-center justify-center pt-10 mb-10 text-3xl">
         Ce que disent les utilisateurs
       </p>
-
       <CardCarrousel />
     </div>
   );

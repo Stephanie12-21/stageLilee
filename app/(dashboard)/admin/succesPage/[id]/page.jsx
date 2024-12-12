@@ -13,14 +13,13 @@ const SuccesPage = ({ params }) => {
 
   const handleStripeSession = async (sessionId) => {
     try {
-      const response = await fetch(
-        `/api/stripe/session?session_id=${sessionId}`
-      );
+      console.log(sessionId)
+      const response = await fetch(`/api/annonce/stripe/${sessionId}`);
+      
       const session = await response.json();
 
       if (session.payment_status === "paid") {
-        // Traitez les métadonnées et enregistrez dans la base de données
-        const res = await fetch("/api/save-subscription", {
+        const res = await fetch("/api/annonce/save-subscription", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -30,14 +29,14 @@ const SuccesPage = ({ params }) => {
             stripeSessionId: session.id,
             subscriptionId: session.subscription,
           }),
-        });
+        }); 
 
-        const result = await res.json();
-        if (res.ok) {
-          console.log("Enregistrement réussi:", result);
-        } else {
-          console.error("Erreur lors de l'enregistrement:", result.error);
-        }
+        // const result = await res.json();
+        // if (res.ok) {
+        //   console.log("Enregistrement réussi:", result);
+        // } else {
+        //   console.error("Erreur lors de l'enregistrement:", result.error);
+        // }
       }
     } catch (error) {
       console.error(

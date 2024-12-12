@@ -3,7 +3,7 @@ import Stripe from "stripe";
 if (!process.env.STRIPE_SECRET_KEY) {
   throw new Error(
     "La clé secrète Stripe est manquante dans les variables d'environnement"
-  );
+  ); 
 }
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
@@ -28,8 +28,8 @@ export async function POST(request) {
 
     // Define pricing for each abonnementId
     const prices = {
-      1: { amount: 799, interval: "month" }, // 7.99 EUR = 799 cents
-      2: { amount: 1999, interval: "month" }, // 19.99 EUR = 1999 cents
+      1: { amount: 799, interval: "month" },
+      2: { amount: 1999, interval: "month" },
       3: { amount: 3999, interval: "month" }, // 39.99 EUR = 3999 cents
     };
 

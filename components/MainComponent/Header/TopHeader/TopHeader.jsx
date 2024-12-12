@@ -21,15 +21,12 @@ const TopHeader = () => {
       <div className="justify-between items-center flex">
         <div className="flex items-center gap-4">
           <ListContacts />
-          {/* <ListIcons /> */}
         </div>
         <ListButton />
       </div>
     </div>
   );
 };
-
-// Define the ListButton component
 
 export const ListButton = () => {
   const { data: session, status } = useSession();
@@ -39,16 +36,14 @@ export const ListButton = () => {
     signOut();
   };
 
-  // Ensure the role path only generates if session data is available
   const getRolePath = () => {
     const role = session?.user?.role;
     if (role === "PERSO") return "/personnel/";
     if (role === "PRO") return "/professionel";
     if (role === "ADMIN") return "/admin";
-    return ""; // Default to home if no role
+    return "";
   };
 
-  // Only generate URLs if session data is available
   const rolePath = session ? getRolePath() : "";
   const profileUrl = `${rolePath}/profile/${session?.user?.id}`;
   const securityUrl = `${rolePath}/security/${session?.user?.id}`;
@@ -104,7 +99,7 @@ export const ListButton = () => {
             <DropdownMenuSeparator />
 
             <DropdownMenuItem>
-              <Link href={clientSpaceUrl}>Espace client</Link>
+              <Link href={clientSpaceUrl}>Espace utilisateur</Link>
             </DropdownMenuItem>
 
             <DropdownMenuSeparator />
@@ -130,7 +125,14 @@ export const ListButton = () => {
                       Pour pouvoir déposer une annonce et se satisfaire
                       pleinement des fonctionnalités du site, il faut
                       d&apos;abord accéder à votre espace utilisateur.
+                      <br />
+                      <br />
+                      <span className="text-[#15213d] text-[19px]  font-bold cursor-pointer">
+                        NB: Le dépôt d&apos;annonces est gratuit.
+                      </span>
                     </span>
+                    <br />
+                    <br />
                     <div className="mt-2">
                       <span
                         className="text-[#15213d] text-[17px] hover:underline font-semibold cursor-pointer"

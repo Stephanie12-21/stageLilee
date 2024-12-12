@@ -112,7 +112,7 @@ export default function LayoutAdmin({ children }) {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-100">
+      <div className="flex items-center justify-center min-h-screen bg-[#15213d]">
         <AnimatedSymbol />
       </div>
     );

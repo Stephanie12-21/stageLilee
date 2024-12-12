@@ -10,11 +10,11 @@ import { Menu } from "lucide-react";
 const links = [
   { path: "/", name: "Accueil" },
   { path: "/Annonces", name: "Annonces" },
+  { path: "/Partenaire", name: "Partenaires engagés" },
   { path: "/Contact", name: "Contact" },
   { path: "/Blog", name: "Blog" },
 ];
 
-// Define the ListLink component
 export const ListLink = () => {
   const path = usePathname();
   return (
@@ -47,8 +47,6 @@ export const ListLink = () => {
     </nav>
   );
 };
-
-// Define the NavBar component
 
 export default function NavBar() {
   const [toggle, setToggle] = useState(false);

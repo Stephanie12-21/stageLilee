@@ -49,6 +49,7 @@ model user {
   temoignages        temoignages[]
   sentMessages       message[]      @relation("UserMessages")
   receivedMessages   message[]      @relation("UserReceivedMessages")
+  abonnement       Abonnement[]
 }
 
 enum statutUser {
@@ -141,6 +142,7 @@ model annonces {
   commentaire       commentaire[] 
   favoris           favoris[]  
   messages          message[] 
+  
 }
 
 enum statut {
@@ -203,13 +205,11 @@ model temoignages{
   id                Int @id @default(autoincrement())
   temoignage        String
   noteLilee         Int
+  ville             String?
+  pays              String?
   userId            Int
   user              user      @relation(fields: [userId], references: [id])
 }
-
-
-
-
 
 
 model message {
@@ -234,10 +234,6 @@ model imageMessages {
 
 
 
-
-
-
-
 model newsletter {
   id                Int     @id @default(autoincrement())
   email             String  @unique
@@ -246,17 +242,31 @@ model newsletter {
 
 model Abonnement {
   id Int @id @default(autoincrement())
-  plan  plan 
+  userId Int      
+  user user @relation(fields: [userId], references: [id], onDelete: Cascade)
   createdAT DateTime
   updateAt DateTime
   dateDebut DateTime
   dateFin DateTime
+  planId Int
+  plan plan @relation(fields: [planId], references: [id], onDelete: Cascade)
+
+
 }
 
-enum plan {
- PREMIUM
- MEDIUM
- STANDARD
+model plan {
+id  Int @id @default(autoincrement())
+typePlan  typePlan
+nbUrgent Int?
+nbUne Int
+nbRecommandation Int
+abonnement Abonnement[]
+}
+
+enum typePlan {
+  STANDARD
+  PREMIUM
+  MEDIUM
 }
 
 
@@ -272,11 +282,11 @@ model publicite {
   createdAt       DateTime      @default(now())
   debutPub        DateTime
   finPub          DateTime
-  updatedAt       DateTime      @updatedAt
-  dureePub        Int           
+  updatedAt       DateTime      @updatedAt          
   contenuPub      contenuPub[]
   statutPub       statutPub @default(ACTIVE)  
 }
+
 enum statutPub {
  ACTIVE
  SUSPENDUE
@@ -289,3 +299,48 @@ model contenuPub {
   publicite       publicite @relation(fields: [publiciteId], references: [id], onDelete: Cascade)
 }
 
+model partenaire{
+  id              Int       @id @default(autoincrement())
+  nom             String    @unique
+  logo            logo[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  statutPartenaire       statutPartenaire @default(ACTIF)
+  siteWeb         String?
+  email           String    @unique
+  phone           String    @unique
+  facebook        String?
+  instagram       String?
+  twitter         String?
+  linkedin        String?
+  tikTok          String?
+  youtube         String?
+  duree           duree   
+  description     String?
+  contenuPartenaire       contenuPartenaire[]
+}
+
+enum duree {
+  MENSUEL
+  TRIMESTRIEL
+  SEMESTRIEL
+  ANNUEL
+}
+
+enum statutPartenaire {
+ ACTIF
+ SUSPENDU
+}
+model contenuPartenaire {
+  id              Int       @id @default(autoincrement())
+  path            String
+  partenaireId    Int
+  partenaire      partenaire @relation(fields: [partenaireId], references: [id], onDelete: Cascade)
+}
+
+model logo {
+  id              Int       @id @default(autoincrement())
+  path            String
+  partenaireId    Int
+  partenaire      partenaire @relation(fields: [partenaireId], references: [id], onDelete: Cascade)
+}

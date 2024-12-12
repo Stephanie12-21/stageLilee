@@ -44,7 +44,7 @@ import {
   SelectValue,
   SelectGroup,
 } from "@/components/ui/select";
-import { Search } from "lucide-react";
+import { Search, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
@@ -104,7 +104,7 @@ const UserPage = () => {
   const handleSeePubInfo = useCallback(
     (pubId) => {
       console.log("ID du pub sélectionné :", pubId);
-      router.push(`/admin/pubs/${pubId}`);
+      router.push(`/admin/partenaire/${pubId}`);
     },
     [router]
   );
@@ -263,11 +263,28 @@ const UserPage = () => {
   };
 
   const columns = [
+    {
+      accessorKey: "logo",
+      header: "Logo",
+      cell: ({ row }) => {
+        const imageUrl = row.original.profileImages?.[0]?.path;
+        return imageUrl ? (
+          <Image
+            src={imageUrl}
+            alt="Profil"
+            width={50}
+            height={50}
+            className="w-[50px] h-[50px] rounded-full object-cover"
+          />
+        ) : (
+          "Pas d'image"
+        );
+      },
+    },
     { accessorKey: "nomMarque", header: "Nom de la marque" },
-    { accessorKey: "emailMarque", header: "Adresse email" },
-    { accessorKey: "phoneMarque", header: "Contact" },
+    { accessorKey: "emailMarque", header: "Email" },
+    { accessorKey: "phoneMarque", header: " Numéro de téléphone" },
     { accessorKey: "adresseMarque", header: "Adresse" },
-    { accessorKey: "siteWeb", header: "Site web" },
 
     {
       accessorKey: "statutPub",
@@ -300,8 +317,6 @@ const UserPage = () => {
     {
       header: "Actions",
       cell: ({ row }) => {
-        //const statut = row.original.statutPub;
-
         return (
           <div className="flex justify-left">
             <DropdownMenu>
@@ -316,7 +331,7 @@ const UserPage = () => {
                     variant="outline"
                     onClick={() => handleSeePubInfo(row.original.id)}
                   >
-                    Voir la publicité
+                    Voir les informations
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -351,7 +366,7 @@ const UserPage = () => {
                     variant="outline"
                     onClick={() => handleEditPubInfo(row.original.id)}
                   >
-                    Modifier la publicité
+                    Modifier les données
                   </Button>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
@@ -360,7 +375,7 @@ const UserPage = () => {
                     variant="outline"
                     onClick={() => handleDeletePubInfo(row.original.id)}
                   >
-                    Supprimer la publicité
+                    Supprimer les données
                   </Button>
                 </DropdownMenuItem>
               </DropdownMenuContent>
@@ -424,9 +439,10 @@ const UserPage = () => {
 
           <div className="flex flex-wrap items-center gap-4 w-full md:w-2/5">
             <div className="flex-1 relative w-full">
-              <Link href="/admin/pubs/addPubs">
+              <Link href="/admin/partenaire/addPartenaire">
                 <Button className="w-full md:w-auto">
-                  Créer une nouvelle publicité
+                  <UsersRound className="mr-2 h-4 w-4" />
+                  Ajouter un nouveau partenaire
                 </Button>
               </Link>
             </div>
