@@ -101,8 +101,8 @@ const faqItems = [
         </li>
         <li className="flex items-start">
           <span className="mr-2 text-xl">•</span>
-          Profitez de votre visibilité accrue sur Entrehandi.com et constatez
-          les retombées positives sur votre entreprise.
+          Profitez de votre visibilité accrue sur Lilee et constatez les
+          retombées positives sur votre entreprise.
         </li>
       </ul>
     ),

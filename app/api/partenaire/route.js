@@ -1,44 +1,37 @@
 import { db } from "@/lib/db";
-
 import { NextResponse } from "next/server";
 
 export async function POST(request) {
   try {
     const body = await request.formData();
-    const nomMarque = body.get("nomMarque");
-    const emailMarque = body.get("emailMarque");
-    const phoneMarque = body.get("phoneMarque");
-    const adresseMarque = body.get("adresseMarque");
+    const nom = body.get("nomMarque");
+    const email = body.get("emailMarque");
+    const phone = body.get("phoneMarque");
+    const adresse = body.get("adresseMarque");
     const siteWeb = body.get("siteWeb");
-    const statutPub = body.get("statutPub");
-    const contenuPub = body.getAll("contenuPub");
+    const contenuPartenaire = body.getAll("contenuPub");
+    const logo = body.get("logo");
+    const duree = body.get("duree");
+    const description = body.get("description");
+    const facebook = body.get("facebook");
+    const instagram = body.get("instagramm");
+    const twitter = body.get("twitter");
+    const tikTok = body.get("tikTok");
+    const linkedin = body.get("linkedIn");
+    const youtube = body.get("youtube");
+    const statutPartenaire = body.get("statutPartenaire");
 
-    console.log(
-      nomMarque,
-      emailMarque,
-      phoneMarque,
-      adresseMarque,
-      siteWeb,
-      statutPub
-    );
-
-    if (
-      !nomMarque ||
-      !emailMarque ||
-      !phoneMarque ||
-      !adresseMarque ||
-      !statutPub
-    ) {
+    if (!nom || !email || !phone || !adresse || !logo || !duree) {
       return new NextResponse(
         JSON.stringify({
-          message: "Tous les champs sont requis.",
+          message: "Tous les champs requis doivent être remplis.",
         }),
         { status: 400 }
       );
     }
 
     const imageUrls = [];
-    for (const image of contenuPub) {
+    for (const image of contenuPartenaire) {
       const formData = new FormData();
       formData.append("file", image);
       formData.append("upload_preset", "ko4bjtic");
@@ -55,41 +48,72 @@ export async function POST(request) {
       if (uploadResponse.ok && uploadResult.secure_url) {
         imageUrls.push(uploadResult.secure_url);
       } else {
-        throw new Error("Échec de l'upload de l'image.");
+        throw new Error("Échec de l'upload d'une image partenaire.");
       }
     }
 
-    const newPublicite = await db.publicite.create({
+    const logoFormData = new FormData();
+    logoFormData.append("file", logo);
+    logoFormData.append("upload_preset", "ko4bjtic");
+
+    const logoUploadResponse = await fetch(
+      "https://api.cloudinary.com/v1_1/dtryutlkz/image/upload",
+      {
+        method: "POST",
+        body: logoFormData,
+      }
+    );
+
+    const logoUploadResult = await logoUploadResponse.json();
+    const logoUrl = logoUploadResult.secure_url;
+
+    if (!logoUploadResponse.ok || !logoUrl) {
+      throw new Error("Échec de l'upload du logo.");
+    }
+
+    const newPartenaire = await db.partenaire.create({
       data: {
-        nomMarque,
-        phoneMarque,
-        adresseMarque,
-        debutPub: parsedDebutPub,
-        finPub: parsedFinPub,
-        emailMarque,
+        nom,
+        email,
         siteWeb,
+        phone,
+        adresse,
+        facebook,
+        instagram,
+        twitter,
+        tikTok,
+        linkedin,
+        youtube,
+        duree,
+        description,
+        statutPartenaire,
       },
     });
 
-    const publiciteId = newPublicite.id;
+    const partenaireId = newPartenaire.id;
+
     const imageInsertions = imageUrls.map((imageUrl) =>
-      db.contenuPub.create({
-        data: { path: imageUrl, publiciteId },
+      db.contenuPartenaire.create({
+        data: { path: imageUrl, partenaireId },
       })
     );
+
+    await db.logo.create({
+      data: { path: logoUrl, partenaireId },
+    });
 
     await Promise.all(imageInsertions);
 
     return new NextResponse(
       JSON.stringify({
-        message: "Publicite et images créés avec succès.",
-        publicite: newPublicite,
+        message: "Partenaire et images créés avec succès.",
+        partenaire: newPartenaire,
       }),
       { status: 200 }
     );
   } catch (error) {
     console.error(
-      "Erreur lors de la création de l'article et des images :",
+      "Erreur lors de l'ajout du partenaire, du logo et des contenus partenaires :",
       error
     );
     return new NextResponse(
@@ -101,19 +125,22 @@ export async function POST(request) {
 
 export async function GET() {
   try {
-    const publicites = await db.publicite.findMany({
-      include: { contenuPub: true },
+    const partenaires = await db.partenaire.findMany({
+      include: { contenuPartenaire: true, logo: true },
       orderBy: { createdAt: "desc" },
     });
 
-    const formattedPub = publicites.map((publicite) => ({
-      ...publicite,
-      imageUrl: publicite.contenuPub[0]?.path || null,
+    const formattedPartenaires = partenaires.map((partenaire) => ({
+      ...partenaire,
+      logoUrl: partenaire.logo[0]?.path || null,
+      contenuUrls: partenaire.contenuPartenaire.map((contenu) => contenu.path),
     }));
 
-    return new NextResponse(JSON.stringify(formattedPub), { status: 200 });
+    return new NextResponse(JSON.stringify(formattedPartenaires), {
+      status: 200,
+    });
   } catch (error) {
-    console.error("Erreur lors de la récupération des publicite :", error);
+    console.error("Erreur lors de la récupération des partenaires :", error);
     return new NextResponse(
       JSON.stringify({ message: "Erreur interne du serveur." }),
       { status: 500 }

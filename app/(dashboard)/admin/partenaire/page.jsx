@@ -65,12 +65,12 @@ const UserPage = () => {
   const [statusFilter, setStatusFilter] = useState("all");
   const router = useRouter();
 
-  const fetchPubs = async () => {
+  const fetchPartenaires = async () => {
     try {
-      const response = await fetch("/api/pub/");
+      const response = await fetch("/api/partenaire/");
       const data = await response.json();
       setPublicite(data);
-      setNomMarque(data.nomMarque);
+      setNomMarque(data.nom);
     } catch (error) {
       console.error("Erreur lors de la récupération des utilisateurs :", error);
     } finally {
@@ -80,22 +80,23 @@ const UserPage = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetchPubs();
+    fetchPartenaires();
   }, []);
 
   const filteredPubsData = useMemo(() => {
     const searchLower = searchFilter.toLowerCase();
     return publicite.filter((publicite) => {
       const matchesSearch =
-        publicite.nomMarque.toLowerCase().includes(searchLower) ||
-        publicite.emailMarque.toLowerCase().includes(searchLower) ||
-        publicite.phoneMarque.toLowerCase().includes(searchLower) ||
-        publicite.adresseMarque.toLowerCase().includes(searchLower);
-      publicite.siteWeb.toLowerCase().includes(searchLower);
+        publicite.nom.toLowerCase().includes(searchLower) ||
+        publicite.email.toLowerCase().includes(searchLower) ||
+        publicite.phone.toLowerCase().includes(searchLower) ||
+        publicite.adresse.toLowerCase().includes(searchLower);
+
       const matchesStatus =
-        statusFilter === "all" || // Toutes les catégories
-        (statusFilter === "actif" && publicite.statutPub === "ACTIVE") ||
-        (statusFilter === "nonActif" && publicite.statutPub === "SUSPENDUE");
+        statusFilter === "all" ||
+        (statusFilter === "actif" && publicite.statutPartenaire === "ACTIF") ||
+        (statusFilter === "nonActif" &&
+          publicite.statutPartenaire === "SUSPENDU");
 
       return matchesSearch && matchesStatus;
     });
@@ -111,28 +112,28 @@ const UserPage = () => {
   const handleEditPubInfo = useCallback(
     (pubId) => {
       console.log("ID du pub sélectionné :", pubId);
-      router.push(`/admin/pubs/editPubs/id=${pubId}`);
+      router.push(`/admin/partenaire/editPartenaire/id=${pubId}`);
     },
     [router]
   );
 
   const openAlert = (publicite) => {
     setSelectedPub(publicite);
-    setEmail(publicite.emailMarque);
+    setEmail(publicite.email);
     setIsAlertOpen(true);
   };
 
   const openSuspendAlert = (publicite) => {
     setSelectedPub(publicite);
-    setEmail(publicite.emailMarque);
+    setEmail(publicite.email);
     setPubId(publicite.id);
     setIsSuspendAlertOpen(true);
   };
 
   const openActivationAlert = (publicite) => {
     setSelectedPub(publicite);
-    setEmail(publicite.emailMarque);
-    setNomMarque(publicite.nomMarque);
+    setEmail(publicite.email);
+    setNomMarque(publicite.nom);
     setPubId(publicite.id);
     setIsActivationAlertOpen(true);
   };
@@ -144,7 +145,7 @@ const UserPage = () => {
     }
 
     try {
-      const response = await fetch("/api/pub/alertPub", {
+      const response = await fetch("/api/partenaire/alertPartenaire", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -161,7 +162,7 @@ const UserPage = () => {
           "La publicité a été suspendue et  la marque a été informée par email.",
           {
             onClose: () => {
-              resetForm();
+              setRaison("");
             },
           }
         );
@@ -184,19 +185,22 @@ const UserPage = () => {
       return;
     }
 
-    const statutPub = "SUSPENDUE";
+    const statutPartenaire = "SUSPENDU";
     try {
-      const response = await fetch(`/api/pub/suspendPub/${pubId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          raison,
-          statutPub,
-          email,
-        }),
-      });
+      const response = await fetch(
+        `/api/partenaire/suspendPartenaire/${pubId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            raison,
+            statutPartenaire,
+            email,
+          }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
@@ -208,7 +212,7 @@ const UserPage = () => {
             },
           }
         );
-        await fetchPubs();
+        await fetchPartenaires();
       } else {
         alert(data.error || "Une erreur s'est produite lors de la suspension.");
       }
@@ -221,18 +225,21 @@ const UserPage = () => {
   };
 
   const handleConfirmActivationUser = async () => {
-    const statutPub = "ACTIVE";
+    const statutPartenaire = "ACTIF";
     try {
-      const response = await fetch(`/api/pub/activationPub/${pubId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          statutPub,
-          email,
-        }),
-      });
+      const response = await fetch(
+        `/api/partenaire/activationPartenaire/${pubId}`,
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            statutPartenaire,
+            email,
+          }),
+        }
+      );
 
       if (!response.ok) {
         const textResponse = await response.text();
@@ -267,7 +274,7 @@ const UserPage = () => {
       accessorKey: "logo",
       header: "Logo",
       cell: ({ row }) => {
-        const imageUrl = row.original.profileImages?.[0]?.path;
+        const imageUrl = row.original.logo?.[0]?.path;
         return imageUrl ? (
           <Image
             src={imageUrl}
@@ -281,25 +288,25 @@ const UserPage = () => {
         );
       },
     },
-    { accessorKey: "nomMarque", header: "Nom de la marque" },
-    { accessorKey: "emailMarque", header: "Email" },
-    { accessorKey: "phoneMarque", header: " Numéro de téléphone" },
-    { accessorKey: "adresseMarque", header: "Adresse" },
+    { accessorKey: "nom", header: "Dénomination" },
+    { accessorKey: "email", header: "Email" },
+    { accessorKey: "phone", header: " Numéro de téléphone" },
+    { accessorKey: "adresse", header: "Adresse" },
 
     {
-      accessorKey: "statutPub",
+      accessorKey: "statutPartenaire",
       header: "Statut",
       cell: ({ row }) => {
-        const statut = row.original.statutPub;
+        const statut = row.original.statutPartenaire;
 
         const statusText = {
-          ACTIVE: "active",
-          SUSPENDUE: "suspendue",
+          ACTIF: "actif",
+          SUSPENDU: "suspendu",
         };
 
         const statusColor = {
-          ACTIVE: "bg-primary text-white hover:bg-primary hover:text-white",
-          SUSPENDUE:
+          ACTIF: "bg-primary text-white hover:bg-primary hover:text-white",
+          SUSPENDU:
             "bg-red-100 text-red-800 hover:bg-red-100 hover:text-red-800",
         };
 
@@ -348,14 +355,14 @@ const UserPage = () => {
                   <Button
                     variant="outline"
                     onClick={() => {
-                      if (row.original.statutPub === "ACTIVE") {
+                      if (row.original.statutPartenaire === "ACTIF") {
                         openSuspendAlert(row.original);
-                      } else if (row.original.statutPub === "SUSPENDUE") {
+                      } else if (row.original.statutPartenaire === "SUSPENDU") {
                         openActivationAlert(row.original);
                       }
                     }}
                   >
-                    {row.original.statutPub === "ACTIVE"
+                    {row.original.statutPartenaire === "ACTIF"
                       ? "Suspendre la publicité"
                       : "Activer la publicité"}{" "}
                   </Button>
@@ -429,8 +436,8 @@ const UserPage = () => {
                 <SelectContent>
                   <SelectGroup>
                     <SelectItem value="all">Toutes les catégories</SelectItem>
-                    <SelectItem value="actif">Active</SelectItem>
-                    <SelectItem value="nonActif">Suspendue</SelectItem>
+                    <SelectItem value="actif">Actif</SelectItem>
+                    <SelectItem value="nonActif">Suspendu</SelectItem>
                   </SelectGroup>
                 </SelectContent>
               </Select>

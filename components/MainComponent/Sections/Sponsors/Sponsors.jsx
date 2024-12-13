@@ -19,7 +19,7 @@ const Sponsors = () => {
   return (
     <div className="container mx-auto py-5">
       <p className="flex items-center justify-center pt-5 mb-10 text-[30px]">
-        Nos partenaires
+        Ils nous soutiennent
       </p>
 
       <div className="overflow-hidden relative w-full h-[150px]">

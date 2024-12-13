@@ -5,10 +5,8 @@ import Image from "next/image";
 import React, { useEffect, useState } from "react";
 import {
   MapPinIcon,
-  TagIcon,
   ImageIcon,
   X,
-  BadgeEuro,
   Globe,
   AtSign,
   PhoneCall,
@@ -36,11 +34,18 @@ const InfoAnnonces = ({ params }) => {
   const [siteWeb, setSiteWeb] = useState("");
   const [emailMarque, setEmailMarque] = useState("");
   const [adresseMarque, setAdresseMarque] = useState("");
-  const [DebutPub, setDebutPub] = useState("");
-  const [FinPub, setFinPub] = useState("");
+  const [facebook, setFacebook] = useState("");
+  const [linkedIn, setLinkedIn] = useState("");
+  const [instagramm, setInstagramm] = useState("");
+  const [youtube, setYoutbe] = useState("");
+  const [duree, setDuree] = useState("");
+  const [tikTok, setTikTok] = useState("");
+  const [twitter, setTwitter] = useState("");
+  const [description, setDescription] = useState("");
+  const [contenuPartenaire, setcontenuPartenaire] = useState([]);
+  const [logo, setLogo] = useState([]);
   const [errors, setErrors] = useState({});
-  const [contenuPub, setContenuPub] = useState([]);
-  const remainingImages = contenuPub.slice(1);
+  const remainingImages = contenuPartenaire.slice(1);
   const remainingCount = remainingImages.length;
 
   useEffect(() => {
@@ -52,19 +57,29 @@ const InfoAnnonces = ({ params }) => {
   useEffect(() => {
     async function fetchPubs() {
       try {
-        const response = await fetch(`/api/pub/${id}`);
+        const response = await fetch(`/api/partenaire/${id}`);
         if (response.ok) {
           const data = await response.json();
-
-          setPubId(data.id);
-          setNomMarque(data.nomMarque);
-          setEmailMarque(data.emailMarque);
-          setAdresseMarque(data.adresseMarque);
-          setPhoneMarque(data.phoneMarque);
-          setSiteWeb(data.siteWeb);
-          setDebutPub(data.DebutPub);
-          setFinPub(data.FinPub);
-          setContenuPub(data.contenuPub);
+          if (data.id) {
+            console.log("Publicite trouvée, avec l'id Publicite :", id, data);
+            setNomMarque(data.nom);
+            setEmailMarque(data.email);
+            setAdresseMarque(data.adresse);
+            setPhoneMarque(data.phone);
+            setSiteWeb(data.siteWeb);
+            setcontenuPartenaire(data.contenuPartenaire);
+            setLogo(data.logo);
+            setFacebook(data.facebook);
+            setLinkedIn(data.linkedIn);
+            setInstagramm(data.instagramm);
+            setYoutbe(data.youtube);
+            setTikTok(data.tikTok);
+            setTwitter(data.twitter);
+            setDescription(data.description);
+            setDuree(data.duree);
+          } else {
+            console.error("Publicite non trouvée, avec l'id Publicite :", id);
+          }
         } else {
           console.error("Publicite non trouvée, avec l'id Publicite :", id);
         }
@@ -87,9 +102,17 @@ const InfoAnnonces = ({ params }) => {
     <div className="bg-gray-50 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-5xl mx-auto bg-white shadow-xl rounded-xl overflow-hidden">
         <div className="flex justify-between items-center bg-primary p-6">
-          <h1 className="text-3xl font-bold text-white">{nomMarque}</h1>
+          <h1 className="text-4xl font-bold text-white">{nomMarque}</h1>
+          <div className="flex items-center space-x-4">
+            <Image
+              src={logo[0]?.path}
+              alt="Profil"
+              width={80}
+              height={80}
+              className="w-[90px] h-[90px] rounded-full object-cover"
+            />
+          </div>
         </div>
-
         <div className="grid md:grid-cols-2 gap-8 p-6">
           <div>
             <div className="space-y-4">
@@ -125,42 +148,42 @@ const InfoAnnonces = ({ params }) => {
                 <Facebook className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>Facebook:</strong>
-                  {siteWeb ? siteWeb : "inconnu"}
+                  {facebook ? facebook : "inconnu"}
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Linkedin className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>LinkedIn:</strong>
-                  {siteWeb ? siteWeb : "inconnu"}
+                  {linkedIn ? linkedIn : "inconnu"}
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Instagram className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>Instagramm:</strong>
-                  {siteWeb ? siteWeb : "inconnu"}
+                  {instagramm ? instagramm : "inconnu"}
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <TwitterIcon className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>X (twitter):</strong>
-                  {siteWeb ? siteWeb : "inconnu"}
+                  {twitter ? twitter : "inconnu"}
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <FaTiktok className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>TiKTok:</strong>
-                  {siteWeb ? siteWeb : "inconnu"}
+                  {tikTok ? tikTok : "inconnu"}
                 </p>
               </div>
               <div className="flex items-center space-x-3">
                 <Youtube className="text-blue-500 h-6 w-6" />
                 <p className="font-semibold text-gray-700">
                   <strong>Youtube:</strong> {}
-                  {siteWeb ? siteWeb : "inconnu"}
+                  {youtube ? youtube : "inconnu"}
                 </p>
               </div>
             </div>
@@ -184,12 +207,12 @@ const InfoAnnonces = ({ params }) => {
                 <ImageIcon className="text-purple-500 h-6 w-6" />
                 <h3 className="text-xl font-semibold">Images</h3>
               </div>
-              {contenuPub.length > 0 ? (
+              {contenuPartenaire.length > 0 ? (
                 <div className="grid grid-cols-2 gap-4">
-                  {contenuPub[0]?.path && (
+                  {contenuPartenaire[0]?.path && (
                     <div onClick={() => openLightbox(0)}>
                       <Image
-                        src={contenuPub[0].path}
+                        src={contenuPartenaire[0].path}
                         alt="First Image"
                         width={800}
                         height={600}
@@ -244,7 +267,7 @@ const InfoAnnonces = ({ params }) => {
                     setCurrentIndex(swiper.activeIndex)
                   }
                 >
-                  {contenuPub.map((image, index) => (
+                  {contenuPartenaire.map((image, index) => (
                     <SwiperSlide key={index}>
                       <Image
                         src={image.path}

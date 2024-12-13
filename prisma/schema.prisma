@@ -307,6 +307,7 @@ model partenaire{
   updatedAt       DateTime  @updatedAt
   statutPartenaire       statutPartenaire @default(ACTIF)
   siteWeb         String?
+  adresse         String
   email           String    @unique
   phone           String    @unique
   facebook        String?

@@ -17,7 +17,6 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
-import { Alert } from "@/components/ui/alert";
 
 const PubliciteForm = () => {
   const [step, setStep] = useState(1);
@@ -34,10 +33,10 @@ const PubliciteForm = () => {
   const [tikTok, setTikTok] = useState("");
   const [twitter, setTwitter] = useState("");
   const [description, setDescription] = useState("");
-  const [errors, setErrors] = useState({});
   const [contenuPub, setContenuPub] = useState([]);
   const [imageFile, setImageFile] = useState([]);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [errors, setErrors] = useState({});
   const router = useRouter();
 
   const handleContenuChange = (e) => {
@@ -46,26 +45,37 @@ const PubliciteForm = () => {
   };
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      if (!file.type.startsWith("image/")) {
-        alert("Veuillez télécharger un fichier image valide.");
-        return;
-      }
-
-      const imageUrl = URL.createObjectURL(file);
-      setSelectedImage(imageUrl);
-      setImageFile(file);
-    }
+    const selectedFiles = Array.from(e.target.files);
+    setImageFile((prevFiles) => [...prevFiles, ...selectedFiles]);
   };
-
+  const handleRemoveImage = (index) => {
+    setImageFile(imageFile.filter((_, i) => i !== index));
+  };
   const handleRemoveContenu = (index) => {
     setContenuPub(contenuPub.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e) => {
+    console.log("les données receuillies sont : ", {
+      nomMarque,
+      adresseMarque,
+      emailMarque,
+      phoneMarque,
+      facebook,
+      siteWeb,
+      instagramm,
+      twitter,
+      tikTok,
+      linkedIn,
+      youtube,
+      duree,
+      description,
+      contenuPub,
+      imageFile,
+      selectedImage,
+    });
     e.preventDefault();
-    const statutPartenaire = "ACTIVE";
+    const statutPartenaire = "ACTIF";
     const PhoneMarque = `+${phoneMarque}`;
     const formDataToSend = new FormData();
     formDataToSend.append("nomMarque", nomMarque);
@@ -179,28 +189,34 @@ const PubliciteForm = () => {
                 <p className="text-red-500 text-sm">{errors.adresseMarque}</p>
               )}
             </div>
-            <div className="space-y-3">
-              <Label htmlFor="contenu">
-                Logo de la marque<span className="text-red-500">*</span> :
-              </Label>
-              <Input
-                type="file"
-                accept="image/*"
-                id="imageFile"
-                onChange={handleImageChange}
-                className="bg-white p-2 border border-gray-300 rounded"
-              />
-              {selectedImage && (
-                <div className="mt-2 flex items-center justify-center">
-                  <Image
-                    src={selectedImage}
-                    alt="Selected preview"
-                    width={200}
-                    height={200}
-                    className="rounded-full"
-                  />
+            <div className="grid gap-4 h-full w-fill">
+              <div className="space-y-3">
+                <Label htmlFor="contenu">
+                  Logo de la marque<span className="text-red-500">*</span> :
+                </Label>
+                <Input
+                  type="file"
+                  id="images"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                />
+                <div className="flex flex-wrap gap-4 mt-4">
+                  {imageFile.map((image, index) => (
+                    <div
+                      key={index}
+                      className="mt-2 flex items-center justify-center"
+                    >
+                      <Image
+                        src={URL.createObjectURL(image)}
+                        alt="Selected preview"
+                        width={200}
+                        height={200}
+                        className="rounded-full"
+                      />
+                    </div>
+                  ))}
                 </div>
-              )}
+              </div>
             </div>
           </div>
           <div className="space-y-4">
