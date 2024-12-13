@@ -9,11 +9,10 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
 import { ImagePlus } from "lucide-react";
-import { useRouter } from "next/navigation";
-import { getSession, useSession } from "next-auth/react";
+import { useSession } from "next-auth/react";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 const UserProfilePreview = () => {
-  const router = useRouter();
   const { id: userId } = useParams();
   const { data: session } = useSession();
   const [user, setUser] = useState(null);
@@ -214,7 +213,11 @@ const UserProfilePreview = () => {
   };
 
   if (loading) {
-    return <p>Chargement des informations...</p>;
+    return (
+      <div>
+        <AnimatedSymbol />
+      </div>
+    );
   }
 
   if (error) {
@@ -228,7 +231,6 @@ const UserProfilePreview = () => {
     return <p>Utilisateur introuvable</p>;
   }
 
-  //pour la suppression des données
   const handleDeleteClick = async () => {
     const confirmed = window.confirm(
       `Voulez-vous vraiment supprimer l'article avec l'ID : ${userId}?`

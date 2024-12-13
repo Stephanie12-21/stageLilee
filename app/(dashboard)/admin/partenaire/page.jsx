@@ -112,7 +112,7 @@ const UserPage = () => {
   const handleEditPubInfo = useCallback(
     (pubId) => {
       console.log("ID du pub sélectionné :", pubId);
-      router.push(`/admin/partenaire/editPartenaire/id=${pubId}`);
+      router.push(`/admin/partenaire/editPartenaire/${pubId}`);
     },
     [router]
   );

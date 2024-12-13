@@ -25,11 +25,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 const UserProfilePreview = () => {
-  const [siret, setSiret] = useState("");
   const [errorMessage, setErrorMessage] = useState(""); // Pour stocker les messages d'erreur
   const [siretValid, setSiretValid] = useState(null); // Pour stocker l'état de la validation
   const router = useRouter();
@@ -149,34 +148,34 @@ const UserProfilePreview = () => {
       }
 
       // Send SMS verification
-      //   const phone = `+${editedUser.phone}`;
-      //   try {
-      //     const response = await fetch("/api/user/verifPhone/", {
-      //       method: "POST",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //       },
-      //       body: JSON.stringify({
-      //         Phone: phone,
-      //         prenom: editedUser.prenom,
-      //         verificationCode: generatedCodes.phone,
-      //       }),
-      //     });
+      const phone = `+${editedUser.phone}`;
+      try {
+        const response = await fetch("/api/user/verifPhone/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            Phone: phone,
+            prenom: editedUser.prenom,
+            verificationCode: generatedCodes.phone,
+          }),
+        });
 
-      //     if (!response.ok) {
-      //       throw new Error("Erreur lors de l'envoi du SMS");
-      //     }
-      //     console.log("SMS envoyé avec succès");
-      //     console.log(
-      //       "Code de vérification envoyé par SMS:",
-      //       generatedCodes.phone
-      //     );
-      //     setShowVerifInfo(true);
-      //   } catch (error) {
-      //     console.error(error);
-      //     alert(error.message);
-      //     return;
-      //   }
+        if (!response.ok) {
+          throw new Error("Erreur lors de l'envoi du SMS");
+        }
+        console.log("SMS envoyé avec succès");
+        console.log(
+          "Code de vérification envoyé par SMS:",
+          generatedCodes.phone
+        );
+        setShowVerifInfo(true);
+      } catch (error) {
+        console.error(error);
+        alert(error.message);
+        return;
+      }
     } else {
       setIsEditing(true);
     }
@@ -192,19 +191,17 @@ const UserProfilePreview = () => {
     const emailVerificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
-    // const phoneVerificationCode = Math.floor(
-    //   100000 + Math.random() * 900000
-    // ).toString();
-    // return { email: emailVerificationCode, phone: phoneVerificationCode };
-    return { email: emailVerificationCode };
+    const phoneVerificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+    return { email: emailVerificationCode, phone: phoneVerificationCode };
   };
 
   //vérifier les codes saisis et envoyés
   const handleVerifyCodes = (enteredEmailCode, enteredPhoneCode) => {
     if (
-      enteredEmailCode === verificationCodes.email
-      //&&
-      //enteredPhoneCode === verificationCodes.phone
+      enteredEmailCode === verificationCodes.email &&
+      enteredPhoneCode === verificationCodes.phone
     ) {
       handleConfirmEdit(); // Appel à la fonction de mise à jour des données
     } else {
@@ -515,7 +512,11 @@ const UserProfilePreview = () => {
   ////////////////////////////FONCTION POUR LA MODIFICATION DE L'IMAGE////////////////////
 
   if (loading) {
-    return <p>Chargement des informations...</p>;
+    return (
+      <div>
+        <AnimatedSymbol />
+      </div>
+    );
   }
 
   if (error) {
