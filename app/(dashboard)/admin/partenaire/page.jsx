@@ -48,8 +48,10 @@ import { Search, UsersRound } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Link from "next/link";
 import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
+import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
 
 const UserPage = () => {
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [raison, setRaison] = useState("");
   const [email, setEmail] = useState("");
   const [nomMarque, setNomMarque] = useState("");
@@ -109,6 +111,41 @@ const UserPage = () => {
     },
     [router]
   );
+
+  const handleDeletePubInfo = (id) => {
+    setSelectedPub(id);
+    setShowDeleteModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowDeleteModal(false);
+    setSelectedPub(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!selectedPub) return;
+
+    try {
+      const response = await fetch(`/api/partenaire/${selectedPub}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Erreur lors de la suppression de l'annonce");
+      }
+
+      setPublicite((prevPubs) =>
+        prevPubs.filter((partenaire) => partenaire.id !== selectedPub)
+      );
+      toast.success("Données supprimées avec succès.");
+    } catch (error) {
+      console.error("Erreur lors de la suppression des données :", error);
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedPub(null);
+    }
+  };
+
   const handleEditPubInfo = useCallback(
     (pubId) => {
       console.log("ID du pub sélectionné :", pubId);
@@ -564,6 +601,11 @@ const UserPage = () => {
         position="top-center"
         autoClose={5000}
         hideProgressBar={false}
+      />
+      <ConfirmDeleteModal
+        isOpen={showDeleteModal}
+        onClose={handleCloseModal}
+        onConfirm={handleConfirmDelete}
       />
     </div>
   );
