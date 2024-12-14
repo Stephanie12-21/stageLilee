@@ -9,22 +9,13 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
-import {
-  Eye,
-  Edit,
-  Trash2,
-  Rocket,
-  Loader,
-  BadgeCheck,
-  Search,
-  ChevronDown,
-} from "lucide-react";
+import { Eye, Edit, Trash2, Search } from "lucide-react";
 import ConfirmDeleteModal from "@/app/(dialog)/delete/page";
 
 const Annonces = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedArticleId, setSelectedArticleId] = useState(null);
-  const { data: session, status } = useSession();
+  const { data: status } = useSession();
   const router = useRouter();
   const [articles, setArticles] = useState([]);
   const [error, setError] = useState(null);

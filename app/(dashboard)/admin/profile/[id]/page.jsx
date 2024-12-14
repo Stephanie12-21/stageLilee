@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, useCallback } from "react";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useParams } from "next/navigation";
@@ -11,6 +11,8 @@ import "react-phone-input-2/lib/style.css";
 import { ImagePlus } from "lucide-react";
 import { useSession } from "next-auth/react";
 import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 const UserProfilePreview = () => {
   const { id: userId } = useParams();
@@ -70,7 +72,6 @@ const UserProfilePreview = () => {
       const generatedCodes = generateVerificationCodes();
       setVerificationCodes(generatedCodes);
 
-      // Send email verification
       try {
         const response = await fetch("/api/user/emailVerif/", {
           method: "POST",
@@ -95,7 +96,6 @@ const UserProfilePreview = () => {
         return;
       }
 
-      // Send SMS verification
       const phone = `+${editedUser.phone}`;
       try {
         const response = await fetch("/api/user/verifPhone/", {
@@ -138,7 +138,6 @@ const UserProfilePreview = () => {
       100000 + Math.random() * 900000
     ).toString();
     return { email: emailVerificationCode, phone: phoneVerificationCode };
-    // return { email: emailVerificationCode };
   };
 
   const handleVerifyCodes = (enteredEmailCode, enteredPhoneCode) => {
@@ -146,13 +145,13 @@ const UserProfilePreview = () => {
       enteredEmailCode === verificationCodes.email &&
       enteredPhoneCode === verificationCodes.phone
     ) {
-      handleConfirmEdit(); // Appel à la fonction de mise à jour des données
+      handleConfirmEdit();
     } else {
       alert(
         "Les codes de vérification ne correspondent pas. Veuillez réessayer."
       );
     }
-    setShowVerifInfo(false); // Fermer le dialogue
+    setShowVerifInfo(false);
   };
 
   const handleConfirmEdit = async () => {
@@ -185,7 +184,6 @@ const UserProfilePreview = () => {
     }
   };
 
-  // pour gérer les valeurs des champs
   const handleInputChange = (e) => {
     const { id, value } = e.target;
     setEditedUser((prevState) => ({
@@ -194,12 +192,10 @@ const UserProfilePreview = () => {
     }));
   };
 
-  //abandonner les modifications
   const handleCancelEdit = () => {
-    setShowVerifInfo(false); // Fermer le dialogue sans enregistrer
+    setShowVerifInfo(false);
   };
 
-  //pour les images
   const handleImageChange = (event) => {
     const file = event.target.files[0];
     if (file) {
@@ -221,14 +217,74 @@ const UserProfilePreview = () => {
   }
 
   if (error) {
-    return <p>Erreur : {error}</p>;
+    return (
+      <div className="flex items-center justify-center  min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary font-bold text-center">
+              Oups! Il semble y avoir une erreur
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center mb-6 text-gray-600">
+              L&apos;utilisateur semble inexistant .
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className="w-full">
+                <Link href="/admin">Retour</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!user) {
-    return <p>Aucune information utilisateur disponible.</p>;
+    return (
+      <div className="flex items-center justify-center  min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary font-bold text-center">
+              Oups! Il semble y avoir une erreur
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center mb-6 text-gray-600">
+              Aucune information ne semble disponible pour cet utilisateur .
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className="w-full">
+                <Link href="/admin">Retour</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
   if (!userId) {
-    return <p>Utilisateur introuvable</p>;
+    return (
+      <div className="flex items-center justify-center  min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary font-bold text-center">
+              Oups! Il semble y avoir une erreur
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center mb-6 text-gray-600">
+              L&apos;utilisateur semble introuvable
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className="w-full">
+                <Link href="/admin">Retour</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const handleDeleteClick = async () => {

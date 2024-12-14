@@ -16,6 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { CalendarIcon, MapPinIcon } from "lucide-react";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 const FavorisPage = () => {
   const [favoris, setFavoris] = useState([]);

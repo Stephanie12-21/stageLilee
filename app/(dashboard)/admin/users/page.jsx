@@ -46,6 +46,7 @@ import {
 } from "@/components/ui/select";
 import { Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 const PubPage = () => {
   const [raison, setRaison] = useState("");
@@ -378,7 +379,12 @@ const PubPage = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen ">
+        <AnimatedSymbol />
+      </div>
+    );
 
   return (
     <div className="container mx-auto p-6">

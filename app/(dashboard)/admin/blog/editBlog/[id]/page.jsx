@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { X } from "lucide-react"; // Importation de l'icône X
+import { X } from "lucide-react";
 import RichTextEditor from "@/components/MainComponent/TextEditor/RichEditor";
 
 const ArticleDetailPageModif = ({ params }) => {
@@ -12,11 +12,11 @@ const ArticleDetailPageModif = ({ params }) => {
   const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     titre: "",
-    contenu: "", // Utilisé uniquement pour affichage initial
+    contenu: "",
     categorieArticle: "",
     files: [],
   });
-  const [contenu, setContenu] = useState({}); // Stocker le contenu en JSON
+  const [contenu, setContenu] = useState({});
   const router = useRouter();
 
   const fetchArticle = async (id) => {
@@ -40,11 +40,11 @@ const ArticleDetailPageModif = ({ params }) => {
           setArticle(data);
           setFormData({
             titre: data.titre,
-            contenu: data.contenu, // Afficher le contenu initial
+            contenu: data.contenu,
             categorieArticle: data.categorieArticle,
             files: [],
           });
-          setContenu(data.contenu ? JSON.parse(data.contenu) : {}); // Charger le JSON si existant
+          setContenu(data.contenu ? JSON.parse(data.contenu) : {});
         })
         .catch((err) => setError(err.message));
     }
@@ -55,7 +55,7 @@ const ArticleDetailPageModif = ({ params }) => {
     if (files) {
       setFormData((prev) => ({
         ...prev,
-        files: [...prev.files, ...Array.from(files)], // Ajouter les nouveaux fichiers
+        files: [...prev.files, ...Array.from(files)],
       }));
     } else {
       setFormData((prev) => ({
@@ -77,10 +77,10 @@ const ArticleDetailPageModif = ({ params }) => {
 
     const formDataToSend = new FormData();
     formDataToSend.append("titre", formData.titre);
-    formDataToSend.append("contenu", JSON.stringify(contenu)); // Convertir en JSON
+    formDataToSend.append("contenu", JSON.stringify(contenu));
     formDataToSend.append("categorieArticle", formData.categorieArticle);
     formData.files.forEach((file) => {
-      formDataToSend.append("files", file); // Ajouter chaque image au FormData
+      formDataToSend.append("files", file);
     });
 
     try {
@@ -154,7 +154,7 @@ const ArticleDetailPageModif = ({ params }) => {
           </label>
           <RichTextEditor
             content={contenu}
-            onChange={(json) => setContenu(json)} // L'éditeur retourne un JSON
+            onChange={(json) => setContenu(json)}
           />
         </div>
 

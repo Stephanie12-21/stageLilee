@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 const UserProfilePreview = () => {
   const { id: userId } = useParams();
@@ -49,7 +50,11 @@ const UserProfilePreview = () => {
   }, [userId, fetchUserData]);
 
   if (loading) {
-    return <p>Chargement des informations...</p>;
+    return (
+      <div className="flex items-center justify-center min-h-screen ">
+        <AnimatedSymbol />
+      </div>
+    );
   }
 
   if (error) {

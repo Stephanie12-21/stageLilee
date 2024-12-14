@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-// Fonction pour récupérer les détails d'un article
 const fetchArticle = async (id) => {
   try {
     const response = await fetch(`/api/blog/${id}`);
@@ -19,7 +18,7 @@ const fetchArticle = async (id) => {
 };
 
 const ArticleDetailPage = ({ params }) => {
-  const { id } = params || {}; // Sécurisation en cas d'absence de `params`
+  const { id } = params || {};
   const [article, setArticle] = useState(null);
   const [error, setError] = useState(null);
   const [currentIndex, setCurrentIndex] = useState(0);

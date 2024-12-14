@@ -55,6 +55,7 @@ import { cn } from "@/lib/utils";
 import { format } from "date-fns";
 import { Badge } from "@/components/ui/badge";
 import { useSession } from "next-auth/react";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 const UserPage = () => {
   const { data: session, status } = useSession();
@@ -384,7 +385,12 @@ const UserPage = () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
-  if (loading) return <div>Chargement...</div>;
+  if (loading)
+    return (
+      <div className="flex items-center justify-center min-h-screen ">
+        <AnimatedSymbol />
+      </div>
+    );
 
   return (
     <div className="container mx-auto p-6">

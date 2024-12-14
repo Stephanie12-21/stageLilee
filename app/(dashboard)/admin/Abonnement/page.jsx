@@ -4,14 +4,18 @@ import { useSession } from "next-auth/react";
 import { useState } from "react";
 import { loadStripe } from "@stripe/stripe-js";
 import Stripe from "stripe";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 export default function Abonnement() {
   const { data: session, status } = useSession();
   const [abonnementSelectionne, setAbonnementSelectionne] = useState(null);
 
-  // Vérifier si la session est disponible
   if (status === "loading") {
-    return <div>Chargement...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen ">
+        <AnimatedSymbol />
+      </div>
+    );
   }
 
   if (!session) {
@@ -22,10 +26,9 @@ export default function Abonnement() {
   const userName = `${session.user?.name || ""} ${
     session.user?.prenom || ""
   }`.trim();
-  
+
   const userEmail = session.user?.email || "Email inconnu";
 
-  // Liste des abonnements disponibles
   const abonnements = [
     {
       id: 1,
@@ -38,14 +41,13 @@ export default function Abonnement() {
       nom: "Plan medium",
       prix: "10€ / mois",
       description: "Fonctionnalités avancées pour un usage régulier.",
-      
     },
     {
       id: 3,
       nom: "Plan Premium",
       prix: "20€ / mois",
       description: "Toutes les fonctionnalités sans limites.",
-    }, 
+    },
   ];
 
   const handleCheckout = async (abonnementId) => {

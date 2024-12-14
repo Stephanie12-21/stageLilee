@@ -57,6 +57,7 @@ enum statutUser {
   SUSPENDU
 }
 
+
 model company {
   id              Int          @id @default(autoincrement())
   siret           String       @unique
@@ -64,10 +65,13 @@ model company {
   codePostal      String
   adresse         String
   ville           String
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
   secteurActivite secteurActivite
   typeSociete     typeSociete
   users           user[]       
 }
+
 
 enum secteurActivite {
   IMMOBILIER
@@ -244,9 +248,9 @@ model Abonnement {
   id Int @id @default(autoincrement())
   userId Int      
   user user @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAT DateTime
+  createdAT DateTime @default(now())
   updateAt DateTime
-  dateDebut DateTime
+  dateDebut DateTime @default(now())
   dateFin DateTime
   planId Int
   plan plan @relation(fields: [planId], references: [id], onDelete: Cascade)

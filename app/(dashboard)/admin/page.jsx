@@ -1,6 +1,14 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { Users, Building2, FileText, TrendingUp } from "lucide-react";
+import { format } from "date-fns"; // Import date-fns
+import { fr } from "date-fns/locale"; // Import French locale for date formatting
+import {
+  Users,
+  Building2,
+  FileText,
+  TrendingUp,
+  Handshake,
+} from "lucide-react";
 import {
   Card,
   CardContent,
@@ -14,12 +22,22 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { Bar, BarChart, CartesianGrid, XAxis } from "recharts";
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  XAxis,
+  YAxis,
+  Tooltip,
+  Legend,
+} from "recharts";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
 const chartConfig = {
-  annonces: { label: "Annonces", color: "green" },
-  utilisateurs: { label: "Utilisateurs", color: "red" },
-  companies: { label: "Entreprises", color: "yellow" },
+  annonces: { label: "Annonces", color: "#15213d" },
+  utilisateurs: { label: "Utilisateurs", color: "#34d399" },
+  companies: { label: "Entreprises", color: "#f19d13" },
+  partenaire: { label: "Partenaires", color: "#d9534f" },
 };
 
 const StatsCard = ({ title, value = 0, icon: Icon, gradient }) => (
@@ -35,42 +53,43 @@ const StatsCard = ({ title, value = 0, icon: Icon, gradient }) => (
         <h3 className="font-semibold text-white">{title}</h3>
       </div>
       <p className="mt-4 text-3xl font-bold text-white">
-        {value.toLocaleString()}
+        {parseInt(value, 10).toLocaleString()}{" "}
       </p>
     </div>
   </div>
 );
 
-const StatsDashboard = ({ stats, previousStats }) => (
-  <div className="grid grid-cols-1 gap-6 p-6 sm:grid-cols-3">
+const StatsDashboard = ({ stats }) => (
+  <div className="grid grid-cols-4 gap-x-4 p-6">
     <StatsCard
-      title="Total Annonces"
+      title="Annonces"
       value={stats.annonces}
       icon={FileText}
-      gradient="bg-gradient-to-br from-blue-500 to-blue-600"
+      gradient="bg-gradient-to-br from-[#15213d] to-[#15213d]"
     />
     <StatsCard
-      title="Total Utilisateurs"
+      title="Utilisateurs"
       value={stats.utilisateurs}
       icon={Users}
-      gradient="bg-gradient-to-br from-emerald-500 to-emerald-600"
+      gradient="bg-gradient-to-br from-[#34d399] to-[#34d399]"
     />
     <StatsCard
-      title="Total Entreprises"
+      title="Entreprises"
       value={stats.companies}
       icon={Building2}
-      gradient="bg-gradient-to-br from-amber-500 to-amber-600"
+      gradient="bg-gradient-to-br from-[#f19d13] to-[#f19d13]"
+    />
+    <StatsCard
+      title="Partenaires engagés"
+      value={stats.partenaire}
+      icon={Handshake}
+      gradient="bg-gradient-to-br from-[#d9534f] to-[#d9534f]"
     />
   </div>
 );
 
 const AdminPreview = () => {
   const [stats, setStats] = useState(null);
-  const [previousStats, setPreviousStats] = useState({
-    annonces: 0,
-    utilisateurs: 0,
-    companies: 0,
-  });
   const [chartData, setChartData] = useState([]);
 
   useEffect(() => {
@@ -79,75 +98,95 @@ const AdminPreview = () => {
         const response = await fetch("/api/stats/");
         const data = await response.json();
 
-        if (stats) {
-          setPreviousStats({ ...stats }); // Sauvegarde les valeurs actuelles comme "précédentes"
-        }
-
         setStats({
           annonces: data.totalAnnonces,
           utilisateurs: data.totalUsers,
           companies: data.totalCompanies,
+          partenaire: data.totalPartenaires,
         });
 
-        setChartData(data.history || []);
+        const groupedData = data.dailyStats.reduce((acc, entry) => {
+          const formattedDate = format(new Date(entry.date), "dd MMMM yyyy", {
+            locale: fr,
+          });
+          if (!acc[formattedDate]) {
+            acc[formattedDate] = {
+              name: formattedDate,
+              annonces: 0,
+              utilisateurs: 0,
+              companies: 0,
+              partenaire: 0,
+            };
+          }
+          acc[formattedDate].annonces += parseInt(entry.annonces, 10);
+          acc[formattedDate].utilisateurs += parseInt(entry.utilisateurs, 10);
+          acc[formattedDate].companies += parseInt(entry.companies, 10);
+          acc[formattedDate].partenaire += parseInt(entry.partenaires, 10);
+          return acc;
+        }, {});
+
+        setChartData(Object.values(groupedData));
       } catch (error) {
         console.error("Erreur lors de la récupération des données :", error);
       }
     };
 
     fetchStats();
-  }, [stats]);
+  }, []);
 
-  if (!stats) return <div>Chargement...</div>;
+  if (!stats) {
+    return (
+      <div className="flex items-center justify-center min-h-screen ">
+        <AnimatedSymbol />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-7 pt-8 pb-0">
         <div className="flex justify-between items-center mb-2">
-          <h1 className="text-2xl font-bold text-gray-800 px-6">
+          <h1 className="text-2xl font-bold text-gray-800">
             Tableau de bord admin
           </h1>
         </div>
-        <StatsDashboard stats={stats} previousStats={previousStats} />
-        <div className="p-6">
-          <Card>
+        <StatsDashboard stats={stats} />
+        <div>
+          <Card className="mt-4 p-6">
             <CardHeader>
-              <CardTitle>Bar Chart - Multiple</CardTitle>
-              <CardDescription>January - June 2024</CardDescription>
+              <CardTitle className="text-xl text-primary mb-4">
+                Visualisation des données globales
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig}>
-                <BarChart data={chartData} width={500} height={300}>
-                  <CartesianGrid vertical={false} />
-                  <XAxis
-                    dataKey="month"
-                    tickLine={false}
-                    tickMargin={10}
-                    axisLine={false}
-                    tickFormatter={(value) => value.slice(0, 3)}
+                <BarChart data={chartData} className="w-full h-screen p-0">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="name" />
+                  <YAxis
+                    tickFormatter={(value) => value.toString()}
+                    className="text-base"
                   />
-                  <ChartTooltip
-                    cursor={false}
-                    content={<ChartTooltipContent indicator="dashed" />}
+                  <Tooltip
+                    formatter={(value) => value.toLocaleString()}
+                    className="text-base"
                   />
+
+                  <Tooltip />
+                  <Legend className="text-base" />
+                  <Bar dataKey="annonces" fill={chartConfig.annonces.color} />
                   <Bar
-                    dataKey="desktop"
-                    fill="var(--color-desktop)"
-                    radius={4}
+                    dataKey="utilisateurs"
+                    fill={chartConfig.utilisateurs.color}
                   />
-                  <Bar dataKey="mobile" fill="var(--color-mobile)" radius={4} />
+                  <Bar dataKey="companies" fill={chartConfig.companies.color} />
+                  <Bar
+                    dataKey="partenaire"
+                    fill={chartConfig.partenaire.color}
+                  />
                 </BarChart>
               </ChartContainer>
             </CardContent>
-            <CardFooter className="flex-col items-start gap-2 text-sm">
-              <div className="flex gap-2 font-medium leading-none">
-                Trending up by 5.2% this month{" "}
-                <TrendingUp className="h-4 w-4" />
-              </div>
-              <div className="leading-none text-muted-foreground">
-                Showing total visitors for the last 6 months
-              </div>
-            </CardFooter>
           </Card>
         </div>
       </div>
