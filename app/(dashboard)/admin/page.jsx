@@ -30,6 +30,9 @@ import {
   YAxis,
   Tooltip,
   Legend,
+  Area,
+  AreaChart,
+  Brush,
 } from "recharts";
 import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 
@@ -92,45 +95,51 @@ const AdminPreview = () => {
   const [stats, setStats] = useState(null);
   const [chartData, setChartData] = useState([]);
 
+  const fetchStats = async () => {
+    try {
+      const response = await fetch("/api/stats/");
+      const data = await response.json();
+
+      setStats({
+        annonces: data.totalAnnonces,
+        utilisateurs: data.totalUsers,
+        companies: data.totalCompanies,
+        partenaire: data.totalPartenaires,
+      });
+
+      const groupedData = data.dailyStats.reduce((acc, entry) => {
+        const date = new Date(entry.date);
+        const formattedDate = format(date, "dd MMMM yyyy", { locale: fr });
+        if (!acc[formattedDate]) {
+          acc[formattedDate] = {
+            name: formattedDate,
+            annonces: 0,
+            utilisateurs: 0,
+            companies: 0,
+            partenaire: 0,
+            rawDate: date,
+          };
+        }
+        acc[formattedDate].annonces += parseInt(entry.annonces, 10);
+        acc[formattedDate].utilisateurs += parseInt(entry.utilisateurs, 10);
+        acc[formattedDate].companies += parseInt(entry.companies, 10);
+        acc[formattedDate].partenaire += parseInt(entry.partenaires, 10);
+        return acc;
+      }, {});
+
+      const sortedData = Object.values(groupedData).sort(
+        (a, b) => a.rawDate - b.rawDate
+      );
+
+      const finalChartData = sortedData.map(({ rawDate, ...rest }) => rest);
+
+      setChartData(finalChartData);
+    } catch (error) {
+      console.error("Erreur lors de la récupération des données :", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchStats = async () => {
-      try {
-        const response = await fetch("/api/stats/");
-        const data = await response.json();
-
-        setStats({
-          annonces: data.totalAnnonces,
-          utilisateurs: data.totalUsers,
-          companies: data.totalCompanies,
-          partenaire: data.totalPartenaires,
-        });
-
-        const groupedData = data.dailyStats.reduce((acc, entry) => {
-          const formattedDate = format(new Date(entry.date), "dd MMMM yyyy", {
-            locale: fr,
-          });
-          if (!acc[formattedDate]) {
-            acc[formattedDate] = {
-              name: formattedDate,
-              annonces: 0,
-              utilisateurs: 0,
-              companies: 0,
-              partenaire: 0,
-            };
-          }
-          acc[formattedDate].annonces += parseInt(entry.annonces, 10);
-          acc[formattedDate].utilisateurs += parseInt(entry.utilisateurs, 10);
-          acc[formattedDate].companies += parseInt(entry.companies, 10);
-          acc[formattedDate].partenaire += parseInt(entry.partenaires, 10);
-          return acc;
-        }, {});
-
-        setChartData(Object.values(groupedData));
-      } catch (error) {
-        console.error("Erreur lors de la récupération des données :", error);
-      }
-    };
-
     fetchStats();
   }, []);
 
@@ -142,49 +151,129 @@ const AdminPreview = () => {
     );
   }
 
+  // return (
+  //   <div className="min-h-screen bg-gray-50">
+  //     <div className="container mx-auto px-7 pt-8 pb-0">
+  //       <div className="flex justify-between items-center mb-2">
+  //         <h1 className="text-2xl font-bold text-gray-800">
+  //           Tableau de bord de l&apos;administrateur
+  //         </h1>
+  //       </div>
+  //       <StatsDashboard stats={stats} />
+  //       <div className="py-8 px-5">
+  //         <Card className="mt-4 p-6">
+  //           <CardHeader>
+  //             <CardTitle>Graphique de la représentation des données</CardTitle>
+  //           </CardHeader>
+  //           <CardContent>
+  //             <ChartContainer config={chartConfig}>
+  //               <AreaChart data={chartData} className="w-full h-screen p-0">
+  //                 <CartesianGrid strokeDasharray="3 3" />
+  //                 <XAxis dataKey="name" />
+  //                 <YAxis />
+  //                 <Tooltip />
+  //                 <Legend />
+  //                 <Area
+  //                   type="monotone"
+  //                   dataKey="annonces"
+  //                   stackId="1"
+  //                   stroke={chartConfig.annonces.color}
+  //                   fill={chartConfig.annonces.color}
+  //                 />
+  //                 <Area
+  //                   type="monotone"
+  //                   dataKey="utilisateurs"
+  //                   stackId="1"
+  //                   stroke={chartConfig.utilisateurs.color}
+  //                   fill={chartConfig.utilisateurs.color}
+  //                 />
+  //                 <Area
+  //                   type="monotone"
+  //                   dataKey="companies"
+  //                   stackId="1"
+  //                   stroke={chartConfig.companies.color}
+  //                   fill={chartConfig.companies.color}
+  //                 />
+  //                 <Area
+  //                   type="monotone"
+  //                   dataKey="partenaire"
+  //                   stackId="1"
+  //                   stroke={chartConfig.partenaire.color}
+  //                   fill={chartConfig.partenaire.color}
+  //                 />
+  //               </AreaChart>
+  //             </ChartContainer>
+  //           </CardContent>
+  //         </Card>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50 text-base">
+      {" "}
+      {/* Ajout de text-base ici */}
       <div className="container mx-auto px-7 pt-8 pb-0">
         <div className="flex justify-between items-center mb-2">
           <h1 className="text-2xl font-bold text-gray-800">
-            Tableau de bord admin
+            Tableau de bord de l&apos;administrateur
           </h1>
         </div>
         <StatsDashboard stats={stats} />
-        <div>
+        <div className="py-8 px-5">
           <Card className="mt-4 p-6">
             <CardHeader>
-              <CardTitle className="text-xl text-primary mb-4">
-                Visualisation des données globales
+              <CardTitle className="text-lg">
+                {" "}
+                {/* Taille ajustée pour les titres */}
+                Graphique de la représentation des données
               </CardTitle>
             </CardHeader>
             <CardContent>
               <ChartContainer config={chartConfig}>
-                <BarChart data={chartData} className="w-full h-screen p-0">
+                <AreaChart data={chartData} className="w-full h-screen p-0">
                   <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="name" />
-                  <YAxis
-                    tickFormatter={(value) => value.toString()}
-                    className="text-base"
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 16 }} // Taille de texte des axes
                   />
+                  <YAxis tick={{ fontSize: 16 }} />{" "}
+                  {/* Taille de texte des axes */}
                   <Tooltip
-                    formatter={(value) => value.toLocaleString()}
-                    className="text-base"
+                    contentStyle={{ fontSize: "16px" }} // Taille des infobulles
                   />
-
-                  <Tooltip />
-                  <Legend className="text-base" />
-                  <Bar dataKey="annonces" fill={chartConfig.annonces.color} />
-                  <Bar
+                  <Legend
+                    wrapperStyle={{ fontSize: "16px" }} // Taille du texte des légendes
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="annonces"
+                    stackId="1"
+                    stroke={chartConfig.annonces.color}
+                    fill={chartConfig.annonces.color}
+                  />
+                  <Area
+                    type="monotone"
                     dataKey="utilisateurs"
+                    stackId="1"
+                    stroke={chartConfig.utilisateurs.color}
                     fill={chartConfig.utilisateurs.color}
                   />
-                  <Bar dataKey="companies" fill={chartConfig.companies.color} />
-                  <Bar
+                  <Area
+                    type="monotone"
+                    dataKey="companies"
+                    stackId="1"
+                    stroke={chartConfig.companies.color}
+                    fill={chartConfig.companies.color}
+                  />
+                  <Area
+                    type="monotone"
                     dataKey="partenaire"
+                    stackId="1"
+                    stroke={chartConfig.partenaire.color}
                     fill={chartConfig.partenaire.color}
                   />
-                </BarChart>
+                </AreaChart>
               </ChartContainer>
             </CardContent>
           </Card>
