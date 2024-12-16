@@ -25,7 +25,7 @@ import {
   FaHeart,
 } from "react-icons/fa";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   AlertDialogFooter,
   AlertDialog,
@@ -250,7 +250,7 @@ export default function LayoutAdmin({ children }) {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem>
-                <Link href={`/admin/profile/${session.user.id}`}>
+                <Link href={`/personnel/profile/${session.user.id}`}>
                   Votre profil
                 </Link>
               </DropdownMenuItem>
@@ -258,7 +258,7 @@ export default function LayoutAdmin({ children }) {
               <DropdownMenuSeparator />
 
               <DropdownMenuItem>
-                <Link href={`/admin/security/${session.user.id}`}>
+                <Link href={`/personnel/security/${session.user.id}`}>
                   Sécurité
                 </Link>
               </DropdownMenuItem>

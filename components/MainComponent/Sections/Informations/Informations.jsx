@@ -8,7 +8,7 @@ import { useInView } from "react-intersection-observer";
 const Informations = () => {
   const controls = useAnimation();
   const [ref, inView] = useInView({
-    threshold: 1,
+    threshold: 0.2,
   });
 
   useEffect(() => {
@@ -70,12 +70,7 @@ const Informations = () => {
         animate={controls}
       >
         {cards.map((card, i) => (
-          <motion.div
-            key={i}
-            custom={i}
-            variants={cardVariants}
-            // className="w-full max-w-xs flex justify-between items-center flex-col h-[250px]  rounded-[36px]"
-          >
+          <motion.div key={i} custom={i} variants={cardVariants}>
             <Card className="bg-[#fccd83] hover:bg-[#FCA311]">
               <CardHeader>
                 <Image

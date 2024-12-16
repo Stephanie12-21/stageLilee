@@ -183,7 +183,7 @@ const Annonce = () => {
     <div className="container py-8 space-y-8">
       <div className="flex justify-between gap-8">
         <h1 className="text-[30px]">
-          Trouvez des locations adaptées à vos besoins.
+          Trouvez des annonces adaptées à vos besoins.
         </h1>
         <Button
           asChild

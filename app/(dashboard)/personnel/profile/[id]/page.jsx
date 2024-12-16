@@ -14,11 +14,13 @@ import { useParams } from "next/navigation";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import PhoneInput from "react-phone-input-2";
 import "react-phone-input-2/lib/style.css";
-import { ImagePlus, Loader2, Pencil, Save, X } from "lucide-react";
+import { ImagePlus, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { getSession, useSession } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
+import Link from "next/link";
 
 const UserProfilePreview = () => {
   const router = useRouter();
@@ -146,7 +148,6 @@ const UserProfilePreview = () => {
       100000 + Math.random() * 900000
     ).toString();
     return { email: emailVerificationCode, phone: phoneVerificationCode };
-    return { email: emailVerificationCode };
   };
 
   const handleVerifyCodes = (enteredEmailCode, enteredPhoneCode) => {
@@ -218,18 +219,83 @@ const UserProfilePreview = () => {
   };
 
   if (loading) {
-    return <p>Chargement des informations...</p>;
+    return (
+      <div>
+        <AnimatedSymbol />
+      </div>
+    );
   }
 
   if (error) {
-    return <p>Erreur : {error}</p>;
+    return (
+      <div className="flex items-center justify-center  min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary font-bold text-center">
+              Oups! Il semble y avoir une erreur
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center mb-6 text-gray-600">
+              L&apos;utilisateur semble inexistant .
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className="w-full">
+                <Link href="/admin">Retour</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   if (!user) {
-    return <p>Aucune information utilisateur disponible.</p>;
+    return (
+      <div className="flex items-center justify-center  min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary font-bold text-center">
+              Oups! Il semble y avoir une erreur
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center mb-6 text-gray-600">
+              Aucune information ne semble disponible pour cet utilisateur .
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className="w-full">
+                <Link href="/admin">Retour</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
+
   if (!userId) {
-    return <p>Utilisateur introuvable</p>;
+    return (
+      <div className="flex items-center justify-center  min-h-screen bg-gray-100">
+        <Card className="w-full max-w-md p-4">
+          <CardHeader>
+            <CardTitle className="text-2xl text-primary font-bold text-center">
+              Oups! Il semble y avoir une erreur
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-center mb-6 text-gray-600">
+              L&apos;utilisateur semble introuvable
+            </p>
+            <div className="flex justify-center">
+              <Button asChild className="w-full">
+                <Link href="/admin">Retour</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
   }
 
   const handleDeleteClick = async () => {

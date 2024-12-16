@@ -1,5 +1,8 @@
-import { db } from "@/lib/db";
+// import { db } from "@/lib/db";
+// import { NextResponse } from "next/server";
+
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function GET(req, { params }) {
   const userId = params.id;
@@ -49,7 +52,7 @@ export async function GET(req, { params }) {
 export async function PUT(request, { params }) {
   try {
     const { id } = params;
-    const body = await request.formData(); // Utilisez formData pour récupérer les fichiers
+    const body = await request.formData();
 
     if (!id) {
       return new NextResponse(JSON.stringify({ message: "ID manquant" }), {

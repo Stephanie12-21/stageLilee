@@ -39,7 +39,7 @@ import AnimatedSymbol from "@/components/MainComponent/Loading/Loading";
 const chartConfig = {
   annonces: { label: "Annonces", color: "#15213d" },
   utilisateurs: { label: "Utilisateurs", color: "#34d399" },
-  companies: { label: "Entreprises", color: "#f19d13" },
+  entreprises: { label: "Entreprises", color: "#f19d13" },
   partenaire: { label: "Partenaires", color: "#d9534f" },
 };
 
@@ -103,7 +103,7 @@ const AdminPreview = () => {
       setStats({
         annonces: data.totalAnnonces,
         utilisateurs: data.totalUsers,
-        companies: data.totalCompanies,
+        companies: data.totalEntreprises,
         partenaire: data.totalPartenaires,
       });
 
@@ -150,65 +150,6 @@ const AdminPreview = () => {
       </div>
     );
   }
-
-  // return (
-  //   <div className="min-h-screen bg-gray-50">
-  //     <div className="container mx-auto px-7 pt-8 pb-0">
-  //       <div className="flex justify-between items-center mb-2">
-  //         <h1 className="text-2xl font-bold text-gray-800">
-  //           Tableau de bord de l&apos;administrateur
-  //         </h1>
-  //       </div>
-  //       <StatsDashboard stats={stats} />
-  //       <div className="py-8 px-5">
-  //         <Card className="mt-4 p-6">
-  //           <CardHeader>
-  //             <CardTitle>Graphique de la représentation des données</CardTitle>
-  //           </CardHeader>
-  //           <CardContent>
-  //             <ChartContainer config={chartConfig}>
-  //               <AreaChart data={chartData} className="w-full h-screen p-0">
-  //                 <CartesianGrid strokeDasharray="3 3" />
-  //                 <XAxis dataKey="name" />
-  //                 <YAxis />
-  //                 <Tooltip />
-  //                 <Legend />
-  //                 <Area
-  //                   type="monotone"
-  //                   dataKey="annonces"
-  //                   stackId="1"
-  //                   stroke={chartConfig.annonces.color}
-  //                   fill={chartConfig.annonces.color}
-  //                 />
-  //                 <Area
-  //                   type="monotone"
-  //                   dataKey="utilisateurs"
-  //                   stackId="1"
-  //                   stroke={chartConfig.utilisateurs.color}
-  //                   fill={chartConfig.utilisateurs.color}
-  //                 />
-  //                 <Area
-  //                   type="monotone"
-  //                   dataKey="companies"
-  //                   stackId="1"
-  //                   stroke={chartConfig.companies.color}
-  //                   fill={chartConfig.companies.color}
-  //                 />
-  //                 <Area
-  //                   type="monotone"
-  //                   dataKey="partenaire"
-  //                   stackId="1"
-  //                   stroke={chartConfig.partenaire.color}
-  //                   fill={chartConfig.partenaire.color}
-  //                 />
-  //               </AreaChart>
-  //             </ChartContainer>
-  //           </CardContent>
-  //         </Card>
-  //       </div>
-  //     </div>
-  //   </div>
-  // );
   return (
     <div className="min-h-screen bg-gray-50 text-base">
       {" "}
@@ -263,8 +204,8 @@ const AdminPreview = () => {
                     type="monotone"
                     dataKey="companies"
                     stackId="1"
-                    stroke={chartConfig.companies.color}
-                    fill={chartConfig.companies.color}
+                    stroke={chartConfig.entreprises.color}
+                    fill={chartConfig.entreprises.color}
                   />
                   <Area
                     type="monotone"
